@@ -58,10 +58,11 @@ You can also find help directly in the Ghidra help menu (press `F1`) on the
 
 ## Contributing
 Ruby Dragon is still in the early stages of development; while it is
-functional, it will be considered stable until version 1.0.0 is reached. Right
+functional, it won't be considered stable until version 1.0.0 is reached. Right
 now, the best way to contribute is to post any suggestions or try it out and
-open an issue if you have any problems. Head over to the issues page of the
-project to get involved!
+open an issue if you have any problems. Head over to the
+[issue list](https://github.com/goatshriek/ruby-dragon/issues) to join the
+discussion!
 
 Or, just give us a shoutout at
 [#GhidraRubyDragon](https://twitter.com/search?q=%23GhidraRubyDragon) on
