@@ -1,0 +1,9 @@
+.classpath
+.gradle
+.project
+.pydevproject
+.settings/
+bin/
+build/
+dist/
+
