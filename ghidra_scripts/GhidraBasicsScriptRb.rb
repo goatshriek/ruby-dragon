@@ -2,25 +2,27 @@
 # @category: Examples.Ruby
 
 # get info about the current program
-program_name = $current_program.getName
-creation_date = $current_program.getCreationDate
-language_id = $current_program.getLanguageID
-compiler_spec_id = $current_program.getCompilerSpec.getCompilerSpecID
+# you can drop the 'get' from obvious accessors
+# for example, instead of using 'getName', just 'name' will do
+program_name = $current_program.name
+# and multiple words get automatically split to snake case
+creation_date = $current_program.creation_date
+language_id = $current_program.language_id
+compiler_spec_id = $current_program.compiler_spec.compiler_spec_id
 puts 'Program Info:'
 puts "#{program_name} #{creation_date}_#{language_id} (#{compiler_spec_id})"
+puts
 
-# TODO the following code is from the Python example - this still needs to be
-# converted to Ruby code in this example
+# get info about the current program's memory layout
+puts 'Memory Layout:'
+puts "Imagebase: 0x%x" % $current_program.image_base.offset
+$current_program.memory.blocks.each do |block|
+    puts "#{block.name} [start: 0x#{block.start}, end: 0x#{block.end}]"
+end
+puts
+
+
 =begin
-# Get info about the current program's memory layout
-print "Memory layout:"
-print "Imagebase: " + hex(currentProgram.getImageBase().getOffset())
-for block in getMemoryBlocks():
-    start = block.getStart().getOffset()
-    end = block.getEnd().getOffset()
-    print "%s [start: 0x%x, end: 0x%x]" % (block.getName(), start, end)
-print
-
 # Get the current program's function names
 function = getFirstFunction()
 while function is not None:
@@ -64,3 +66,8 @@ for i in range(10):
     monitor.setMessage("Working on " + str(i)) # update the status message
 =end
 
+# script output against .exe from crackme at:
+# https://crackmes.one/static/crackme/5fcbac7733c5d424269a1a93.zip
+=begin
+TODO add the output
+=end

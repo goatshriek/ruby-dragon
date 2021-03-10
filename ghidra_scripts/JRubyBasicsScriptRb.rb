@@ -25,7 +25,7 @@ puts
 print 'does the java list have 2?: ', java_list.include?(2), "\n"
 print 'does the java list have \'two\'?: ', java_list.include?('two'), "\n"
 
-# expected script output:
+# script output:
 =begin
 ruby array class name: Array
 java list class name: Java::JavaUtil::LinkedList
