@@ -1,14 +1,16 @@
 # Examples of basic Ghidra scripting in Ruby
 # @category: Examples.Ruby
 
-# get info about the current program
 # you can drop the 'get' from obvious accessors
 # for example, instead of using 'getName', just 'name' will do
 program_name = $current_program.name
+
 # and multiple words get automatically split to snake case
 creation_date = $current_program.creation_date
 language_id = $current_program.language_id
 compiler_spec_id = $current_program.compiler_spec.compiler_spec_id
+
+# printing out some basic program information
 puts 'Program Info:'
 puts "#{program_name} #{creation_date}_#{language_id} (#{compiler_spec_id})"
 puts
@@ -21,6 +23,8 @@ $current_program.memory.blocks.each do |block|
 end
 puts
 
+# get the current program's function names
+function = $script.getFirstFunction()
 
 =begin
 # Get the current program's function names

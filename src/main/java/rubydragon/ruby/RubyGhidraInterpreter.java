@@ -1,5 +1,7 @@
 package rubydragon.ruby;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 
@@ -8,6 +10,7 @@ import org.jruby.embed.LocalVariableBehavior;
 import org.jruby.embed.ScriptingContainer;
 
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
+import ghidra.app.script.GhidraScript;
 import ghidra.app.script.GhidraState;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
@@ -64,11 +67,16 @@ public class RubyGhidraInterpreter implements GhidraInterpreter {
 	 * to simply continue instead of throwing an IllegalArgumentException.
 	 * 
 	 * @throws IllegalArgumentException if the script does not exist
+	 * @throws IOException if the script could not be read
+	 * @throws FileNotFoundException if the script file wasn't found
 	 */
-	public void runScript(String scriptName, InputStream script, String[] scriptArguments, GhidraState scriptState)
-			throws IllegalArgumentException {
+	//public void runScript(String scriptName, InputStream script, String[] scriptArguments, GhidraState scriptState)
+	public void runScript(GhidraScript script, String[] scriptArguments, GhidraState scriptState)
+			throws IllegalArgumentException, FileNotFoundException, IOException {
+		InputStream scriptStream = script.getSourceFile().getInputStream();
 		loadState(scriptState);
-		container.runScriptlet(script, scriptName);
+		container.put("$script", script);
+		container.runScriptlet(scriptStream, script.getScriptName());
 		updateState(scriptState);
 	}
 
