@@ -24,16 +24,15 @@ end
 puts
 
 # get the current program's function names
+puts 'Function List:'
 function = $script.getFirstFunction()
+while function do
+  puts function.name
+  function = $script.getFunctionAfter(function)
+end
+puts
 
 =begin
-# Get the current program's function names
-function = getFirstFunction()
-while function is not None:
-    print function.getName()
-    function = getFunctionAfter(function)
-print
-
 # Get the address of the current program's current location
 print "Current location: " + hex(currentLocation.getAddress().getOffset())
 
