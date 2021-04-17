@@ -25,21 +25,21 @@ puts
 
 # get the current program's function names
 puts 'Function List:'
-function = $script.getFirstFunction()
+function = $script.getFirstFunction
 while function do
   puts function.name
   function = $script.getFunctionAfter(function)
 end
 puts
 
+# get the current location in the program
+puts "Current location: 0x%x" % $current_address.getOffset
+
+# get some user input
+val = $script.askString('Hello', 'Please enter a value')
+puts "You entered '#{val}'"
+
 =begin
-# Get the address of the current program's current location
-print "Current location: " + hex(currentLocation.getAddress().getOffset())
-
-# Get some user input
-val = askString("Hello", "Please enter a value")
-print val
-
 # Output to a popup window
 popup(val)
 
