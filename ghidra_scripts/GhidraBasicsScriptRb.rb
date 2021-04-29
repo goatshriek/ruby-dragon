@@ -38,36 +38,39 @@ puts "Current location: 0x%x" % $current_address.getOffset
 # get some user input
 val = $script.askString('Hello', 'Please enter a value')
 puts "You entered '#{val}'"
+puts
 
-=begin
-# Output to a popup window
-popup(val)
+# output a popup window with the entered value
+$script.popup(val)
 
-# Add a comment to the current program
-minAddress = currentProgram.getMinAddress()
-listing = currentProgram.getListing()
-codeUnit = listing.getCodeUnitAt(minAddress)
-codeUnit.setComment(codeUnit.PLATE_COMMENT, "This is an added comment!")
+# add a comment to the current program
+min_address = $current_program.min_address
+listing = $current_program.listing
+code_unit = listing.get_code_unit_at(min_address)
+code_unit.set_comment(code_unit.class::PLATE_COMMENT, 'This is an added comment from Ruby!')
 
-# Get a data type from the user
-from ghidra.app.util.datatype import DataTypeSelectionDialog
-from ghidra.util.data.DataTypeParser import AllowedDataTypes
-tool = state.getTool()
-dtm = currentProgram.getDataTypeManager()
-selectionDialog = DataTypeSelectionDialog(tool, dtm, -1, AllowedDataTypes.FIXED_LENGTH)
-tool.showDialog(selectionDialog)
-dataType = selectionDialog.getUserChosenDataType()
-if dataType != None: print "Chosen data type: " + str(dataType)
+# prompting the user for a data type
+puts 'prompting for a data type...'
+java_import 'ghidra.app.util.datatype.DataTypeSelectionDialog'
+java_import 'ghidra.util.data.DataTypeParser'
+tool = $script.state.tool
+dtm = $current_program.data_type_manager
+types = DataTypeParser::AllowedDataTypes::FIXED_LENGTH
+selection_dialog = DataTypeSelectionDialog.new(tool, dtm, -1, types)
+tool.show_dialog(selection_dialog)
+data_type = selection_dialog.user_chosen_data_type
+puts "Chosen data type: #{data_type}" if data_type
+puts
 
-# Report progress to the GUI.  Do this in all script loops!
-import time
-monitor.initialize(10)
-for i in range(10):
-    monitor.checkCanceled() # check to see if the user clicked cancel
-    time.sleep(1) # pause a bit so we can see progress
-    monitor.incrementProgress(1) # update the progress
-    monitor.setMessage("Working on " + str(i)) # update the status message
-=end
+# report progress to the user interface, do this anywhere things take a while
+# we have to use `initialize__method` here because `initialize` is private
+$script.monitor.initialize__method(10)
+(1..10).each do |i|
+  $script.monitor.check_canceled # make sure we're still good to go
+  sleep(1) # wait for a bit...
+  $script.monitor.increment_progress(1) # update the progress bar
+  $script.monitor.message = "working on step #{i}" # update the status message
+end
 
 # script output against .exe from crackme at:
 # https://crackmes.one/static/crackme/5fcbac7733c5d424269a1a93.zip
