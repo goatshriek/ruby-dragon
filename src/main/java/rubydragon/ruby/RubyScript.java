@@ -35,7 +35,7 @@ public class RubyScript extends GhidraScript {
 		interpreter.setOutWriter(stdout);
 		
 		try {
-			interpreter.runScript(getScriptName(), getSourceFile().getInputStream(), null, state);
+			interpreter.runScript(this, null, state);
 		} catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
