@@ -21,7 +21,7 @@ import rubydragon.GhidraInterpreter;
 /**
  * A Ruby interpreter for Ghidra, built using JRuby.
  */
-public class RubyGhidraInterpreter implements GhidraInterpreter {
+public class RubyGhidraInterpreter extends GhidraInterpreter {
 	private ScriptingContainer container;
 	private Thread irbThread;
 
@@ -83,6 +83,7 @@ public class RubyGhidraInterpreter implements GhidraInterpreter {
 	/**
 	 * Sets the error output stream for this interpreter.
 	 */
+	@Override
 	public void setErrWriter(PrintWriter errOut) {
 		container.setError(errOut);
 	}
@@ -90,6 +91,7 @@ public class RubyGhidraInterpreter implements GhidraInterpreter {
 	/**
 	 * Sets the input stream for this interpreter.
 	 */
+	@Override
 	public void setInput(InputStream input) {
 		container.setInput(input);
 	}
@@ -97,21 +99,9 @@ public class RubyGhidraInterpreter implements GhidraInterpreter {
 	/**
 	 * Sets the output stream for this interpreter.
 	 */
+	@Override
 	public void setOutWriter(PrintWriter output) {
 		container.setOutput(output);
-	}
-
-	/**
-	 * Sets the input, output, and error streams for this interpreter to those of
-	 * the provided console.
-	 * 
-	 * @param console The console to tie the interpreter streams to.
-	 */
-	@Override
-	public void setStreams(InterpreterConsole console) {
-		setInput(console.getStdin());
-		setOutWriter(console.getOutWriter());
-		setErrWriter(console.getErrWriter());
 	}
 
 	@Override
