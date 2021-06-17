@@ -3,6 +3,8 @@ package rubydragon.clojure;
 import java.io.InputStream;
 import java.io.PrintWriter;
 
+import ghidra.app.plugin.core.interpreter.InterpreterConsole;
+import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
@@ -12,6 +14,16 @@ import rubydragon.GhidraInterpreter;
  * A Clojure intepreter for Ghidra.
  */
 public class ClojureGhidraInterpreter extends GhidraInterpreter {
+
+	public ClojureGhidraInterpreter() {
+		// TODO Auto-generated method stub
+
+	}
+
+	public ClojureGhidraInterpreter(InterpreterConsole console) {
+		this();
+		setStreams(console);
+	}
 
 	@Override
 	public void dispose() {
@@ -53,6 +65,18 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 	}
 
 	@Override
+	public void updateAddress(Address address) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void updateHighlight(ProgramSelection sel) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
 	public void updateLocation(ProgramLocation loc) {
 		// TODO Auto-generated method stub
 
@@ -60,12 +84,6 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 
 	@Override
 	public void updateSelection(ProgramSelection sel) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void updateHighlight(ProgramSelection sel) {
 		// TODO Auto-generated method stub
 
 	}
