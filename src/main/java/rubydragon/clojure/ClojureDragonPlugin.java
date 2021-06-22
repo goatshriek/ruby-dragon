@@ -4,9 +4,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -45,7 +45,7 @@ import rubydragon.GhidraInterpreter;
 	packageName = CorePluginPackage.NAME,
 	category = PluginCategoryNames.INTERPRETERS,
 	shortDescription = "Clojure Interpreter",
-	description = "Provides an interactive Clojure interpreter integrated with a loaded Ghidra program.",
+	description = "Provides an interactive Clojure interpreter integrated with loaded Ghidra programs.",
 	servicesRequired = { InterpreterPanelService.class },
 	isSlowInstallation = true
 )
@@ -57,7 +57,7 @@ public class ClojureDragonPlugin extends ProgramPlugin implements InterpreterCon
 
 	/**
 	 * Plugin constructor.
-	 * 
+	 *
 	 * @param tool The plugin tool that this plugin is added to.
 	 */
 	public ClojureDragonPlugin(PluginTool tool) {
@@ -70,7 +70,7 @@ public class ClojureDragonPlugin extends ProgramPlugin implements InterpreterCon
 		console.dispose();
 		super.dispose();
 	}
-	
+
 	@Override
 	public String getTitle() {
 		return "Clojure";
@@ -90,32 +90,31 @@ public class ClojureDragonPlugin extends ProgramPlugin implements InterpreterCon
 	@Override
 	public void init() {
 		super.init();
-	
+
 		console = getTool().getService(InterpreterPanelService.class).createInterpreterPanel(this, false);
 		interpreter = new ClojureGhidraInterpreter(console);
 		console.addFirstActivationCallback(() -> {
 			interpreter.startInteractiveSession();
 		});
 	}
-	
+
 	@Override
 	public void highlightChanged(ProgramSelection sel) {
 		interpreter.updateHighlight(sel);
 	}
-	
+
 	@Override
 	public void locationChanged(ProgramLocation loc) {
 		interpreter.updateLocation(loc);
 	}
-	
+
 	@Override
 	public void programActivated(Program program) {
 		interpreter.updateProgram(program);
 	}
-	
+
 	@Override
 	public void selectionChanged(ProgramSelection sel) {
 		interpreter.updateSelection(sel);
 	}
 }
-

@@ -59,8 +59,7 @@ public class RubyGhidraInterpreter extends GhidraInterpreter {
 	 * @throws IOException              if the script could not be read
 	 * @throws FileNotFoundException    if the script file wasn't found
 	 */
-	// public void runScript(String scriptName, InputStream script, String[]
-	// scriptArguments, GhidraState scriptState)
+	@Override
 	public void runScript(GhidraScript script, String[] scriptArguments, GhidraState scriptState)
 			throws IllegalArgumentException, FileNotFoundException, IOException {
 		InputStream scriptStream = script.getSourceFile().getInputStream();

@@ -1,9 +1,18 @@
 package rubydragon.clojure;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
+import clojure.lang.LineNumberingPushbackReader;
+import clojure.lang.RT;
+import clojure.lang.Symbol;
+import clojure.lang.Var;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
+import ghidra.app.script.GhidraScript;
+import ghidra.app.script.GhidraState;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
@@ -14,10 +23,20 @@ import rubydragon.GhidraInterpreter;
  * A Clojure intepreter for Ghidra.
  */
 public class ClojureGhidraInterpreter extends GhidraInterpreter {
+	private Thread replThread;
 
 	public ClojureGhidraInterpreter() {
-		// TODO Auto-generated method stub
-
+		Symbol CLOJURE_MAIN = Symbol.intern("clojure.main");
+		Var REQUIRE = RT.var("clojure.core", "require");
+		Var MAIN = RT.var("clojure.main", "main");
+		RT.init();
+		REQUIRE.invoke(CLOJURE_MAIN);
+		RT.var("rubydragon", "rd_test", "test-val");
+		replThread = new Thread(() -> {
+			while (true) {
+				MAIN.applyTo(RT.seq(new String[0]));
+			}
+		});
 	}
 
 	public ClojureGhidraInterpreter(InterpreterConsole console) {
@@ -31,13 +50,19 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 
 	}
 
+	@Override
+	public void runScript(GhidraScript script, String[] scriptArguments, GhidraState scriptState)
+			throws IllegalArgumentException, FileNotFoundException, IOException {
+		// TODO Auto-generated method stub
+
+	}
+
 	/**
 	 * Sets the error output stream for this interpreter.
 	 */
 	@Override
 	public void setErrWriter(PrintWriter errOut) {
-		// TODO Auto-generated method stub
-
+		Var.intern(RT.CLOJURE_NS, Symbol.intern("*err*"), errOut);
 	}
 
 	/**
@@ -45,8 +70,7 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 	 */
 	@Override
 	public void setInput(InputStream input) {
-		// TODO Auto-generated method stub
-
+		Var.intern(RT.CLOJURE_NS, Symbol.intern("*in*"), new LineNumberingPushbackReader(new InputStreamReader(input)));
 	}
 
 	/**
@@ -54,14 +78,12 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 	 */
 	@Override
 	public void setOutWriter(PrintWriter output) {
-		// TODO Auto-generated method stub
-
+		Var.intern(RT.CLOJURE_NS, Symbol.intern("*out*"), output);
 	}
 
 	@Override
 	public void startInteractiveSession() {
-		// TODO Auto-generated method stub
-
+		replThread.start();
 	}
 
 	@Override

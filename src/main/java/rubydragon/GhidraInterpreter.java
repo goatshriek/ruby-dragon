@@ -1,9 +1,12 @@
 package rubydragon;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
+import ghidra.app.script.GhidraScript;
 import ghidra.app.script.GhidraState;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
@@ -37,6 +40,24 @@ public abstract class GhidraInterpreter implements Disposable {
 		// since it clobbers the current address right now
 		updateAddress(state.getCurrentAddress());
 	}
+
+	/**
+	 * Runs the given script with the arguments and state provided.
+	 *
+	 * The provided state is loaded into the interpreter at the beginning of
+	 * execution, and the values of the globals are then exported back into the
+	 * state after it completes.
+	 *
+	 * If the script cannot be found but the script is not running in headless mode,
+	 * the user will be prompted to ignore the error, which will cause the function
+	 * to simply continue instead of throwing an IllegalArgumentException.
+	 *
+	 * @throws IllegalArgumentException if the script does not exist
+	 * @throws IOException              if the script could not be read
+	 * @throws FileNotFoundException    if the script file wasn't found
+	 */
+	public abstract void runScript(GhidraScript script, String[] scriptArguments, GhidraState scriptState)
+			throws IllegalArgumentException, FileNotFoundException, IOException;
 
 	/**
 	 * Sets the error output stream for this interpreter.
