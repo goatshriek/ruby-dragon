@@ -99,11 +99,8 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 
 	@Override
 	public void updateLocation(ProgramLocation loc) {
-		System.out.println("set the location");
-		if (loc == null) {
-			// todo remove the variable
-		} else {
-			RT.var("ghidra", "current-location", loc);
+		RT.var("ghidra", "current-location", loc);
+		if (loc != null) {
 			updateAddress(loc.getAddress());
 		}
 	}
