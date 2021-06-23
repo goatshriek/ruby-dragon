@@ -31,7 +31,7 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 		Var MAIN = RT.var("clojure.main", "main");
 		RT.init();
 		REQUIRE.invoke(CLOJURE_MAIN);
-		RT.var("rubydragon", "rd_test", "test-val");
+		RT.var("ghidra", "current-address", "not-initialized-yet");
 		replThread = new Thread(() -> {
 			while (true) {
 				MAIN.applyTo(RT.seq(new String[0]));
@@ -70,7 +70,8 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 	 */
 	@Override
 	public void setInput(InputStream input) {
-		Var.intern(RT.CLOJURE_NS, Symbol.intern("*in*"), new LineNumberingPushbackReader(new InputStreamReader(input)));
+		LineNumberingPushbackReader inReader = new LineNumberingPushbackReader(new InputStreamReader(input));
+		Var.intern(RT.CLOJURE_NS, Symbol.intern("*in*"), inReader);
 	}
 
 	/**
@@ -88,32 +89,33 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 
 	@Override
 	public void updateAddress(Address address) {
-		// TODO Auto-generated method stub
-
+		RT.var("ghidra", "current-address", address);
 	}
 
 	@Override
 	public void updateHighlight(ProgramSelection sel) {
-		// TODO Auto-generated method stub
-
+		RT.var("ghidra", "current-highlight", sel);
 	}
 
 	@Override
 	public void updateLocation(ProgramLocation loc) {
-		// TODO Auto-generated method stub
-
+		System.out.println("set the location");
+		if (loc == null) {
+			// todo remove the variable
+		} else {
+			RT.var("ghidra", "current-location", loc);
+			updateAddress(loc.getAddress());
+		}
 	}
 
 	@Override
 	public void updateSelection(ProgramSelection sel) {
-		// TODO Auto-generated method stub
-
+		RT.var("ghidra", "current-selection", sel);
 	}
 
 	@Override
 	public void updateProgram(Program program) {
-		// TODO Auto-generated method stub
-
+		RT.var("ghidra", "current-program", program);
 	}
 
 }

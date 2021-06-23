@@ -51,7 +51,8 @@
 <tocroot>
 	<tocref id="Ghidra Functionality">
 		<tocref id="Scripting">
-			<tocdef id="Ruby Interpreter" sortgroup="z" text="Ruby Interpreter" target="help/topics/rubydragon/help.html" />
+			<tocdef id="Clojure Interpreter" sortgroup="z" text="Clojure Interpreter" target="help/topics/rubydragon/clojure.html" />
+			<tocdef id="Ruby Interpreter" sortgroup="z" text="Ruby Interpreter" target="help/topics/rubydragon/ruby.html" />
 		</tocref>
 	</tocref>
 </tocroot>

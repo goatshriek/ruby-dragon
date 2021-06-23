@@ -1,4 +1,4 @@
-package rubydragon.ruby;
+package rubydragon.clojure;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -8,22 +8,22 @@ import generic.jar.ResourceFile;
 import ghidra.app.script.GhidraScript;
 import ghidra.app.script.GhidraScriptProvider;
 
-public class RubyScriptProvider extends GhidraScriptProvider {
+public class ClojureScriptProvider extends GhidraScriptProvider {
 
 	@Override
 	public String getDescription() {
-		return "Ruby";
+		return "Clojure";
 	}
 
 	@Override
 	public String getExtension() {
-		return ".rb";
+		return ".clj";
 	}
 
 	@Override
 	public GhidraScript getScriptInstance(ResourceFile sourceFile, PrintWriter writer)
 			throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-		GhidraScript script = new RubyScript();
+		GhidraScript script = new ClojureScript();
 		script.setSourceFile(sourceFile);
 		return script;
 	}
@@ -40,7 +40,7 @@ public class RubyScriptProvider extends GhidraScriptProvider {
 
 	@Override
 	public String getCommentCharacter() {
-		return "#";
+		return ";";
 	}
 
 }
