@@ -99,12 +99,27 @@ public abstract class GhidraInterpreter implements Disposable {
 	public abstract void updateAddress(Address address);
 
 	/**
+	 * Updates the highlighted selection pointed to by the current_highlight
+	 * variable.
+	 *
+	 * @param sel The new highlighted selection.
+	 */
+	public abstract void updateHighlight(ProgramSelection sel);
+
+	/**
 	 * Updates the location in the current location variable as well as the address
 	 * in the current address variable.
 	 *
 	 * @param loc The new location in the program.
 	 */
 	public abstract void updateLocation(ProgramLocation loc);
+
+	/**
+	 * Updates the current program in current program to the one provided.
+	 *
+	 * @param program The new current program.
+	 */
+	public abstract void updateProgram(Program program);
 
 	/**
 	 * Updates the selection pointed to by the current selection variable.
@@ -114,17 +129,14 @@ public abstract class GhidraInterpreter implements Disposable {
 	public abstract void updateSelection(ProgramSelection sel);
 
 	/**
-	 * Updates the highlighted selection pointed to by the current_highlight
-	 * variable.
+	 * Updates a state with the current selection/location/etc. variables from the
+	 * interpreter.
 	 *
-	 * @param sel The new highlighted selection.
-	 */
-	public abstract void updateHighlight(ProgramSelection sel);
-
-	/**
-	 * Updates the current program in current program to the one provided.
+	 * This is intended to be called after a call to runScript, to make sure that
+	 * any updates made to these variables during execution are reflected in the end
+	 * state.
 	 *
-	 * @param program The new current program.
+	 * @param scriptState The state to update.
 	 */
-	public abstract void updateProgram(Program program);
+	public abstract void updateState(GhidraState scriptState);
 }

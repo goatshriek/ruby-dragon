@@ -131,6 +131,16 @@ public class RubyGhidraInterpreter extends GhidraInterpreter {
 	}
 
 	/**
+	 * Updates the current program in "$current_program" to the one provided.
+	 *
+	 * @param program The new current program.
+	 */
+	@Override
+	public void updateProgram(Program program) {
+		container.put("$current_program", program);
+	}
+
+	/**
 	 * Updates the selection pointed to by the "$current_selection" variable.
 	 *
 	 * @param sel The new selection.
@@ -140,21 +150,17 @@ public class RubyGhidraInterpreter extends GhidraInterpreter {
 		container.put("$current_selection", sel);
 	}
 
+	/**
+	 * Updates a state with the $current_*. variables from the interpreter.
+	 *
+	 * @param scriptState The state to update.
+	 */
+	@Override
 	public void updateState(GhidraState scriptState) {
 		scriptState.setCurrentProgram((Program) container.get("$current_program"));
 		scriptState.setCurrentLocation((ProgramLocation) container.get("$current_location"));
 		scriptState.setCurrentAddress((Address) container.get("$current_address"));
 		scriptState.setCurrentHighlight((ProgramSelection) container.get("$current_highlight"));
 		scriptState.setCurrentSelection((ProgramSelection) container.get("$current_selection"));
-	}
-
-	/**
-	 * Updates the current program in "$current_program" to the one provided.
-	 *
-	 * @param program The new current program.
-	 */
-	@Override
-	public void updateProgram(Program program) {
-		container.put("$current_program", program);
 	}
 }
