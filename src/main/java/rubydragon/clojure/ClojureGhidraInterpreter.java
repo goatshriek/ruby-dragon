@@ -28,6 +28,10 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 	private Thread replThread;
 
 	public ClojureGhidraInterpreter() {
+		ClassLoader previous = Thread.currentThread().getContextClassLoader();
+		final ClassLoader parentClassLoader = new ClojureGhidraClassLoader(
+				Thread.currentThread().getContextClassLoader());
+		Thread.currentThread().setContextClassLoader(parentClassLoader);
 		Symbol CLOJURE_MAIN = Symbol.intern("clojure.main");
 		Var REQUIRE = RT.var("clojure.core", "require");
 		Var MAIN = RT.var("clojure.main", "main");
@@ -39,6 +43,7 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 				MAIN.applyTo(RT.seq(new String[0]));
 			}
 		});
+		Thread.currentThread().setContextClassLoader(previous);
 	}
 
 	public ClojureGhidraInterpreter(InterpreterConsole console) {
@@ -56,7 +61,8 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 	public void runScript(GhidraScript script, String[] scriptArguments, GhidraState scriptState)
 			throws IllegalArgumentException, FileNotFoundException, IOException {
 		ClassLoader previous = Thread.currentThread().getContextClassLoader();
-		final ClassLoader parentClassLoader = new ClojureGhidraClassLoader();
+		final ClassLoader parentClassLoader = new ClojureGhidraClassLoader(
+				Thread.currentThread().getContextClassLoader());
 		Thread.currentThread().setContextClassLoader(parentClassLoader);
 		try {
 			ResourceFile scriptFile = script.getSourceFile();

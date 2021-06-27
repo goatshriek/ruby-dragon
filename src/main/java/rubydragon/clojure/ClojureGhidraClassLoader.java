@@ -5,6 +5,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class ClojureGhidraClassLoader extends ClassLoader {
+	public ClojureGhidraClassLoader(ClassLoader parentClassLoader) {
+		super(parentClassLoader);
+	}
+
 	@Override
 	public URL findResource(String path) {
 		try {

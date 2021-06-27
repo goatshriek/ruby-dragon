@@ -7,26 +7,26 @@
 
 ; printing out some basic program information
 (println "Program Info:")
-(println program-name)
+(println
+    (format "%s %s_%s (%s)"
+            program-name
+            (.getCreationDate ghidra/current-program)
+            (.getLanguageID ghidra/current-program)
+            (.getCompilerSpecID (.getCompilerSpec ghidra/current-program))))
+(println)
 
-;# and multiple words get automatically split to snake case
-;creation_date = $current_program.creation_date
-;language_id = $current_program.language_id
-;compiler_spec_id = $current_program.compiler_spec.compiler_spec_id
-;
-;# printing out some basic program information
-;puts 'Program Info:'
-;puts "#{program_name} #{creation_date}_#{language_id} (#{compiler_spec_id})"
-;puts
-;
-;# get info about the current program's memory layout
-;puts 'Memory Layout:'
-;puts "Imagebase: 0x%x" % $current_program.image_base.offset
-;$current_program.memory.blocks.each do |block|
-;    puts "#{block.name} [start: 0x#{block.start}, end: 0x#{block.end}]"
-;end
-;puts
-;
+; get info about the current program's memory layout
+(println "Memory Layout:")
+(println
+    (format "Imagebase: 0x%x"
+            (.getOffset (.getImageBase ghidra/current-program))))
+(doseq [block (.getBlocks (.getMemory ghidra/current-program))]
+       (println (format "%s [start: 0x%s, end:0x%s]"
+                        (.getName block)
+                        (.toString (.getStart block))
+                        (.toString (.getEnd block)))))
+(println)
+
 ;# get the current program's function names
 ;puts 'Function List:'
 ;function = $script.getFirstFunction
