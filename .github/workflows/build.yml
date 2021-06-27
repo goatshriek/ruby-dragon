@@ -21,8 +21,8 @@ jobs:
           path: ~/ghidra
           key: ${{ runner.os }}-${{ hashFiles('lib/*.jar') }}
       - name: Get Ghidra
+        if: steps.cache-ghidra.outputs.cache-hit != 'true'
         run: |
-          if steps.cache-ghidra.outputs.cache-hit != 'true'
           wget -q https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.0_build/ghidra_10.0_PUBLIC_20210621.zip
           unzip ghidra_10.0_PUBLIC_20210621.zip -d ~/ghidra
       - name: Build
