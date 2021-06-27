@@ -11,7 +11,7 @@ jobs:
     name: "build extension"
     runs-on: "ubuntu-latest"
     env:
-      GHIDRA_INSTALL_DIR: '~/ghidra'
+      GHIDRA_INSTALL_DIR: '~/ghidra/ghidra_10.0_PUBLIC'
     steps:
       - uses: actions/checkout@v2
       - name: Cache Ghidra
