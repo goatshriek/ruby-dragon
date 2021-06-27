@@ -26,4 +26,5 @@ jobs:
           wget -q https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.0_build/ghidra_10.0_PUBLIC_20210621.zip
           unzip ghidra_10.0_PUBLIC_20210621.zip -d ~/ghidra
       - name: Build
+        run: |
           gradle buildExtension
