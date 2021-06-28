@@ -26,18 +26,17 @@ import rubydragon.GhidraInterpreter;
  */
 public class ClojureGhidraInterpreter extends GhidraInterpreter {
 	private Thread replThread;
+	final private ClassLoader clojureClassLoader;
 
 	public ClojureGhidraInterpreter() {
+		clojureClassLoader = new ClojureGhidraClassLoader();
 		ClassLoader previous = Thread.currentThread().getContextClassLoader();
-		final ClassLoader parentClassLoader = new ClojureGhidraClassLoader(
-				Thread.currentThread().getContextClassLoader());
-		Thread.currentThread().setContextClassLoader(parentClassLoader);
+		Thread.currentThread().setContextClassLoader(clojureClassLoader);
 		Symbol CLOJURE_MAIN = Symbol.intern("clojure.main");
 		Var REQUIRE = RT.var("clojure.core", "require");
 		Var MAIN = RT.var("clojure.main", "main");
 		RT.init();
 		REQUIRE.invoke(CLOJURE_MAIN);
-		RT.var("ghidra", "current-address", "not-initialized-yet");
 		replThread = new Thread(() -> {
 			while (true) {
 				MAIN.applyTo(RT.seq(new String[0]));
@@ -61,12 +60,11 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 	public void runScript(GhidraScript script, String[] scriptArguments, GhidraState scriptState)
 			throws IllegalArgumentException, FileNotFoundException, IOException {
 		ClassLoader previous = Thread.currentThread().getContextClassLoader();
-		final ClassLoader parentClassLoader = new ClojureGhidraClassLoader(
-				Thread.currentThread().getContextClassLoader());
-		Thread.currentThread().setContextClassLoader(parentClassLoader);
+		Thread.currentThread().setContextClassLoader(clojureClassLoader);
 		try {
 			ResourceFile scriptFile = script.getSourceFile();
 			loadState(scriptState);
+			RT.var("ghidra", "script", script);
 			RT.loadResourceScript(scriptFile.getAbsolutePath());
 			updateState(scriptState);
 		} finally {

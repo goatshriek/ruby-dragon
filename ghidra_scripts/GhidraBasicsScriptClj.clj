@@ -27,15 +27,14 @@
                         (.toString (.getEnd block)))))
 (println)
 
-;# get the current program's function names
-;puts 'Function List:'
-;function = $script.getFirstFunction
-;while function do
-;  puts function.name
-;  function = $script.getFunctionAfter(function)
-;end
-;puts
-;
+; get the current program's function names
+(println "Function List:")
+(def current-function (.getFirstFunction ghidra/script))
+(while (some? current-function)
+    (println (.getName current-function))
+    (def current-function (.getFunctionAfter ghidra/script current-function)))
+(println)
+
 ;# get the current location in the program
 ;puts "Current location: 0x%x" % $current_address.getOffset
 ;
