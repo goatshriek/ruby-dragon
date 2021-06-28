@@ -197,12 +197,4 @@ prompting for a data type...
 Chosen data type: typedef LPCSTR CHAR *
 =end
 ```
-# get info about the current program
-program_name = $current_program.getName
-creation_date = $current_program.getCreationDate
-language_id = $current_program.getLanguageID
-compiler_spec_id = $current_program.getCompilerSpec.getCompilerSpecID
-puts 'Program Info:'
-puts "#{program_name} #{creation_date}_#{language_id} (#{compiler_spec_id})"
-```
 
