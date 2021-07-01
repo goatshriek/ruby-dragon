@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 import clojure.lang.LineNumberingPushbackReader;
 import clojure.lang.Namespace;
@@ -19,6 +22,7 @@ import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
+import ghidra.util.exception.AssertException;
 import rubydragon.GhidraInterpreter;
 
 /**
@@ -65,6 +69,36 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 			ResourceFile scriptFile = script.getSourceFile();
 			loadState(scriptState);
 			RT.var("ghidra", "script", script);
+
+			// putting the methods from this script class into the interpreter
+			// taken from the PythonScript class in the ghidra source
+			for (Class<?> scriptClass = script.getClass(); scriptClass != Object.class; scriptClass = scriptClass
+					.getSuperclass()) {
+
+				// Add public and protected fields
+				for (Field field : scriptClass.getDeclaredFields()) {
+					if (Modifier.isPublic(field.getModifiers()) || Modifier.isProtected(field.getModifiers())) {
+						try {
+							field.setAccessible(true);
+							System.out.println("adding field: " + field.getName());
+							RT.var("ghidra", field.getName(), field.get(script));
+						} catch (IllegalAccessException iae) {
+							throw new AssertException("Unexpected security manager being used!");
+						}
+					}
+				}
+
+				// Add public methods. Ignore inner classes.
+				for (Method method : scriptClass.getDeclaredMethods()) {
+
+					if (!method.getName().contains("$") && Modifier.isPublic(method.getModifiers())) {
+						method.setAccessible(true);
+						System.out.println("adding method: " + method.getName());
+						RT.var("ghidra", method.getName(), method);
+					}
+				}
+			}
+
 			RT.loadResourceScript(scriptFile.getAbsolutePath());
 			updateState(scriptState);
 		} finally {
