@@ -80,7 +80,6 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 					if (Modifier.isPublic(field.getModifiers()) || Modifier.isProtected(field.getModifiers())) {
 						try {
 							field.setAccessible(true);
-							System.out.println("adding field: " + field.getName());
 							RT.var("ghidra", field.getName(), field.get(script));
 						} catch (IllegalAccessException iae) {
 							throw new AssertException("Unexpected security manager being used!");
@@ -93,7 +92,6 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 
 					if (!method.getName().contains("$") && Modifier.isPublic(method.getModifiers())) {
 						method.setAccessible(true);
-						System.out.println("adding method: " + method.getName());
 						RT.var("ghidra", method.getName(), method);
 					}
 				}
