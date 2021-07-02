@@ -1,6 +1,7 @@
 package rubydragon.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -20,26 +21,28 @@ public class ClojureGhidraInterpreterTest {
 
 	private ClojureGhidraInterpreter interpreter;
 	BufferedReader outputReader;
+	BufferedReader errorReader;
 	BufferedWriter inputWriter;
 
 	@Before
 	public void setUp() throws Exception {
-		PipedOutputStream inOut = new PipedOutputStream();
-		PipedInputStream inIn = new PipedInputStream(inOut);
+		PipedOutputStream scriptInputOutStream = new PipedOutputStream();
+		PipedInputStream scriptInputInStream = new PipedInputStream(scriptInputOutStream);
 
-		PipedInputStream outIn = new PipedInputStream();
-		PipedOutputStream outOut = new PipedOutputStream(outIn);
+		PipedInputStream scriptOutputInStream = new PipedInputStream();
+		PipedOutputStream scriptOutputOutStream = new PipedOutputStream(scriptOutputInStream);
 
-		PipedInputStream errIn = new PipedInputStream();
-		PipedOutputStream errOut = new PipedOutputStream(errIn);
+		PipedInputStream scriptErrorInStream = new PipedInputStream();
+		PipedOutputStream scriptErrorOutStream = new PipedOutputStream(scriptErrorInStream);
 
 		interpreter = new ClojureGhidraInterpreter();
-		interpreter.setInput(inIn);
-		interpreter.setOutWriter(new PrintWriter(outOut));
-		interpreter.setErrWriter(new PrintWriter(errOut));
+		interpreter.setInput(scriptInputInStream);
+		interpreter.setOutWriter(new PrintWriter(scriptOutputOutStream));
+		interpreter.setErrWriter(new PrintWriter(scriptErrorOutStream));
 
-		outputReader = new BufferedReader(new InputStreamReader(outIn));
-		inputWriter = new BufferedWriter(new OutputStreamWriter(inOut));
+		outputReader = new BufferedReader(new InputStreamReader(scriptOutputInStream));
+		errorReader = new BufferedReader(new InputStreamReader(scriptErrorInStream));
+		inputWriter = new BufferedWriter(new OutputStreamWriter(scriptInputOutStream));
 	}
 
 	@After
@@ -55,6 +58,7 @@ public class ClojureGhidraInterpreterTest {
 		inputWriter.flush();
 		outputReader.readLine();
 		assertEquals("The output should be printed", "user=> test print", outputReader.readLine());
+		assertFalse(errorReader.ready());
 
 		inputWriter.write("\u0004");
 	}
