@@ -9,7 +9,7 @@
     <META name="GENERATOR" content="Microsoft FrontPage 4.0">
     <META name="ProgId" content="FrontPage.Editor.Document">
 
-    <TITLE>Ruby Interpreter</TITLE>
+    <TITLE>Clojure Interpreter</TITLE>
     <LINK rel="stylesheet" type="text/css" href="../../shared/Frontpage.css">
   </HEAD>
 
@@ -42,7 +42,19 @@
     ghidra/current-program
     ghidra/current-selection
     </PRE>
-    </BLOCKQUOTE>
+
+    <P>
+    If you're writing a script, you'll also be able to access the ClojureScript
+    instance (a subclass of GhidraScript) using the <PRE>ghidra/script</PRE>
+    binding. This will provide access to all public fields and methods for the
+    instance. If you need to access private fields and methods, then you can
+    simply use them by name, since they are injected into the ghidra namespace
+    as well. For example, to access the TaskMonitor for the script, simply
+    reference the <PRE>ghidra/monitor</PRE> binding. There are examples of this
+    in the GhidraBasicsScriptClj script included in the Examples category with
+    this plugin.
+    </P>
+    </BLOCKQUOTE>x
 
     <H2>Copy/Paste</H2>
     <BLOCKQUOTE>
