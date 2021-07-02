@@ -27,7 +27,7 @@ public class ClojureScript extends GhidraScript {
 	}
 
 	@Override
-	protected void run() throws Exception {
+	public void run() throws Exception {
 		final PrintWriter stderr = getStdErr();
 		final PrintWriter stdout = getStdOut();
 

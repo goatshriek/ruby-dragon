@@ -42,9 +42,7 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 		RT.init();
 		REQUIRE.invoke(CLOJURE_MAIN);
 		replThread = new Thread(() -> {
-			while (true) {
-				MAIN.applyTo(RT.seq(new String[0]));
-			}
+			MAIN.applyTo(RT.seq(new String[0]));
 		});
 		Thread.currentThread().setContextClassLoader(previous);
 	}
@@ -56,8 +54,7 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 
 	@Override
 	public void dispose() {
-		// TODO Auto-generated method stub
-
+		// TODO kill the repl thread somehow
 	}
 
 	@Override
