@@ -11,18 +11,18 @@
     program-name
     (.getCreationDate ghidra/current-program)
     (.getLanguageID ghidra/current-program)
-    (.getCompilerSpecID (.getCompilerSpec ghidra/current-program))))
+    (.. ghidra/current-program getCompilerSpec getCompilerSpecID)))
 (println)
 
 ; get info about the current program's memory layout
 (println "Memory Layout:")
 (println (format "Imagebase: 0x%x"
     (.getOffset (.getImageBase ghidra/current-program))))
-(doseq [block (.getBlocks (.getMemory ghidra/current-program))]
+(doseq [block (.. ghidra/current-program getMemory getBlocks)]
     (println (format "%s [start: 0x%s, end:0x%s]"
         (.getName block)
-        (.toString (.getStart block))
-        (.toString (.getEnd block)))))
+        (.. block getStart toString)
+        (.. block getEnd toString))))
 (println)
 
 ; get the current program's function names
@@ -76,13 +76,12 @@
 (println)
 
 ;# report progress to the user interface, do this anywhere things take a while
-(def monitor ghidra/monitor)
-(.initialize monitor 10)
+(.initialize ghidra/monitor 10)
 (doseq [i (range 1 10)]
-    (.checkCanceled monitor) ; make sure we're still good to go
+    (.checkCanceled ghidra/monitor) ; make sure we're still good to go
     (Thread/sleep 1000)
-    (.incrementProgress monitor 1)
-    (.setMessage monitor (format "working on step %d" i)))
+    (.incrementProgress ghidra/monitor 1)
+    (.setMessage ghidra/monitor (format "working on step %d" i)))
 
 ; script output against .exe from crackme at:
 ; https://crackmes.one/static/crackme/5fcbac7733c5d424269a1a93.zip
