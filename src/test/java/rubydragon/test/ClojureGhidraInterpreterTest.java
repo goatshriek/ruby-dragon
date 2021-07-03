@@ -48,6 +48,7 @@ public class ClojureGhidraInterpreterTest {
 	@After
 	public void tearDown() throws Exception {
 		interpreter.dispose();
+		inputWriter.write("\u0004");
 	}
 
 	@Test
@@ -59,6 +60,5 @@ public class ClojureGhidraInterpreterTest {
 		outputReader.readLine();
 		assertEquals("The output should be printed", "user=> test print", outputReader.readLine());
 		assertFalse(errorReader.ready());
-		System.out.println("finished!");
 	}
 }
