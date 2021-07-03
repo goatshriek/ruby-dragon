@@ -1,22 +1,22 @@
 ---
 title: Ruby Dragon
-keywords: ruby, jruby, ghidra, plugin
-last_updated: March 8, 2021
+keywords: ruby, clojure, ghidra, jruby, plugin
+last_updated: July 3, 2021
 layout: default
 ---
 
 
 # Ruby Dragon
-Ruby Dragon is a plugin for Ghidra, offering Ruby support for both interactive
-sessions as well as writing reusable scripts.
+Ruby Dragon is a plugin for Ghidra, offering Ruby and Clojure support for both
+interactive sessions as well as writing reusable scripts.
 
 To install, head over to the
 [release page](https://github.com/goatshriek/ruby-dragon/releases/latest) and
-grab the latest zip! Then install it in your own Ghidra from the
+grab the latest zip! Then add it to your Ghidra install from the
 `File->Install Extensions...` menu option.
 
 
-## Basic Usage
+## Basic Ruby Usage
 Once the plugin is enabled, you will be able to open an interactive Ruby session
 from the CodeBrowser tool by going to `Window->Ruby`. This is a standard IRB
 session provided by JRuby.
@@ -38,10 +38,36 @@ example scripts in the `Examples.Ruby` directory of the Script Manager that
 show basic usage of both JRuby and Ghidra basics.
 
 The same global variables available in the interactive sessions are also
-provided for scripts to use in the same manner.
+provided for scripts to use in the same manner, in addition to a `$script`
+global variable with a `RubyScript` instance for the running script.
 
 You can also find help directly in the Ghidra help menu (press `F1`) on the 
 `Ghidra Functionality->Scripting->Ruby Interpreter` page.
+
+
+## Basic Clojure Usage
+Predictably, you can open an interactive session in Clojure in the CodeBrowser
+tool with the `Window->Clojure` option. This is the basic REPL that you would
+get if you used the `clj` tool from the command line, with the Ghidra Java
+classes available for use as needed.
+
+Of course there are bindings for the same convenience variables in the `ghidra`
+namespace:
+
+```clojure
+ghidra/current-address
+ghidra/current-highlight
+ghidra/current-location
+ghidra/current-program
+ghidra/current-selection
+```
+
+If you're writing a script, you can also use the `ghidra/script` binding as
+well. However, if you want to access private fields and methods, you can just
+use them directly from the `ghidra` namespace, since you won't be able to access
+them as members of the `ghidra/script` binding. For example, to access the task
+monitor for the script instance, use `ghidra/monitor` as the example Clojure
+basics script does.
 
 
 ## Examples
@@ -49,7 +75,9 @@ Examples are included with the plugin, under the `Examples.Ruby` category. If
 you want to just browse them before installing though, you can go through each
 of them here:
  * [JRuby Basics](./examples/JRubyBasicsScriptRb.html)
- * [Ghidra Basics](./examples/GhidraBasicsScriptRb.html)
+ * [Ruby Ghidra Basics](./examples/GhidraBasicsScriptRb.html)
+ * [Clojure Ghidra Basics](./examples/GhidraBasicsScriptClj.html)
+ * [Save Program Strings in Clojure](./examples/SaveStringsScriptClj.html)
 
 
 ## Contributing
