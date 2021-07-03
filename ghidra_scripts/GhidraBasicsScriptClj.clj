@@ -2,8 +2,7 @@
 ; @category: Examples.Clojure
 
 ; use the ghidra namespace to access the provided variables
-(def program-name
-    (.getName ghidra/current-program))
+(def program-name (.getName ghidra/current-program))
 
 ; printing out some basic program information
 (println "Program Info:")
