@@ -92,6 +92,7 @@ public class ClojureDragonPlugin extends ProgramPlugin implements InterpreterCon
 		super.init();
 
 		console = getTool().getService(InterpreterPanelService.class).createInterpreterPanel(this, false);
+		console.setPrompt(" ");
 		interpreter = new ClojureGhidraInterpreter(console);
 		console.addFirstActivationCallback(() -> {
 			interpreter.startInteractiveSession();

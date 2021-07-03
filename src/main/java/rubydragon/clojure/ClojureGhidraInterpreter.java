@@ -31,6 +31,7 @@ import rubydragon.GhidraInterpreter;
 public class ClojureGhidraInterpreter extends GhidraInterpreter {
 	private Thread replThread;
 	final private ClassLoader clojureClassLoader;
+	private boolean isRunning = false;
 
 	public ClojureGhidraInterpreter() {
 		clojureClassLoader = new ClojureGhidraClassLoader();
@@ -41,10 +42,14 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 		Var MAIN = RT.var("clojure.main", "main");
 		RT.init();
 		REQUIRE.invoke(CLOJURE_MAIN);
-		replThread = new Thread(() -> {
-			MAIN.applyTo(RT.seq(new String[0]));
-		});
 		Thread.currentThread().setContextClassLoader(previous);
+
+		replThread = new Thread(() -> {
+			while (isRunning) {
+				MAIN.applyTo(RT.seq(new String[0]));
+			}
+		});
+		replThread.setContextClassLoader(clojureClassLoader);
 	}
 
 	public ClojureGhidraInterpreter(InterpreterConsole console) {
@@ -54,7 +59,7 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 
 	@Override
 	public void dispose() {
-		// TODO kill the repl thread somehow
+		isRunning = false;
 	}
 
 	@Override
@@ -128,6 +133,7 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 
 	@Override
 	public void startInteractiveSession() {
+		isRunning = true;
 		replThread.start();
 	}
 

@@ -59,7 +59,6 @@ public class ClojureGhidraInterpreterTest {
 		outputReader.readLine();
 		assertEquals("The output should be printed", "user=> test print", outputReader.readLine());
 		assertFalse(errorReader.ready());
-
-		inputWriter.write("\u0004");
+		System.out.println("finished!");
 	}
 }
