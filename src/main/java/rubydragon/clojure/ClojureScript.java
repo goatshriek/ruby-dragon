@@ -12,20 +12,32 @@ import ghidra.app.script.GhidraState;
 import ghidra.app.services.ConsoleService;
 import ghidra.framework.plugintool.PluginTool;
 
+/**
+ * A ghidra script written in Clojure.
+ */
 public class ClojureScript extends GhidraScript {
 
 	private ClojureGhidraInterpreter interpreter;
 
+	/**
+	 * Creates a new script, with it's own interpreter instance.
+	 */
 	public ClojureScript() {
 		super();
 		interpreter = new ClojureGhidraInterpreter();
 	}
 
+	/**
+	 * The category of these scripts.
+	 */
 	@Override
 	public String getCategory() {
 		return "Clojure";
 	}
 
+	/**
+	 * Executes this script.
+	 */
 	@Override
 	public void run() throws Exception {
 		final PrintWriter stderr = getStdErr();
@@ -108,6 +120,11 @@ public class ClojureScript extends GhidraScript {
 		}
 	}
 
+	/**
+	 * Gets the error output for this script.
+	 *
+	 * @return A writer for this script's error output.
+	 */
 	private PrintWriter getStdErr() {
 		PluginTool tool = state.getTool();
 		if (tool != null) {
@@ -119,6 +136,11 @@ public class ClojureScript extends GhidraScript {
 		return new PrintWriter(System.err, true);
 	}
 
+	/**
+	 * Gets the standard output for this script.
+	 *
+	 * @return A writer for this script's standard output.
+	 */
 	private PrintWriter getStdOut() {
 		PluginTool tool = state.getTool();
 		if (tool != null) {

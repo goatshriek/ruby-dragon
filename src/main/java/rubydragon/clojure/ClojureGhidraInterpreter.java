@@ -33,6 +33,9 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 	final private ClassLoader clojureClassLoader;
 	private boolean isRunning = false;
 
+	/**
+	 * Creates a new interpreter.
+	 */
 	public ClojureGhidraInterpreter() {
 		clojureClassLoader = new ClojureGhidraClassLoader();
 		ClassLoader previous = Thread.currentThread().getContextClassLoader();
@@ -52,16 +55,47 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 		replThread.setContextClassLoader(clojureClassLoader);
 	}
 
+	/**
+	 * Creates a new interpreter, and ties the streams for the provided console to
+	 * the new interpreter.
+	 *
+	 * @param console The console to bind to the interpreter streams.
+	 */
 	public ClojureGhidraInterpreter(InterpreterConsole console) {
 		this();
 		setStreams(console);
 	}
 
+	/**
+	 * Tells the interpreter not to restart next time it is killed.
+	 *
+	 * Currently, it is still up to the interpreter user to actually kill the
+	 * current session. This isn't very clean and should be changed in the future.
+	 */
 	@Override
 	public void dispose() {
 		isRunning = false;
 	}
 
+	/**
+	 * Runs the given script with the arguments and state provided.
+	 *
+	 * The provided state is loaded into the interpreter at the beginning of
+	 * execution, and the values of the globals are then exported back into the
+	 * state after it completes.
+	 *
+	 * If the script cannot be found but the script is not running in headless mode,
+	 * the user will be prompted to ignore the error, which will cause the function
+	 * to simply continue instead of throwing an IllegalArgumentException.
+	 *
+	 * Public and protected fields and public methods are bound into the ghidra
+	 * namespace before the script itself is run. A "ghidra/script" binding is also
+	 * created, bound to this ClojureScript instance (via "this").
+	 *
+	 * @throws IllegalArgumentException if the script does not exist
+	 * @throws IOException              if the script could not be read
+	 * @throws FileNotFoundException    if the script file wasn't found
+	 */
 	@Override
 	public void runScript(GhidraScript script, String[] scriptArguments, GhidraState scriptState)
 			throws IllegalArgumentException, FileNotFoundException, IOException {
@@ -131,22 +165,43 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 		Var.intern(RT.CLOJURE_NS, Symbol.intern("*out*"), output);
 	}
 
+	/**
+	 * Starts an interactive session with the current input/output/error streams.
+	 */
 	@Override
 	public void startInteractiveSession() {
 		isRunning = true;
 		replThread.start();
 	}
 
+	/**
+	 * Updates the current address pointed to by the "ghidra/current-address"
+	 * binding in the interpreter.
+	 *
+	 * @param address The new current address in the program.
+	 */
 	@Override
 	public void updateAddress(Address address) {
 		RT.var("ghidra", "current-address", address);
 	}
 
+	/**
+	 * Updates the highlighted selection pointed to by the
+	 * "ghidra/current-highlight" variable.
+	 *
+	 * @param sel The new highlighted selection.
+	 */
 	@Override
 	public void updateHighlight(ProgramSelection sel) {
 		RT.var("ghidra", "current-highlight", sel);
 	}
 
+	/**
+	 * Updates the location in the "ghidra/current-location" variable as well as the
+	 * address in the "ghidra/current-address" variable.
+	 *
+	 * @param loc The new location in the program.
+	 */
 	@Override
 	public void updateLocation(ProgramLocation loc) {
 		RT.var("ghidra", "current-location", loc);
@@ -155,6 +210,21 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 		}
 	}
 
+	/**
+	 * Updates the program pointed to by the "ghidra/current-program" binding.
+	 *
+	 * @param sel The new current program.
+	 */
+	@Override
+	public void updateProgram(Program program) {
+		RT.var("ghidra", "current-program", program);
+	}
+
+	/**
+	 * Updates the selection pointed to by the "ghidra/current-selection" binding.
+	 *
+	 * @param sel The new selection.
+	 */
 	@Override
 	public void updateSelection(ProgramSelection sel) {
 		RT.var("ghidra", "current-selection", sel);
@@ -183,11 +253,6 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 
 		ProgramSelection sel = (ProgramSelection) Var.intern(ghidraNS, Symbol.intern("current-selection")).get();
 		scriptState.setCurrentSelection(sel);
-	}
-
-	@Override
-	public void updateProgram(Program program) {
-		RT.var("ghidra", "current-program", program);
 	}
 
 }
