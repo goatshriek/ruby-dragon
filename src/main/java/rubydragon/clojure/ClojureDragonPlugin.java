@@ -37,7 +37,8 @@ import resources.ResourceManager;
 import rubydragon.GhidraInterpreter;
 
 /**
- * TODO: Provide class-level documentation that describes what this plugin does.
+ * ClojureDragon provides Clojure support within Ghidra, both in an interactive
+ * terminal session as well as standalone scripts.
  */
 //@formatter:off
 @PluginInfo(
@@ -64,6 +65,9 @@ public class ClojureDragonPlugin extends ProgramPlugin implements InterpreterCon
 		super(tool, true, true);
 	}
 
+	/**
+	 * Destroys the plugin and any interpreters within.
+	 */
 	@Override
 	protected void dispose() {
 		interpreter.dispose();
@@ -71,22 +75,36 @@ public class ClojureDragonPlugin extends ProgramPlugin implements InterpreterCon
 		super.dispose();
 	}
 
+	/**
+	 * The title of the plugin.
+	 */
 	@Override
 	public String getTitle() {
 		return "Clojure";
 	}
 
+	/**
+	 * The icon for this plugin.
+	 */
 	@Override
 	public ImageIcon getIcon() {
 		return ResourceManager.loadImage("images/clojure.png");
 	}
 
+	/**
+	 * Get a list of completions for the given command prefix.
+	 *
+	 * Currently not implemented, and will always return an empty list.
+	 */
 	@Override
 	public List<CodeCompletion> getCompletions(String cmd) {
 		// TODO currently just an empty list, need to actually implement
 		return new ArrayList<CodeCompletion>();
 	}
 
+	/**
+	 * Set up the plugin, including the creation of the interactive interpreter.
+	 */
 	@Override
 	public void init() {
 		super.init();
@@ -99,21 +117,33 @@ public class ClojureDragonPlugin extends ProgramPlugin implements InterpreterCon
 		});
 	}
 
+	/**
+	 * Called whenever the highlight is changed within the CodeBrowser tool.
+	 */
 	@Override
 	public void highlightChanged(ProgramSelection sel) {
 		interpreter.updateHighlight(sel);
 	}
 
+	/**
+	 * Called whenever the location is changed within the CodeBrowser tool.
+	 */
 	@Override
 	public void locationChanged(ProgramLocation loc) {
 		interpreter.updateLocation(loc);
 	}
 
+	/**
+	 * Called whenever a program is activate within the CodeBrowser tool.
+	 */
 	@Override
 	public void programActivated(Program program) {
 		interpreter.updateProgram(program);
 	}
 
+	/**
+	 * Called whenever the selection is changed within the CodeBrowser tool.
+	 */
 	@Override
 	public void selectionChanged(ProgramSelection sel) {
 		interpreter.updateSelection(sel);
