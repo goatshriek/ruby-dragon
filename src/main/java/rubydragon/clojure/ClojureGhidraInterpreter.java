@@ -213,7 +213,7 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 	/**
 	 * Updates the program pointed to by the "ghidra/current-program" binding.
 	 *
-	 * @param sel The new current program.
+	 * @param program The new current program.
 	 */
 	@Override
 	public void updateProgram(Program program) {
