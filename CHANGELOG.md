@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Interactive Clojure interpreter (uses Clojure 1.10.3).
  - Clojure script capability (uses Clojure 1.10.3).
 
+###Changed
+ - Upgrade to JRuby 9.2.19.0 (Ruby 2.5.8).
+
 
 ## [0.1.0] - 2021-03-08
 ### Added
