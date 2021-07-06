@@ -8,8 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.0] - 2021-07-06
 ### Added
  - Example Ruby scripts.
- - Interactive Clojure interpreter.
- - Clojure script capability.
+ - Interactive Clojure interpreter (uses Clojure 1.10.3).
+ - Clojure script capability (uses Clojure 1.10.3).
 
 
 ## [0.1.0] - 2021-03-08
