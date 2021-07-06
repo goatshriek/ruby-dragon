@@ -6,4 +6,5 @@
 bin/
 build/
 dist/
+test_bin/
 

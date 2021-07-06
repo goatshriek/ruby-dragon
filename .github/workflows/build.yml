@@ -1,0 +1,33 @@
+name: "build"
+
+on:
+  push:
+  pull_request:
+    branches:
+      - latest
+
+jobs:
+  simple-build:
+    name: "build extension"
+    runs-on: "ubuntu-latest"
+    env:
+      GHIDRA_INSTALL_DIR: '/home/runner/ghidra/ghidra_10.0_PUBLIC'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache Ghidra
+        uses: actions/cache@v2
+        id: cache-ghidra
+        with:
+          path: ~/ghidra
+          key: ${{ runner.os }}-${{ hashFiles('lib/*.jar') }}
+      - name: Get Ghidra
+        if: steps.cache-ghidra.outputs.cache-hit != 'true'
+        run: |
+          wget -q https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.0_build/ghidra_10.0_PUBLIC_20210621.zip
+          unzip ghidra_10.0_PUBLIC_20210621.zip -d ~/ghidra
+      - name: Run Tests
+        run: |
+          gradle test
+      - name: Build
+        run: |
+          gradle buildExtension

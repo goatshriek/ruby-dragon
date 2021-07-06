@@ -21,7 +21,7 @@ import rubydragon.GhidraInterpreter;
 /**
  * A Ruby interpreter for Ghidra, built using JRuby.
  */
-public class RubyGhidraInterpreter implements GhidraInterpreter {
+public class RubyGhidraInterpreter extends GhidraInterpreter {
 	private ScriptingContainer container;
 	private Thread irbThread;
 
@@ -44,33 +44,22 @@ public class RubyGhidraInterpreter implements GhidraInterpreter {
 		// do nothing
 	}
 
-	public void loadState(GhidraState state) {
-		updateHighlight(state.getCurrentHighlight());
-		updateLocation(state.getCurrentLocation());
-		updateSelection(state.getCurrentSelection());
-		updateProgram(state.getCurrentProgram());
-
-		// this has to happen after the location update
-		// since it clobbers the current address right now
-		updateAddress(state.getCurrentAddress());
-	}
-
 	/**
 	 * Runs the given script with the arguments and state provided.
-	 * 
+	 *
 	 * The provided state is loaded into the interpreter at the beginning of
 	 * execution, and the values of the globals are then exported back into the
 	 * state after it completes.
-	 * 
+	 *
 	 * If the script cannot be found but the script is not running in headless mode,
 	 * the user will be prompted to ignore the error, which will cause the function
 	 * to simply continue instead of throwing an IllegalArgumentException.
-	 * 
+	 *
 	 * @throws IllegalArgumentException if the script does not exist
-	 * @throws IOException if the script could not be read
-	 * @throws FileNotFoundException if the script file wasn't found
+	 * @throws IOException              if the script could not be read
+	 * @throws FileNotFoundException    if the script file wasn't found
 	 */
-	//public void runScript(String scriptName, InputStream script, String[] scriptArguments, GhidraState scriptState)
+	@Override
 	public void runScript(GhidraScript script, String[] scriptArguments, GhidraState scriptState)
 			throws IllegalArgumentException, FileNotFoundException, IOException {
 		InputStream scriptStream = script.getSourceFile().getInputStream();
@@ -83,6 +72,7 @@ public class RubyGhidraInterpreter implements GhidraInterpreter {
 	/**
 	 * Sets the error output stream for this interpreter.
 	 */
+	@Override
 	public void setErrWriter(PrintWriter errOut) {
 		container.setError(errOut);
 	}
@@ -90,6 +80,7 @@ public class RubyGhidraInterpreter implements GhidraInterpreter {
 	/**
 	 * Sets the input stream for this interpreter.
 	 */
+	@Override
 	public void setInput(InputStream input) {
 		container.setInput(input);
 	}
@@ -97,21 +88,9 @@ public class RubyGhidraInterpreter implements GhidraInterpreter {
 	/**
 	 * Sets the output stream for this interpreter.
 	 */
+	@Override
 	public void setOutWriter(PrintWriter output) {
 		container.setOutput(output);
-	}
-
-	/**
-	 * Sets the input, output, and error streams for this interpreter to those of
-	 * the provided console.
-	 * 
-	 * @param console The console to tie the interpreter streams to.
-	 */
-	@Override
-	public void setStreams(InterpreterConsole console) {
-		setInput(console.getStdin());
-		setOutWriter(console.getOutWriter());
-		setErrWriter(console.getErrWriter());
 	}
 
 	@Override
@@ -119,15 +98,28 @@ public class RubyGhidraInterpreter implements GhidraInterpreter {
 		irbThread.start();
 	}
 
+	@Override
 	public void updateAddress(Address address) {
 		container.put("$current_address", address);
 	}
 
+	/**
+	 * Updates the highlighted selection pointed to by the "$current_highlight"
+	 * variable.
+	 *
+	 * @param sel The new highlighted selection.
+	 */
 	@Override
 	public void updateHighlight(ProgramSelection sel) {
 		container.put("$current_highlight", sel);
 	}
 
+	/**
+	 * Updates the location in the "$current_location" variable as well as the
+	 * address in the "$current_address" variable.
+	 *
+	 * @param loc The new location in the program.
+	 */
 	@Override
 	public void updateLocation(ProgramLocation loc) {
 		if (loc == null) {
@@ -138,21 +130,37 @@ public class RubyGhidraInterpreter implements GhidraInterpreter {
 		}
 	}
 
+	/**
+	 * Updates the current program in "$current_program" to the one provided.
+	 *
+	 * @param program The new current program.
+	 */
+	@Override
+	public void updateProgram(Program program) {
+		container.put("$current_program", program);
+	}
+
+	/**
+	 * Updates the selection pointed to by the "$current_selection" variable.
+	 *
+	 * @param sel The new selection.
+	 */
 	@Override
 	public void updateSelection(ProgramSelection sel) {
 		container.put("$current_selection", sel);
 	}
 
+	/**
+	 * Updates a state with the $current_*. variables from the interpreter.
+	 *
+	 * @param scriptState The state to update.
+	 */
+	@Override
 	public void updateState(GhidraState scriptState) {
 		scriptState.setCurrentProgram((Program) container.get("$current_program"));
 		scriptState.setCurrentLocation((ProgramLocation) container.get("$current_location"));
 		scriptState.setCurrentAddress((Address) container.get("$current_address"));
 		scriptState.setCurrentHighlight((ProgramSelection) container.get("$current_highlight"));
 		scriptState.setCurrentSelection((ProgramSelection) container.get("$current_selection"));
-	}
-
-	@Override
-	public void updateProgram(Program program) {
-		container.put("$current_program", program);
 	}
 }

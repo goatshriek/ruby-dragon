@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<HTML>
+  <HEAD>
+    <META name="generator" content=
+    "HTML Tidy for Java (vers. 2009-12-01), see jtidy.sourceforge.net">
+    <META http-equiv="Content-Language" content="en-us">
+    <META http-equiv="Content-Type" content="text/html; charset=windows-1252">
+    <META name="GENERATOR" content="Microsoft FrontPage 4.0">
+    <META name="ProgId" content="FrontPage.Editor.Document">
+
+    <TITLE>Clojure Interpreter</TITLE>
+    <LINK rel="stylesheet" type="text/css" href="../../shared/Frontpage.css">
+  </HEAD>
+
+  <BODY>
+    <H1><a name="Clojure"></a>Clojure Interpreter</H1>
+
+    <P>
+    Ruby Dragon adds interactive Clojure shells to Ghidra, and also
+    allows scripts to be written in Clojure with full access to all of
+    Ghidra's functionality. This is accomplished using a standalaone
+    Clojure jar.
+    </P>
+
+    <H2>Environment</H2>
+    <BLOCKQUOTE>
+    <P>
+    The Clojure interactive interpreter runs as a REPL, with all of the
+    same functionality.
+
+    The same variables that are available in Ghidra's native Java and Python
+    environments are also available in the Clojure interpreter as global
+    variables, both for interactive sessions and scripts. These are all added
+    to the ghidra namespace:
+    </P>
+
+    <PRE>
+    ghidra/current-address
+    ghidra/current-highlight
+    ghidra/current-location
+    ghidra/current-program
+    ghidra/current-selection
+    </PRE>
+
+    <P>
+    If you're writing a script, you'll also be able to access the ClojureScript
+    instance (a subclass of GhidraScript) using the ghidra/script
+    binding. This will provide access to all public fields and methods for the
+    instance. If you need to access private fields and methods, then you can
+    simply use them by name, since they are injected into the ghidra namespace
+    as well. For example, to access the TaskMonitor for the script, simply
+    reference the ghidra/monitor binding. There are examples of this
+    in the GhidraBasicsScriptClj script included in the Examples category with
+    this plugin.
+    </P>
+    </BLOCKQUOTE>
+
+    <H2>Headless Analysis</H2>
+    <BLOCKQUOTE>
+    <P>
+    Clojure scripts may also be run during headless analysis. The following
+    invocation uses one of the Clojure example scripts to save all strings found
+    in a demo executable to a file named example_file_strings.txt.
+    </P>
+
+    <PRE>
+    support\analyzeHeadless ^
+        my\ghidra\projects DummyProject ^
+        -import demo_binary.exe ^
+        -postScript SaveStringsScriptClj.clj example_file_strings.txt ^
+        -deleteProject
+    </PRE>
+    </BLOCKQUOTE>
+
+    <H2>Copy/Paste</H2>
+    <BLOCKQUOTE>
+    <P>
+    Copy and paste from within the Clojure interpreter should work as expected for
+    your given environment:
+    <UL>
+      <LI><B>Windows:</B>&nbsp;&nbsp;CTRL+C / CTRL+V</LI>
+      <LI><B>Linux:</B>&nbsp;&nbsp;CTRL+C / CTRL+V</LI>
+      <LI><B>OS X:</B>&nbsp;&nbsp;COMMAND+C / COMMAND+V</LI>
+    </UL>
+    </P>
+    </BLOCKQUOTE>
+
+    <P align="left" class="providedbyplugin">Provided by: <I>RubyDragon</I></P>
+  </BODY>
+</HTML>

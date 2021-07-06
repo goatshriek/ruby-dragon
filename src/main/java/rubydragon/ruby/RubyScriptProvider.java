@@ -36,7 +36,6 @@ public class RubyScriptProvider extends GhidraScriptProvider {
 		writeBody(writer);
 		writer.println("");
 		writer.close();
-
 	}
 
 	@Override

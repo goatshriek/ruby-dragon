@@ -1,7 +1,8 @@
 # Ruby Dragon
+[![build](https://github.com/goatshriek/ruby-dragon/actions/workflows/build.yml/badge.svg)](https://github.com/goatshriek/ruby-dragon/actions/workflows/build.yml)
 [![Apache 2.0 License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Ruby support for Ghidra, both interactive and scripting.
+Ruby and Clojure support for Ghidra, both interactive and scripting.
 
 
 ## Installation
@@ -15,9 +16,10 @@ You will then need to activate the plugin before using it. You might get
 prompted to do this next time you open the CodeBrowser tool, in which case you
 can simply select OK. Otherwise, you can manually activate it by opening the
 CodeBrowser tool, going to `File->Configure...`, and selecting the `RubyDragon`
-plugin. The `Configure All Plugins` option will show you all plugins if you
-cannot find it in a particular category, though it should appear in the
-`Experimental` listing.
+plugin for Ruby, and the `ClojureDragon` plugin for Clojure. The
+`Configure All Plugins` option will show you all plugins if you cannot find
+them in a particular category, though they should appear in the `Experimental`
+listing.
 
 If you need to remove the plugin, you can do so by unchecking the box in the
 configuration dialog in the CodeBrowser tool, and then in the
@@ -28,7 +30,7 @@ particularly if you want to load the plugin via the Eclipse plugin for
 development.
 
 
-## Basic Usage
+## Basic Ruby Usage
 Once the plugin is enabled, you will be able to open an interactive Ruby session
 from the CodeBrowser tool by going to `Window->Ruby`. This is a standard IRB
 session provided by JRuby.
@@ -54,6 +56,12 @@ provided for scripts to use in the same manner.
 
 You can also find help directly in the Ghidra help menu (press `F1`) on the 
 `Ghidra Functionality->Scripting->Ruby Interpreter` page.
+
+
+## Basic Clojure Usage
+Clojure is used in much the same way as the Ruby toolset with some obvious
+differences, such as being reached from the `Window->Clojure` menu option
+instead.
 
 
 ## Contributing
