@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 
 import clojure.lang.LineNumberingPushbackReader;
 import clojure.lang.Namespace;
@@ -133,6 +134,12 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 				}
 			}
 
+			ArrayList<String> modifiedArgs = new ArrayList<String>(scriptArguments.length);
+			modifiedArgs.add("--");
+			for (String arg : scriptArguments) {
+				modifiedArgs.add(arg);
+			}
+			RT.processCommandLine(modifiedArgs.toArray(scriptArguments));
 			RT.loadResourceScript(scriptFile.getAbsolutePath());
 			updateState(scriptState);
 		} finally {

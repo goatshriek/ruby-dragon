@@ -47,7 +47,7 @@ public class ClojureScript extends GhidraScript {
 		interpreter.setOutWriter(stdout);
 
 		try {
-			interpreter.runScript(this, null, state);
+			interpreter.runScript(this, getScriptArgs(), state);
 		} catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
