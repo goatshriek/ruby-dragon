@@ -66,12 +66,12 @@ public class ClojureDragonPlugin extends ProgramPlugin implements InterpreterCon
 	}
 
 	/**
-	 * Destroys the plugin and any interpreters within.
+	 * Destroys the plugin and any interpreters within. The interactive console is
+	 * not destroyed as Clojure would then end the entire Ghidra process.
 	 */
 	@Override
 	protected void dispose() {
 		interpreter.dispose();
-		console.dispose();
 		super.dispose();
 	}
 

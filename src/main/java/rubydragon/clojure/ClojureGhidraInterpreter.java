@@ -32,7 +32,6 @@ import rubydragon.GhidraInterpreter;
 public class ClojureGhidraInterpreter extends GhidraInterpreter {
 	private Thread replThread;
 	final private ClassLoader clojureClassLoader;
-	private boolean isRunning = false;
 
 	/**
 	 * Creates a new interpreter.
@@ -49,7 +48,7 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 		Thread.currentThread().setContextClassLoader(previous);
 
 		replThread = new Thread(() -> {
-			while (isRunning) {
+			while (true) {
 				MAIN.applyTo(RT.seq(new String[0]));
 			}
 		});
@@ -68,14 +67,18 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 	}
 
 	/**
-	 * Tells the interpreter not to restart next time it is killed.
+	 * Should end the interpreter and releases all resources. Currently does
+	 * nothing.
 	 *
-	 * Currently, it is still up to the interpreter user to actually kill the
-	 * current session. This isn't very clean and should be changed in the future.
+	 * Unfortunately, Clojure kills the entire process when the interactive session
+	 * is ended. Since this kills Ghidra completely rather than just disabling the
+	 * plugin, we elect to do nothing here and wait for a restart to kill this
+	 * thread. This is also the reason that the console is not destroyed in
+	 * ClojureDragonPlugin.dispose().
 	 */
 	@Override
 	public void dispose() {
-		isRunning = false;
+		// do nothing
 	}
 
 	/**
@@ -177,7 +180,6 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 	 */
 	@Override
 	public void startInteractiveSession() {
-		isRunning = true;
 		replThread.start();
 	}
 
