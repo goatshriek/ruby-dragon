@@ -22,19 +22,19 @@
     Ghidra's functionality. This is accomplished using a standalaone
     Clojure jar.
     </P>
-    
+
     <H2>Environment</H2>
     <BLOCKQUOTE>
     <P>
     The Clojure interactive interpreter runs as a REPL, with all of the
     same functionality.
-    
+
     The same variables that are available in Ghidra's native Java and Python
     environments are also available in the Clojure interpreter as global
     variables, both for interactive sessions and scripts. These are all added
     to the ghidra namespace:
     </P>
-    
+
     <PRE>
     ghidra/current-address
     ghidra/current-highlight
@@ -63,7 +63,7 @@
     invocation uses one of the Clojure example scripts to save all strings found
     in a demo executable to a file named example_file_strings.txt.
     </P>
-    
+
     <PRE>
     support\analyzeHeadless ^
         my\ghidra\projects DummyProject ^
@@ -76,7 +76,7 @@
     <H2>Copy/Paste</H2>
     <BLOCKQUOTE>
     <P>
-    Copy and paste from within the Clojure interpreter should work as expected for 
+    Copy and paste from within the Clojure interpreter should work as expected for
     your given environment:
     <UL>
       <LI><B>Windows:</B>&nbsp;&nbsp;CTRL+C / CTRL+V</LI>
