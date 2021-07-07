@@ -49,7 +49,9 @@ $current_selection
 You can also write scripts in Ruby, much the same way as you would with Java or
 Python. Ruby will be available as a new script type, and you can see several
 example scripts in the `Examples.Ruby` directory of the Script Manager that
-show basic usage of both JRuby and Ghidra basics.
+show basic usage of both JRuby and Ghidra basics. Scripts also have an
+additional global variable `$script` that provides access to the `RubyScript`
+instance for them.
 
 The same global variables available in the interactive sessions are also
 provided for scripts to use in the same manner.
@@ -62,6 +64,25 @@ You can also find help directly in the Ghidra help menu (press `F1`) on the
 Clojure is used in much the same way as the Ruby toolset with some obvious
 differences, such as being reached from the `Window->Clojure` menu option
 instead.
+
+The Clojure interpreter and scripts also have bindings that make the state
+information available to them, within the `ghidra` namespace. They are:
+
+```clojure
+ghidra/current-address
+ghidra/current-highlight
+ghidra/current-location
+ghidra/current-program
+ghidra/current-selection
+```
+
+And, as with Ruby, a `ghidra/script` binding is available within scripts that
+provides access to the underlying `ClojureScript` instance. Unlike Ruby however,
+this variable does not allow access to protected fields or private methods.
+These are instead injected into the `ghidra` namespace as well. For example, to
+access the `TaskMonitor` for a script, you can simply reference `ghidra/monitor`
+to do things like update the progress. The Clojure Ghidra Basics script has an
+example of this type of access.
 
 
 ## Contributing
