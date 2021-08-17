@@ -24,11 +24,12 @@ import rubydragon.GhidraInterpreter;
 public class RubyGhidraInterpreter extends GhidraInterpreter {
 	private ScriptingContainer container;
 	private Thread irbThread;
+	private boolean disposed = false;
 
 	public RubyGhidraInterpreter() {
 		container = new ScriptingContainer(LocalContextScope.SINGLETHREAD, LocalVariableBehavior.PERSISTENT);
 		irbThread = new Thread(() -> {
-			while (true) {
+			while (!disposed) {
 				container.runScriptlet("require 'irb';IRB.start");
 			}
 		});
@@ -41,7 +42,8 @@ public class RubyGhidraInterpreter extends GhidraInterpreter {
 
 	@Override
 	public void dispose() {
-		// do nothing
+		disposed = true;
+		container.terminate();
 	}
 
 	/**
