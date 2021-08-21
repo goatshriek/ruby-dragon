@@ -11,7 +11,7 @@ jobs:
     name: "Build and Test"
     runs-on: "ubuntu-latest"
     env:
-      GHIDRA_INSTALL_DIR: '/home/runner/ghidra/ghidra_10.0_PUBLIC'
+      GHIDRA_INSTALL_DIR: '/home/runner/ghidra/ghidra_10.0.2_PUBLIC'
     steps:
       - uses: actions/checkout@v2
       - name: Cache Ghidra
@@ -19,12 +19,13 @@ jobs:
         id: cache-ghidra
         with:
           path: ~/ghidra
-          key: ${{ runner.os }}-${{ hashFiles('lib/*.jar') }}
+          key: ${{ runner.os }}-10-0-2-${{ hashFiles('lib/*.jar') }}
       - name: Get Ghidra
         if: steps.cache-ghidra.outputs.cache-hit != 'true'
         run: |
-          wget -q https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.0_build/ghidra_10.0_PUBLIC_20210621.zip
-          unzip ghidra_10.0_PUBLIC_20210621.zip -d ~/ghidra
+          wget -q https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.0.2_build/ghidra_10.0.2_PUBLIC_20210804.zip
+          echo "5534521ccb958b5cde04fc5c51bfa2918d475af49e94d372fa7c117cc9fe804b ghidra_10.0.2_PUBLIC_20210804.zip" | sha256sum -c
+          unzip ghidra_10.0.2_PUBLIC_20210804.zip -d ~/ghidra
       - name: Run Unit Tests
         run: |
           gradle test
