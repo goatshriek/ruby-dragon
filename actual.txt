@@ -1,4 +1,0 @@
- This must be done using a pre-script (prior to analysis). (PdbUniversalAnalyzer)  
------------------------------------------------------
------------------------------------------------------
- (AutoAnalysisManager)  
