@@ -10,8 +10,23 @@ jobs:
   simple-build:
     name: "Build and Test"
     runs-on: "ubuntu-latest"
+    strategy:
+      matrix:
+        ghidra: ["9.2.4", "10.0.2"]
+        include:
+          - ghidra: "9.2.4"
+            ghidra-url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_9.2.4_build/ghidra_9.2.4_PUBLIC_20210427.zip"
+            ghidra-sha256: "c1f18cdb12e2e1c0313e7becf7f0387226937ac67ad6c6e5056fa889229f969a"
+            ghidra-filename: "ghidra_9.2.4_PUBLIC_20210427.zip"
+            ghidra-folder: "ghidra_9.2.4_PUBLIC"
+          - ghidra: "10.0.2"
+            ghidra-url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.0.2_build/ghidra_10.0.2_PUBLIC_20210804.zip"
+            ghidra-sha256: "5534521ccb958b5cde04fc5c51bfa2918d475af49e94d372fa7c117cc9fe804b"
+            ghidra-filename: "ghidra_10.0.2_PUBLIC_20210804.zip"
+            ghidra-folder: "ghidra_10.0.2_PUBLIC"
+
     env:
-      GHIDRA_INSTALL_DIR: '/home/runner/ghidra/ghidra_10.0.2_PUBLIC'
+      GHIDRA_INSTALL_DIR: /home/runner/ghidra/${{ matrix.ghidra-folder }}
     steps:
       - uses: actions/checkout@v2
       - name: Cache Ghidra
@@ -19,13 +34,13 @@ jobs:
         id: cache-ghidra
         with:
           path: ~/ghidra
-          key: ${{ runner.os }}-10-0-2-${{ hashFiles('lib/*.jar') }}
+          key: ${{ runner.os }}-${{ matrix.ghidra }}
       - name: Get Ghidra
         if: steps.cache-ghidra.outputs.cache-hit != 'true'
         run: |
-          wget -q https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.0.2_build/ghidra_10.0.2_PUBLIC_20210804.zip
-          echo "5534521ccb958b5cde04fc5c51bfa2918d475af49e94d372fa7c117cc9fe804b ghidra_10.0.2_PUBLIC_20210804.zip" | sha256sum -c
-          unzip ghidra_10.0.2_PUBLIC_20210804.zip -d ~/ghidra
+          wget -q ${{ matrix.ghidra-url }}
+          echo "${{ matrix.ghidra-sha256 }} ${{ matrix.ghidra-filename }}" | sha256sum -c
+          unzip ${{ matrix.ghidra-filename }} -d ~/ghidra
       - name: Run Unit Tests
         run: |
           gradle test
