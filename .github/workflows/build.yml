@@ -8,7 +8,7 @@ on:
 
 jobs:
   simple-build:
-    name: "build extension"
+    name: "Build and Test"
     runs-on: "ubuntu-latest"
     env:
       GHIDRA_INSTALL_DIR: '/home/runner/ghidra/ghidra_10.0_PUBLIC'
