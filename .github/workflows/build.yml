@@ -57,6 +57,7 @@ jobs:
         run: |
           source "/home/runner/.sdkman/bin/sdkman-init.sh"
           gradle buildExtension
+          rm -rf $GHIDRA_INSTALL_DIR/Ghidra/Extensions/*
           unzip dist/$(ls dist) -d $GHIDRA_INSTALL_DIR/Ghidra/Extensions
       - name: JRubyBasics Script
         run: |
