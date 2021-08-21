@@ -41,6 +41,10 @@ jobs:
           wget -q ${{ matrix.ghidra-url }}
           echo "${{ matrix.ghidra-sha256 }} ${{ matrix.ghidra-filename }}" | sha256sum -c
           unzip ${{ matrix.ghidra-filename }} -d ~/ghidra
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '11'
       - name: Run Unit Tests
         run: |
           gradle test
