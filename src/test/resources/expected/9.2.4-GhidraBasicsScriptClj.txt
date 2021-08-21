@@ -46,7 +46,7 @@ FUN_004019cf
 FUN_004019d5
 thunk_FUN_00401954
 FUN_00401af5
-FUN_00401b44
+___scrt_unhandled_exception_filter@4
 FUN_00401b9a
 FUN_00401ba2
 __SEH_prolog4
