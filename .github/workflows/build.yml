@@ -47,7 +47,6 @@ jobs:
           rm actual.txt expected.txt
       - name: Ghidra Basics Clojure Script
         run: |
-          $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript ./ghidra_scripts/GhidraBasicsScriptClj.clj HeadlessTest -deleteProject | awk '/^INFO  SCRIPT:/{flag=1;next}/^INFO  /{flag=0}flag' > actual.txt
-           awk '/; src\/test\/resources\/bin\/HelloGhidra.exe/{flag=1;next} flag' ghidra_scripts/GhidraBasicsScriptClj.clj | cut -c 2- > expected.txt
-          diff actual.txt expected.txt
-          rm actual.txt expected.txt
+          $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript ./ghidra_scripts/GhidraBasicsScriptClj.clj TestStrings.txt -deleteProject
+          grep "Hello Ghidra!" TestStrings.txt
+          rm TestStrings.txt
