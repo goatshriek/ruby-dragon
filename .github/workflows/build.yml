@@ -45,6 +45,11 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: '11'
+      - uses: sdkman/sdkman-action@master
+        id: sdkman
+        with:
+          candidate: gradle
+          version: "6.9"
       - name: Run Unit Tests
         run: |
           gradle test
