@@ -55,6 +55,7 @@ jobs:
           gradle test
       - name: Build and Install
         run: |
+          source "/home/runner/.sdkman/bin/sdkman-init.sh"
           gradle buildExtension
           unzip dist/$(ls dist) -d $GHIDRA_INSTALL_DIR/Ghidra/Extensions
       - name: JRubyBasics Script
