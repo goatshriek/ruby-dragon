@@ -45,13 +45,10 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: '11'
-      - uses: sdkman/sdkman-action@master
-        id: sdkman
-        with:
-          candidate: gradle
-          version: "6.9"
       - name: Run Unit Tests
         run: |
+          curl -s "https://get.sdkman.io?rcupdate=false" | bash
+          sdk install gradle 6.9
           sdk use gradle 6.9
           gradle test
       - name: Build and Install
