@@ -48,6 +48,7 @@ jobs:
       - name: Run Unit Tests
         run: |
           curl -s "https://get.sdkman.io?rcupdate=false" | bash
+          source "/home/runner/.sdkman/bin/sdkman-init.sh"
           sdk install gradle 6.9
           sdk use gradle 6.9
           gradle test
