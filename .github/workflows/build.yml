@@ -75,8 +75,8 @@ jobs:
         run: |
           $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript ./ghidra_scripts/GhidraBasicsScriptClj.clj HeadlessTest -deleteProject | awk '/^INFO  SCRIPT:/{flag=1;next}/^INFO  /{flag=0}flag' > actual.txt
            awk '/; src\/test\/resources\/bin\/HelloGhidra.exe/{flag=1;next} flag' ghidra_scripts/GhidraBasicsScriptClj.clj | cut -c 2- > expected.txt
-          diff actual.txt expected.txt
-          rm actual.txt src/test/resources/expected/${{ matrix.ghidra }}-GhidraBasicsScriptClj.txt
+          diff actual.txt src/test/resources/expected/${{ matrix.ghidra }}-GhidraBasicsScriptClj.txt
+          rm actual.txt
       - name: Save Strings Clojure Script
         run: |
           $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript ./ghidra_scripts/SaveStringsScriptClj.clj TestStrings.txt -deleteProject
