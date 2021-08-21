@@ -52,6 +52,7 @@ jobs:
           version: "6.9"
       - name: Run Unit Tests
         run: |
+          sdk use gradle 6.9
           gradle test
       - name: Build and Install
         run: |
