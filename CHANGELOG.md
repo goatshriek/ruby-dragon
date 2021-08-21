@@ -5,11 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.3.0] - 2021-08-21
+ - Add headless support to example scripts
+
+
 ## [0.2.0] - 2021-07-06
 ### Added
  - Example Ruby scripts.
  - Interactive Clojure interpreter (uses Clojure 1.10.3).
  - Clojure script capability (uses Clojure 1.10.3).
+
 
 ###Changed
  - Upgrade to JRuby 9.2.19.0 (Ruby 2.5.8).

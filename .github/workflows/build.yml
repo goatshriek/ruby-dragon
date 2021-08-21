@@ -40,6 +40,6 @@ jobs:
           diff actual.txt expected.txt
       - name: Ghidra Basics Ruby Script
         run: |
-          mkdir ~/projects$GHIDRA_INSTALL_DIR/support/analyzeHeadless ../../ghidra/projects/ $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript ./ghidra_scripts/GhidraBasicsScriptRb.rb HeadlessTest -deleteProject | awk '/^INFO  SCRIPT:/{flag=1;next}/^INFO  /{flag=0}flag' > result.txt
+          $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript ./ghidra_scripts/GhidraBasicsScriptRb.rb HeadlessTest -deleteProject | awk '/^INFO  SCRIPT:/{flag=1;next}/^INFO  /{flag=0}flag' > result.txt
           awk '/^=begin$/{flag=1;next}/^=end$/{flag=0}flag' ghidra_scripts/GhidraBasicsScriptRb.rb > expected.txt
           diff actual.txt expected.txt
