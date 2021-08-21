@@ -43,7 +43,7 @@ public class RubyGhidraInterpreter extends GhidraInterpreter {
 	@Override
 	public void dispose() {
 		disposed = true;
-		container.terminate();
+		// container.terminate(); // makes ghidra hang on close
 	}
 
 	/**

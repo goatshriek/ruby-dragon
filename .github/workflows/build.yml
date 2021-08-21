@@ -32,9 +32,14 @@ jobs:
         run: |
           gradle buildExtension
           unzip dist/$(ls dist) -d $GHIDRA_INSTALL_DIR/Ghidra/Extensions
-      - name: Run Headless Tests
+      - name: JRubyBasics Script
         run: |
           mkdir ~/projects
           $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -preScript ./ghidra_scripts/JRubyBasicsScriptRb.rb -deleteProject | grep -v "^\(INFO\)\|\(WARN\)\|\(    \)" > actual.txt
           awk '/^=begin$/{flag=1;next}/^=end$/{flag=0}flag' ghidra_scripts/JRubyBasicsScriptRb.rb > expected.txt
+          diff actual.txt expected.txt
+      - name: Ghidra Basics Ruby Script
+        run: |
+          mkdir ~/projects$GHIDRA_INSTALL_DIR/support/analyzeHeadless ../../ghidra/projects/ $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript ./ghidra_scripts/GhidraBasicsScriptRb.rb HeadlessTest -deleteProject | awk '/^INFO  SCRIPT:/{flag=1;next}/^INFO  /{flag=0}flag' > result.txt
+          awk '/^=begin$/{flag=1;next}/^=end$/{flag=0}flag' ghidra_scripts/GhidraBasicsScriptRb.rb > expected.txt
           diff actual.txt expected.txt
