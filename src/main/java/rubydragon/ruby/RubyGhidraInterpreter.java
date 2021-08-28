@@ -107,11 +107,19 @@ public class RubyGhidraInterpreter extends GhidraInterpreter {
 		container.setOutput(output);
 	}
 
+	/**
+	 * Starts an interactive session with the current input/output/error streams.
+	 */
 	@Override
 	public void startInteractiveSession() {
 		irbThread.start();
 	}
 
+	/**
+	 * Updates the current address pointed to by the "$current_address" variable.
+	 *
+	 * @param address The new current address in the program.
+	 */
 	@Override
 	public void updateAddress(Address address) {
 		container.put("$current_address", address);
