@@ -21,7 +21,7 @@ or want to make a suggestion, please submit an issue on the project's
 ## Unallocated to a release
  * [ADD] **Complete Example Set**
    A full suite of example scripts is needed for users to quickly understand how
-   to use the functionality here, and what is possible. The setof examples will
+   to use the functionality here, and what is possible. The set of examples will
    be considered adequate when there is at least a 1-1 parity with the existing
    Python examples.
 
