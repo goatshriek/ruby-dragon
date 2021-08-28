@@ -46,7 +46,7 @@ public abstract class GhidraInterpreter implements Disposable {
 	/**
 	 * Loads a provided GhidraState into the interpreter.
 	 *
-	 * @param state
+	 * @param state The state to load.
 	 */
 	public void loadState(GhidraState state) {
 		updateHighlight(state.getCurrentHighlight());
@@ -73,6 +73,13 @@ public abstract class GhidraInterpreter implements Disposable {
 	 * @throws IllegalArgumentException if the script does not exist
 	 * @throws IOException              if the script could not be read
 	 * @throws FileNotFoundException    if the script file wasn't found
+	 *
+	 * @param script          The script to run.
+	 *
+	 * @param scriptArguments The arguments to pass to the script.
+	 *
+	 * @param scriptState     The script to load before the script runs, and update
+	 *                        after the script finishes.
 	 */
 	public abstract void runScript(GhidraScript script, String[] scriptArguments, GhidraState scriptState)
 			throws IllegalArgumentException, FileNotFoundException, IOException;
