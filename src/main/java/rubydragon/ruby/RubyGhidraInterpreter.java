@@ -25,6 +25,9 @@ public class RubyGhidraInterpreter extends GhidraInterpreter {
 	private ScriptingContainer container;
 	private Thread irbThread;
 
+	/**
+	 * Creates a new Ruby interpreter.
+	 */
 	public RubyGhidraInterpreter() {
 		container = new ScriptingContainer(LocalContextScope.SINGLETHREAD, LocalVariableBehavior.PERSISTENT);
 		irbThread = new Thread(() -> {
@@ -34,11 +37,20 @@ public class RubyGhidraInterpreter extends GhidraInterpreter {
 		});
 	}
 
+	/**
+	 * Creates a new interpreter, and ties the streams for the provided console to
+	 * the new interpreter.
+	 *
+	 * @param console The console to bind to the interpreter streams.
+	 */
 	public RubyGhidraInterpreter(InterpreterConsole console) {
 		this();
 		setStreams(console);
 	}
 
+	/**
+	 * Should end the interpreter and release all resources. Currently does nothing.
+	 */
 	@Override
 	public void dispose() {
 		// do nothing

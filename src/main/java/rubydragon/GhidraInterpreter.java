@@ -61,16 +61,22 @@ public abstract class GhidraInterpreter implements Disposable {
 
 	/**
 	 * Sets the error output stream for this interpreter.
+	 *
+	 * @param errOut The new error output stream to use for the interpreter.
 	 */
 	public abstract void setErrWriter(PrintWriter errOut);
 
 	/**
 	 * Sets the input stream for this interpreter.
+	 *
+	 * @param input The new input stream to use for the interpreter.
 	 */
 	public abstract void setInput(InputStream input);
 
 	/**
 	 * Sets the output stream for this interpreter.
+	 *
+	 * @param output The new output stream to use for the interpreter.
 	 */
 	public abstract void setOutWriter(PrintWriter output);
 

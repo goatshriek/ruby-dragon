@@ -34,7 +34,7 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 	final private ClassLoader clojureClassLoader;
 
 	/**
-	 * Creates a new interpreter.
+	 * Creates a new Clojure interpreter.
 	 */
 	public ClojureGhidraInterpreter() {
 		clojureClassLoader = new ClojureGhidraClassLoader();
@@ -67,8 +67,7 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 	}
 
 	/**
-	 * Should end the interpreter and releases all resources. Currently does
-	 * nothing.
+	 * Should end the interpreter and release all resources. Currently does nothing.
 	 *
 	 * Unfortunately, Clojure kills the entire process when the interactive session
 	 * is ended. Since this kills Ghidra completely rather than just disabling the
