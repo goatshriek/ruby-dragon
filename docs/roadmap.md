@@ -9,6 +9,7 @@ or want to make a suggestion, please submit an issue on the project's
    For the same reason that Groovy is on the roadmap, Kotlin is as well as an
    easy step to take from Java, offering more powerful functional features on
    top of the language.
+ * [ADD] **Add Documentation for Adding New Languages**
 
 
 ## 1.2.0
