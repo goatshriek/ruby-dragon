@@ -97,6 +97,7 @@ public class RubyGhidraInterpreter extends GhidraInterpreter {
 		InputStream scriptStream = script.getSourceFile().getInputStream();
 		loadState(scriptState);
 		container.put("$script", script);
+		container.put("ARGV", scriptArguments);
 		container.runScriptlet(scriptStream, script.getScriptName());
 		updateState(scriptState);
 	}

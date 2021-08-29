@@ -76,8 +76,13 @@ jobs:
           $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript ./ghidra_scripts/GhidraBasicsScriptClj.clj HeadlessTest -deleteProject | awk '/^INFO  SCRIPT:/{flag=1;next}/^INFO  /{flag=0}flag' > actual.txt
           diff actual.txt src/test/resources/expected/${{ matrix.ghidra }}-GhidraBasicsScriptClj.txt
           rm actual.txt
+      - name: Save Strings Ruby Script
+        run: |
+          $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript ./ghidra_scripts/SaveStringsScriptRb.rb TestStringsRuby.txt -deleteProject
+          grep "Hello Ghidra!" TestStringsRuby.txt
+          rm TestStringsRuby.txt
       - name: Save Strings Clojure Script
         run: |
-          $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript ./ghidra_scripts/SaveStringsScriptClj.clj TestStrings.txt -deleteProject
-          grep "Hello Ghidra!" TestStrings.txt
-          rm TestStrings.txt
+          $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript ./ghidra_scripts/SaveStringsScriptClj.clj TestStringsClojure.txt -deleteProject
+          grep "Hello Ghidra!" TestStringsClojure.txt
+          rm TestStringsClojure.txt
