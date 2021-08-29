@@ -1,3 +1,21 @@
+// SPDX-License-Identifier: Apache-2.0
+
+/*
+ * Copyright 2021 Joel E. Anderson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package rubydragon.ruby;
 
 import java.io.FileNotFoundException;
@@ -12,30 +30,42 @@ import ghidra.app.script.GhidraState;
 import ghidra.app.services.ConsoleService;
 import ghidra.framework.plugintool.PluginTool;
 
+/**
+ * A ghidra script written in Clojure.
+ */
 public class RubyScript extends GhidraScript {
 
 	private RubyGhidraInterpreter interpreter;
 
+	/**
+	 * Creates a new script, with it's own interpreter instance.
+	 */
 	public RubyScript() {
 		super();
 		interpreter = new RubyGhidraInterpreter();
 	}
 
+	/**
+	 * The category of these scripts.
+	 */
 	@Override
 	public String getCategory() {
 		return "Ruby";
 	}
 
+	/**
+	 * Executes this script.
+	 */
 	@Override
 	public void run() {
 		final PrintWriter stderr = getStdErr();
 		final PrintWriter stdout = getStdOut();
-		
+
 		interpreter.setErrWriter(stderr);
 		interpreter.setOutWriter(stdout);
-		
+
 		try {
-			interpreter.runScript(this, null, state);
+			interpreter.runScript(this, getScriptArgs(), state);
 		} catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -46,7 +76,7 @@ public class RubyScript extends GhidraScript {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		stderr.flush();
 		stdout.flush();
 	}
@@ -54,11 +84,11 @@ public class RubyScript extends GhidraScript {
 	/**
 	 * Runs a script by name with the given arguments using the given state, within
 	 * this script.
-	 * 
+	 *
 	 * If the script cannot be found but the script is not running in headless mode,
 	 * the user will be prompted to ignore the error, which will cause the function
 	 * to simply continue instead of throwing an IllegalArgumentException.
-	 * 
+	 *
 	 * @throws IllegalArgumentException if the script does not exist
 	 * @throws IOException              if an error occurs getting the provider
 	 * @throws IllegalAccessException   if an error occurs getting the script
@@ -108,6 +138,11 @@ public class RubyScript extends GhidraScript {
 		}
 	}
 
+	/**
+	 * Gets the error output for this script.
+	 *
+	 * @return A writer for this script's error output.
+	 */
 	private PrintWriter getStdErr() {
 		PluginTool tool = state.getTool();
 		if (tool != null) {
@@ -119,6 +154,11 @@ public class RubyScript extends GhidraScript {
 		return new PrintWriter(System.err, true);
 	}
 
+	/**
+	 * Gets the standard output for this script.
+	 *
+	 * @return A writer for this script's standard output.
+	 */
 	private PrintWriter getStdOut() {
 		PluginTool tool = state.getTool();
 		if (tool != null) {

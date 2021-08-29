@@ -47,6 +47,23 @@
     </PRE>
     </BLOCKQUOTE>
 
+    <H2>Headless Analysis</H2>
+    <BLOCKQUOTE>
+    <P>
+    Ruby scripts may also be run during headless analysis. The following
+    invocation uses one of the Ruby example scripts to save all strings found
+    in a demo executable to a file named example_file_strings.txt.
+    </P>
+
+    <PRE>
+    support\analyzeHeadless ^
+        my\ghidra\projects DummyProject ^
+        -import demo_binary.exe ^
+        -postScript SaveStringsScriptRb.rb example_file_strings.txt ^
+        -deleteProject
+    </PRE>
+    </BLOCKQUOTE>
+
     <H2>Copy/Paste</H2>
     <BLOCKQUOTE>
     <P>

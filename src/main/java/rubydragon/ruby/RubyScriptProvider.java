@@ -1,3 +1,21 @@
+// SPDX-License-Identifier: Apache-2.0
+
+/*
+ * Copyright 2021 Joel E. Anderson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package rubydragon.ruby;
 
 import java.io.FileWriter;
@@ -8,18 +26,30 @@ import generic.jar.ResourceFile;
 import ghidra.app.script.GhidraScript;
 import ghidra.app.script.GhidraScriptProvider;
 
+/**
+ * Supports ruby scripts within ghidra.
+ */
 public class RubyScriptProvider extends GhidraScriptProvider {
 
+	/**
+	 * A short description of the type of scripts this provider supports.
+	 */
 	@Override
 	public String getDescription() {
 		return "Ruby";
 	}
 
+	/**
+	 * The extension of ruby scripts, including the period.
+	 */
 	@Override
 	public String getExtension() {
 		return ".rb";
 	}
 
+	/**
+	 * Creates a new RubyScript instance for the given file and returns it.
+	 */
 	@Override
 	public GhidraScript getScriptInstance(ResourceFile sourceFile, PrintWriter writer)
 			throws ClassNotFoundException, InstantiationException, IllegalAccessException {
@@ -28,6 +58,9 @@ public class RubyScriptProvider extends GhidraScriptProvider {
 		return script;
 	}
 
+	/**
+	 * Creates a new script file for the given script and category.
+	 */
 	@Override
 	public void createNewScript(ResourceFile newScript, String category) throws IOException {
 		PrintWriter writer = new PrintWriter(new FileWriter(newScript.getFile(false)));
@@ -38,6 +71,9 @@ public class RubyScriptProvider extends GhidraScriptProvider {
 		writer.close();
 	}
 
+	/**
+	 * The comment character for ruby scripts.
+	 */
 	@Override
 	public String getCommentCharacter() {
 		return "#";

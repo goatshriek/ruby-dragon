@@ -1,3 +1,21 @@
+// SPDX-License-Identifier: Apache-2.0
+
+/*
+ * Copyright 2021 Joel E. Anderson
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package rubydragon.ruby;
 
 import java.io.FileNotFoundException;
@@ -26,6 +44,9 @@ public class RubyGhidraInterpreter extends GhidraInterpreter {
 	private Thread irbThread;
 	private boolean disposed = false;
 
+	/**
+	 * Creates a new Ruby interpreter.
+	 */
 	public RubyGhidraInterpreter() {
 		container = new ScriptingContainer(LocalContextScope.SINGLETHREAD, LocalVariableBehavior.PERSISTENT);
 		irbThread = new Thread(() -> {
@@ -35,11 +56,20 @@ public class RubyGhidraInterpreter extends GhidraInterpreter {
 		});
 	}
 
+	/**
+	 * Creates a new interpreter, and ties the streams for the provided console to
+	 * the new interpreter.
+	 *
+	 * @param console The console to bind to the interpreter streams.
+	 */
 	public RubyGhidraInterpreter(InterpreterConsole console) {
 		this();
 		setStreams(console);
 	}
 
+	/**
+	 * Should end the interpreter and release all resources. Currently does nothing.
+	 */
 	@Override
 	public void dispose() {
 		disposed = true;
@@ -67,6 +97,7 @@ public class RubyGhidraInterpreter extends GhidraInterpreter {
 		InputStream scriptStream = script.getSourceFile().getInputStream();
 		loadState(scriptState);
 		container.put("$script", script);
+		container.put("ARGV", scriptArguments);
 		container.runScriptlet(scriptStream, script.getScriptName());
 		updateState(scriptState);
 	}
@@ -95,11 +126,19 @@ public class RubyGhidraInterpreter extends GhidraInterpreter {
 		container.setOutput(output);
 	}
 
+	/**
+	 * Starts an interactive session with the current input/output/error streams.
+	 */
 	@Override
 	public void startInteractiveSession() {
 		irbThread.start();
 	}
 
+	/**
+	 * Updates the current address pointed to by the "$current_address" variable.
+	 *
+	 * @param address The new current address in the program.
+	 */
 	@Override
 	public void updateAddress(Address address) {
 		container.put("$current_address", address);

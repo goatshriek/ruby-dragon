@@ -1,18 +1,21 @@
-/* ###
- * IP: GHIDRA
+// SPDX-License-Identifier: Apache-2.0
+
+/*
+ * Copyright 2021 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package rubydragon.ruby;
 
 import java.util.ArrayList;
@@ -37,11 +40,12 @@ import resources.ResourceManager;
 import rubydragon.GhidraInterpreter;
 
 /**
- * TODO: Provide class-level documentation that describes what this plugin does.
+ * RubyDragon provides Ruby support within Ghidra, both in an interactive
+ * terminal session as well as standalone scripts.
  */
 //@formatter:off
 @PluginInfo(
-	status = PluginStatus.STABLE,
+	status = PluginStatus.RELEASED,
 	packageName = CorePluginPackage.NAME,
 	category = PluginCategoryNames.INTERPRETERS,
 	shortDescription = "Ruby Interpreter",
@@ -57,62 +61,91 @@ public class RubyDragonPlugin extends ProgramPlugin implements InterpreterConnec
 
 	/**
 	 * Plugin constructor.
-	 * 
+	 *
 	 * @param tool The plugin tool that this plugin is added to.
 	 */
 	public RubyDragonPlugin(PluginTool tool) {
 		super(tool, true, true);
 	}
 
+	/**
+	 * Destroys the plugin and any interpreters within.
+	 */
 	@Override
 	protected void dispose() {
 		interpreter.dispose();
 		console.dispose();
 		super.dispose();
 	}
-	
+
+	/**
+	 * The title of the plugin.
+	 */
 	@Override
 	public String getTitle() {
 		return "Ruby";
 	}
 
+	/**
+	 * The icon for this plugin.
+	 */
 	@Override
 	public ImageIcon getIcon() {
 		return ResourceManager.loadImage("images/ruby.png");
 	}
 
+	/**
+	 * Get a list of completions for the given command prefix.
+	 *
+	 * Currently not implemented, and will always return an empty list.
+	 */
 	@Override
 	public List<CodeCompletion> getCompletions(String cmd) {
 		// TODO currently just an empty list, need to actually implement
 		return new ArrayList<CodeCompletion>();
 	}
 
+	/**
+	 * Set up the plugin, including the creation of the interactive interpreter.
+	 */
 	@Override
 	public void init() {
 		super.init();
-	
+
 		console = getTool().getService(InterpreterPanelService.class).createInterpreterPanel(this, false);
 		interpreter = new RubyGhidraInterpreter(console);
 		console.addFirstActivationCallback(() -> {
 			interpreter.startInteractiveSession();
 		});
 	}
-	
+
+	/**
+	 * Called whenever the highlight is changed within the CodeBrowser tool.
+	 */
 	@Override
 	public void highlightChanged(ProgramSelection sel) {
 		interpreter.updateHighlight(sel);
 	}
-	
+
+	/**
+	 * Called whenever the location is changed within the CodeBrowser tool.
+	 */
 	@Override
 	public void locationChanged(ProgramLocation loc) {
 		interpreter.updateLocation(loc);
 	}
-	
+
+	/**
+	 * Called whenever a program is activate within the CodeBrowser tool.
+	 */
 	@Override
 	public void programActivated(Program program) {
 		interpreter.updateProgram(program);
 	}
-	
+
+	/**
+	 * Called whenever the selection is changed within the CodeBrowser tool.
+	 */
 	@Override
 	public void selectionChanged(ProgramSelection sel) {
 		interpreter.updateSelection(sel);
