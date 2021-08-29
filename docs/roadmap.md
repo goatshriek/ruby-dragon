@@ -26,6 +26,10 @@ or want to make a suggestion, please submit an issue on the project's
    Python examples.
  * [ADD] **Colorization Support in Interactive Terminal**
  * [ADD] **Tab-completion Support**
+ * [ADD] **Better terminal than Ghidra default**
+   It would be nice to support features like colorization, and even nicer to
+   simply use one that someone else has already built instead of implementing
+   this ourselves.
 
 
 ## What you'll find here and what you wont
