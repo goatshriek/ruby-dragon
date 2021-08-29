@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [1.0.0] - 2021-08-29
+### Added
  - Add headless support to example scripts.
  - Add script argument support to Ruby scripts.
 
