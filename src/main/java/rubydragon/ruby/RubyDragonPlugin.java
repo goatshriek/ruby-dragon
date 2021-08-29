@@ -45,7 +45,7 @@ import rubydragon.GhidraInterpreter;
  */
 //@formatter:off
 @PluginInfo(
-	status = PluginStatus.STABLE,
+	status = PluginStatus.RELEASED,
 	packageName = CorePluginPackage.NAME,
 	category = PluginCategoryNames.INTERPRETERS,
 	shortDescription = "Ruby Interpreter",
