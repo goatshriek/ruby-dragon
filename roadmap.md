@@ -1,10 +1,10 @@
 ---
 title: Roadmap
 keywords: ruby, jruby, ghidra, plugin, roadmap, future
-last_updated: March 8, 2021
+last_updated: August 29, 2021
+summary: "Planned Future Direction for Ruby Dragon."
 layout: default
 ---
-
 
 # The Future of Ruby Dragon
 See below for details about upcoming releases of Ruby Dragon. If you have feedback
@@ -12,32 +12,33 @@ or want to make a suggestion, please submit an issue on the project's
 [Github page](https://github.com/goatshriek/ruby-dragon).
 
 
-## 1.0.0 (next major and minor release)
- * [ADD] **Groovy Language Bindings**
-   While initially aimed at Ruby, this project is ultimately aimed at making a
-   variety of JVM-based languages available to Ghidra users. Groovy is an easy
-   target, being the most Java-friendly interpreted language.
+## 1.1.0
  * [ADD] **Kotlin Language Bindings**
    For the same reason that Groovy is on the roadmap, Kotlin is as well as an
    easy step to take from Java, offering more powerful functional features on
    top of the language.
- * [ADD] **Support for arguments to scripts**
-   Script arguments are currently ignored by the execution - this needs to be
-   updated so that they are accessible to the script itself in some way.
- * [ADD] **Unit Test Suite**
-   A test suite is critical to ensure that functionality is maintained as
-   updates and improvements are made. A test suite that can be executed often
-   (ideally via a CI solution) will be needed before this project can be
-   considered stable.
- * [ADD] **Javadoc Documentation of All Interfaces**
-   Documentation of the internal functionality of the project is important to
-   help anyone looking to understand or build on the functionality provided
-   here.
+ * [ADD] **Add Documentation for Adding New Languages**
+
+
+## 1.2.0
+ * [ADD] **Groovy Language Bindings**
+   While initially aimed at Ruby, this project is ultimately aimed at making a
+   variety of JVM-based languages available to Ghidra users. Groovy is an easy
+   target, being the most Java-friendly interpreted language.
+
+
+## Unallocated to a release
  * [ADD] **Complete Example Set**
-   A full suite of example scripts is also needed for users to quickly
-   understand how to use the functionality here, and what is possible. The set
-   of examples will be considered adequate when there is at least a 1-1 parity
-   with the existing Python examples.
+   A full suite of example scripts is needed for users to quickly understand how
+   to use the functionality here, and what is possible. The set of examples will
+   be considered adequate when there is at least a 1-1 parity with the existing
+   Python examples.
+ * [ADD] **Colorization Support in Interactive Terminal**
+ * [ADD] **Tab-completion Support**
+ * [ADD] **Better terminal than Ghidra default**
+   It would be nice to support features like colorization, and even nicer to
+   simply use one that someone else has already built instead of implementing
+   this ourselves.
 
 
 ## What you'll find here and what you wont
@@ -78,7 +79,7 @@ issues, and projects are already created for ongoing work. There are a few
 reasons that a separate roadmap is maintained:
  * **Issues are used to exclusively track bugs and community requests.**
    This certainly isn't a hard and fast rule, and isn't followed by many other
-   projects, but it is how Wrapture is managed. Keeping the issue count as a
+   projects, but it is how Ruby Dragon is managed. Keeping the issue count as a
    clear indicator of known problems and community requests lets the project
    maintainers (and anyone interested in looking at how well it is being
    maintained) immediately see how much outstanding work exists. Of course,
