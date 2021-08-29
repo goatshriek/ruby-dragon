@@ -4,18 +4,18 @@ or want to make a suggestion, please submit an issue on the project's
 [Github page](https://github.com/goatshriek/ruby-dragon).
 
 
-## 1.0.0 (next major and minor release)
- * [ADD] **Groovy Language Bindings**
-   While initially aimed at Ruby, this project is ultimately aimed at making a
-   variety of JVM-based languages available to Ghidra users. Groovy is an easy
-   target, being the most Java-friendly interpreted language.
+## 1.1.0
  * [ADD] **Kotlin Language Bindings**
    For the same reason that Groovy is on the roadmap, Kotlin is as well as an
    easy step to take from Java, offering more powerful functional features on
    top of the language.
- * [ADD] **Support for arguments to scripts**
-   Script arguments are currently ignored by the execution - this needs to be
-   updated so that they are accessible to the script itself in some way.
+
+
+## 1.2.0
+ * [ADD] **Groovy Language Bindings**
+   While initially aimed at Ruby, this project is ultimately aimed at making a
+   variety of JVM-based languages available to Ghidra users. Groovy is an easy
+   target, being the most Java-friendly interpreted language.
 
 
 ## Unallocated to a release
@@ -24,6 +24,8 @@ or want to make a suggestion, please submit an issue on the project's
    to use the functionality here, and what is possible. The set of examples will
    be considered adequate when there is at least a 1-1 parity with the existing
    Python examples.
+ * [ADD] **Colorization Support in Interactive Terminal**
+ * [ADD] **Tab-completion Support**
 
 
 ## What you'll find here and what you wont
