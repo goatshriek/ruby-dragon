@@ -11,11 +11,12 @@ interactive sessions as well as writing reusable scripts.
 
 
 ## Installation
-Check out the releases page for the latest release build of the plugin. After
-downloading, you can install this in Ghidra by going to
-`File->Install Extensions...`, choosing the `Add Extension` option, and then
-navigating to the downloaded zip file. You'll be prompted to restart Ghidra
-for the new extension to be active.
+Check out the
+[releases](https://github.com/goatshriek/ruby-dragon/releases/latest) page for
+the latest release build of the plugin. After downloading, you can install it in
+Ghidra by going to `File->Install Extensions...`, choosing the `Add Extension`
+option, and then navigating to the downloaded zip file. You'll be prompted to
+restart Ghidra for the new extension to be active.
 
 You will then need to activate the plugin before using it. You might get
 prompted to do this next time you open the CodeBrowser tool, in which case you
