@@ -18,6 +18,7 @@
 
 package rubydragon.ruby;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +31,7 @@ import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConnection;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.app.plugin.core.interpreter.InterpreterPanelService;
+import ghidra.framework.Application;
 import ghidra.framework.plugintool.PluginInfo;
 import ghidra.framework.plugintool.PluginTool;
 import ghidra.framework.plugintool.util.PluginStatus;
@@ -115,6 +117,18 @@ public class RubyDragonPlugin extends ProgramPlugin implements InterpreterConnec
 		console = getTool().getService(InterpreterPanelService.class).createInterpreterPanel(this, false);
 		interpreter = new RubyGhidraInterpreter(console);
 		console.addFirstActivationCallback(() -> {
+			String ghidraVersion = Application.getApplicationVersion();
+			if (ghidraVersion.equals("10.0.3")) {
+				PrintWriter errWriter = new PrintWriter(console.getStdErr());
+				errWriter.print("RubyDragon may have problems running in Ghidra "
+						+ "10.0.3. If you receive errors regarding class lookup "
+						+ "failures, you may need to replace the launch.properties "
+						+ "file in the support directory of the Ghidra install "
+						+ "with the one in this plugin (in the "
+						+ "Extensions/RubyDragon/data directory in your Ghidra install).\n");
+				errWriter.flush();
+			}
+
 			interpreter.startInteractiveSession();
 		});
 	}
