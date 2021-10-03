@@ -20,6 +20,7 @@ package rubydragon.ruby;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -117,11 +118,12 @@ public class RubyDragonPlugin extends ProgramPlugin implements InterpreterConnec
 		console = getTool().getService(InterpreterPanelService.class).createInterpreterPanel(this, false);
 		interpreter = new RubyGhidraInterpreter(console);
 		console.addFirstActivationCallback(() -> {
+			List<String> brokenVersions = Arrays.asList("10.0.3", "10.0.4");
 			String ghidraVersion = Application.getApplicationVersion();
-			if (ghidraVersion.equals("10.0.3")) {
+			if (brokenVersions.contains(ghidraVersion)) {
 				PrintWriter errWriter = new PrintWriter(console.getStdErr());
-				errWriter.print("RubyDragon may have problems running in Ghidra "
-						+ "10.0.3. If you receive errors regarding class lookup "
+				errWriter.print("RubyDragon may have problems running in this "
+						+ "version of Ghidra. If you receive errors regarding class lookup "
 						+ "failures, you may need to replace the launch.properties "
 						+ "file in the support directory of the Ghidra install "
 						+ "with the one in this plugin (in the "
