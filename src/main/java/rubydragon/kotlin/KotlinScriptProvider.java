@@ -16,20 +16,30 @@
  * limitations under the License.
  */
 
-package rubydragon.clojure;
+package rubydragon.kotlin;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.regex.Pattern;
 
 import generic.jar.ResourceFile;
 import ghidra.app.script.GhidraScript;
 import ghidra.app.script.GhidraScriptProvider;
 
 /**
- * Supports Clojure scripts within ghidra.
+ * Supports Kotlin scripts within Ghidra.
  */
-public class ClojureScriptProvider extends GhidraScriptProvider {
+public class KotlinScriptProvider extends GhidraScriptProvider {
+	/**
+	 * A pattern to match the beginning of a block comment.
+	 */
+	private static final Pattern BLOCK_COMMENT_START = Pattern.compile("/\\*");
+
+	/**
+	 * A pattern to match the end of a block comment.
+	 */
+	private static final Pattern BLOCK_COMMENT_END = Pattern.compile("\\*/");
 
 	/**
 	 * Creates a new script file for the given script and category.
@@ -45,11 +55,33 @@ public class ClojureScriptProvider extends GhidraScriptProvider {
 	}
 
 	/**
-	 * The comment character for Clojure scripts.
+	 * Returns a Pattern that matches block comment openings. For Kotlin this is
+	 * "/*".
+	 *
+	 * @return the Pattern for Kotlin block comment openings
+	 */
+	@Override
+	public Pattern getBlockCommentStart() {
+		return BLOCK_COMMENT_START;
+	}
+
+	/**
+	 * Returns a Pattern that matches block comment closings. In Kotlin this is an
+	 * asterisk followed by a forward slash.
+	 *
+	 * @return the Pattern for Kotlin block comment closings
+	 */
+	@Override
+	public Pattern getBlockCommentEnd() {
+		return BLOCK_COMMENT_END;
+	}
+
+	/**
+	 * The comment character for Kotlin scripts.
 	 */
 	@Override
 	public String getCommentCharacter() {
-		return ";";
+		return "//";
 	}
 
 	/**
@@ -57,24 +89,24 @@ public class ClojureScriptProvider extends GhidraScriptProvider {
 	 */
 	@Override
 	public String getDescription() {
-		return "Clojure";
+		return "Kotlin";
 	}
 
 	/**
-	 * The extension of Clojure scripts, including the period.
+	 * The extension of Kotlin scripts, including the period.
 	 */
 	@Override
 	public String getExtension() {
-		return ".clj";
+		return ".kt";
 	}
 
 	/**
-	 * Creates a new ClojureScript instance for the given file and returns it.
+	 * Creates a new KotlinScript instance for the given file and returns it.
 	 */
 	@Override
 	public GhidraScript getScriptInstance(ResourceFile sourceFile, PrintWriter writer)
 			throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-		GhidraScript script = new ClojureScript();
+		GhidraScript script = new KotlinScript();
 		script.setSourceFile(sourceFile);
 		return script;
 	}

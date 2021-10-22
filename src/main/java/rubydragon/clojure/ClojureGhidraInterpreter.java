@@ -128,7 +128,7 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 			RT.var("ghidra", "script", script);
 
 			// putting the methods from this script class into the interpreter
-			// taken from the PythonScript class in the ghidra source
+			// taken from the ClojureScript class in the ghidra source
 			for (Class<?> scriptClass = script.getClass(); scriptClass != Object.class; scriptClass = scriptClass
 					.getSuperclass()) {
 

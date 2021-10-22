@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package rubydragon.clojure;
+package rubydragon.kotlin;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -31,18 +31,18 @@ import ghidra.app.services.ConsoleService;
 import ghidra.framework.plugintool.PluginTool;
 
 /**
- * A Ghidra script written in Clojure.
+ * A Ghidra script written in Kotlin.
  */
-public class ClojureScript extends GhidraScript {
+public class KotlinScript extends GhidraScript {
 
-	private ClojureGhidraInterpreter interpreter;
+	private KotlinGhidraInterpreter interpreter;
 
 	/**
 	 * Creates a new script, with its own interpreter instance.
 	 */
-	public ClojureScript() {
+	public KotlinScript() {
 		super();
-		interpreter = new ClojureGhidraInterpreter();
+		interpreter = new KotlinGhidraInterpreter();
 	}
 
 	/**
@@ -50,7 +50,7 @@ public class ClojureScript extends GhidraScript {
 	 */
 	@Override
 	public String getCategory() {
-		return "Clojure";
+		return "Kotlin";
 	}
 
 	/**

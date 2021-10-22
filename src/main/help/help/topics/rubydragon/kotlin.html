@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<HTML>
+  <HEAD>
+    <META name="generator" content=
+    "HTML Tidy for Java (vers. 2009-12-01), see jtidy.sourceforge.net">
+    <META http-equiv="Content-Language" content="en-us">
+    <META http-equiv="Content-Type" content="text/html; charset=windows-1252">
+    <META name="GENERATOR" content="Microsoft FrontPage 4.0">
+    <META name="ProgId" content="FrontPage.Editor.Document">
+
+    <TITLE>Kotlin Interpreter</TITLE>
+    <LINK rel="stylesheet" type="text/css" href="../../shared/Frontpage.css">
+  </HEAD>
+
+  <BODY>
+    <H1><a name="Kotlin"></a>Kotlin Interpreter</H1>
+
+    <P>
+    Ruby Dragon adds interactive Kotlin shells to Ghidra, and also
+    allows scripts to be written in Kotlin with full access to all of
+    Ghidra's functionality. This is accomplished using a standalaone
+    a set of Kotlin jars.
+    </P>
+
+    <H2>Environment</H2>
+    <BLOCKQUOTE>
+    <P>
+    The Kotlin interactive interpreter runs as a REPL, with all of the
+    same functionality.
+
+    The same variables that are available in Ghidra's native Java and Python
+    environments are also available in the Kotlin interpreter as global
+    variables, both for interactive sessions and scripts.
+    </P>
+    </BLOCKQUOTE>
+
+    <H2>Headless Analysis</H2>
+    <BLOCKQUOTE>
+    <P>
+    Kotlin scripts may also be run during headless analysis. The following
+    invocation uses one of the Kotlin example scripts to save all strings found
+    in a demo executable to a file named example_file_strings.txt.
+    </P>
+
+    <PRE>
+    support\analyzeHeadless ^
+        my\ghidra\projects DummyProject ^
+        -import demo_binary.exe ^
+        -postScript SaveStringsScriptKt.kt example_file_strings.txt ^
+        -deleteProject
+    </PRE>
+    </BLOCKQUOTE>
+
+    <H2>Copy/Paste</H2>
+    <BLOCKQUOTE>
+    <P>
+    Copy and paste from within the Kotlin interpreter should work as expected for
+    your given environment:
+    <UL>
+      <LI><B>Windows:</B>&nbsp;&nbsp;CTRL+C / CTRL+V</LI>
+      <LI><B>Linux:</B>&nbsp;&nbsp;CTRL+C / CTRL+V</LI>
+      <LI><B>OS X:</B>&nbsp;&nbsp;COMMAND+C / COMMAND+V</LI>
+    </UL>
+    </P>
+    </BLOCKQUOTE>
+
+    <P align="left" class="providedbyplugin">Provided by: <I>KotlinDragon</I></P>
+  </BODY>
+</HTML>

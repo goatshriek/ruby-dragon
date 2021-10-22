@@ -10,7 +10,14 @@ import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
 import resources.ResourceManager;
 
+/**
+ * A plugin for RubyDragon that provides an interactive interpreter for a chosen
+ * language.
+ */
 public abstract class DragonPlugin extends ProgramPlugin implements InterpreterConnection {
+	/**
+	 * The name of this plugin instance.
+	 */
 	private String name;
 
 	/**
