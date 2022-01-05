@@ -118,7 +118,7 @@ public class RubyDragonPlugin extends ProgramPlugin implements InterpreterConnec
 		console = getTool().getService(InterpreterPanelService.class).createInterpreterPanel(this, false);
 		interpreter = new RubyGhidraInterpreter(console);
 		console.addFirstActivationCallback(() -> {
-			List<String> brokenVersions = Arrays.asList("10.0.3", "10.0.4");
+			List<String> brokenVersions = Arrays.asList("10.0.3", "10.0.4", "10.1", "10.1.1");
 			String ghidraVersion = Application.getApplicationVersion();
 			if (brokenVersions.contains(ghidraVersion)) {
 				PrintWriter errWriter = new PrintWriter(console.getStdErr());
@@ -126,7 +126,7 @@ public class RubyDragonPlugin extends ProgramPlugin implements InterpreterConnec
 						+ "version of Ghidra. If you receive errors regarding class lookup "
 						+ "failures, you may need to replace the launch.properties "
 						+ "file in the support directory of the Ghidra install "
-						+ "with the one in this plugin (in the "
+						+ "with the appropriate one in this plugin (in the "
 						+ "Extensions/RubyDragon/data directory in your Ghidra install).\n");
 				errWriter.flush();
 			}
