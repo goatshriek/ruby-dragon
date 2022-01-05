@@ -23,6 +23,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineFactory;
+
+import org.jetbrains.kotlin.script.jsr223.KotlinJsr223JvmLocalScriptEngineFactory;
+
 import generic.jar.ResourceFile;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.app.script.GhidraScript;
@@ -38,11 +43,15 @@ import rubydragon.GhidraInterpreter;
  */
 public class KotlinGhidraInterpreter extends GhidraInterpreter {
 	private Thread replThread;
+	private ScriptEngine engine;
 
 	/**
 	 * Creates a new Kotlin interpreter.
 	 */
 	public KotlinGhidraInterpreter() {
+		ScriptEngineFactory factory = new KotlinJsr223JvmLocalScriptEngineFactory();
+		engine = factory.getScriptEngine();
+
 		replThread = new Thread(() -> {
 			while (true) {
 				// TODO run interpreter
