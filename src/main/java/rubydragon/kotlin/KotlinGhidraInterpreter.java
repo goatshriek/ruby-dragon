@@ -18,13 +18,17 @@
 
 package rubydragon.kotlin;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
+import javax.script.ScriptException;
+import javax.script.SimpleScriptContext;
 
 import org.jetbrains.kotlin.script.jsr223.KotlinJsr223JvmLocalScriptEngineFactory;
 
@@ -44,20 +48,8 @@ import rubydragon.GhidraInterpreter;
 public class KotlinGhidraInterpreter extends GhidraInterpreter {
 	private Thread replThread;
 	private ScriptEngine engine;
-
-	/**
-	 * Creates a new Kotlin interpreter.
-	 */
-	public KotlinGhidraInterpreter() {
-		ScriptEngineFactory factory = new KotlinJsr223JvmLocalScriptEngineFactory();
-		engine = factory.getScriptEngine();
-
-		replThread = new Thread(() -> {
-			while (true) {
-				// TODO run interpreter
-			}
-		});
-	}
+	private BufferedReader replReader;
+	private SimpleScriptContext context;
 
 	/**
 	 * Creates a new interpreter, and ties the streams for the provided console to
@@ -66,8 +58,26 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 	 * @param console The console to bind to the interpreter streams.
 	 */
 	public KotlinGhidraInterpreter(InterpreterConsole console) {
-		this();
+		context = new SimpleScriptContext();
+
 		setStreams(console);
+
+		ScriptEngineFactory factory = new KotlinJsr223JvmLocalScriptEngineFactory();
+		engine = factory.getScriptEngine();
+
+		replThread = new Thread(() -> {
+			while (true) {
+				try {
+					engine.eval(replReader.readLine());
+				} catch (ScriptException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 
 	/**
@@ -109,7 +119,7 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 	 */
 	@Override
 	public void setErrWriter(PrintWriter errOut) {
-		// TODO implement
+		context.setErrorWriter(errOut);
 	}
 
 	/**
@@ -117,7 +127,7 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 	 */
 	@Override
 	public void setInput(InputStream input) {
-		// TODO implement
+		replReader = new BufferedReader(new InputStreamReader(input));
 	}
 
 	/**
@@ -125,7 +135,7 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 	 */
 	@Override
 	public void setOutWriter(PrintWriter output) {
-		// TODO implement
+		context.setWriter(output);
 	}
 
 	/**
