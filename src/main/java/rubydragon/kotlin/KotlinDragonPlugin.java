@@ -102,7 +102,7 @@ public class KotlinDragonPlugin extends DragonPlugin implements InterpreterConne
 		super.init();
 
 		console = getTool().getService(InterpreterPanelService.class).createInterpreterPanel(this, false);
-		console.setPrompt(" ");
+		console.setPrompt("> ");
 		interpreter = new KotlinGhidraInterpreter(console);
 		console.addFirstActivationCallback(() -> {
 			interpreter.startInteractiveSession();

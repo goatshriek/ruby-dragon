@@ -26,11 +26,9 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
 import javax.script.ScriptEngine;
-import javax.script.ScriptEngineFactory;
+import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.script.SimpleScriptContext;
-
-import org.jetbrains.kotlin.script.jsr223.KotlinJsr223JvmLocalScriptEngineFactory;
 
 import generic.jar.ResourceFile;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
@@ -55,40 +53,16 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 	 * Creates a new interpreter, with no input stream or REPL thread.
 	 */
 	public KotlinGhidraInterpreter() {
-
-		context = new SimpleScriptContext();
-
-		ScriptEngineFactory factory = new KotlinJsr223JvmLocalScriptEngineFactory();
-		engine = factory.getScriptEngine();
-	}
-
-	/**
-	 * Creates a new interpreter, and ties the streams for the provided console to
-	 * the new interpreter.
-	 *
-	 * @param console The console to bind to the interpreter streams.
-	 */
-	public KotlinGhidraInterpreter(InterpreterConsole console) {
-		// ClassLoader previous = Thread.currentThread().getContextClassLoader();
-		// File compilerJar = new
-		// File("C:\\Users\\reall\\code\\jars\\kotlin\\kotlin-compiler-1.6.0.jar");
-		// URL compilerUrl = compilerJar.toURI().toURL();
-		// System.out.println(compilerUrl);
-		// URLClassLoader urlLoader = new URLClassLoader(new URL[] { compilerUrl },
-		// null);
-		// Thread.currentThread().setContextClassLoader(urlLoader);
-
-		// set system property idea.io.use.nio2=true
+		// needed to avoid dll loading issues on Windows
 		System.setProperty("idea.io.use.nio2", "true");
-		context = new SimpleScriptContext();
-		setStreams(console);
 
-		ScriptEngineFactory factory = new KotlinJsr223JvmLocalScriptEngineFactory();
-		// ScriptEngineManager engineManager = new ScriptEngineManager();
-		// engineManager.registerEngineName("ghidrakotlin", factory);
-		engine = factory.getScriptEngine();
+		context = new SimpleScriptContext();
+
+		// ScriptEngineFactory factory = new KotlinJsr223JvmLocalScriptEngineFactory();
+		// engine = factory.getScriptEngine();
+		ScriptEngineManager scriptManager = new ScriptEngineManager();
+		engine = scriptManager.getEngineByExtension("kts");
 		engine.setContext(context);
-		// engine = engineManager.getEngineByName("kotlin");
 
 		replThread = new Thread(() -> {
 			while (true) {
@@ -103,8 +77,17 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 				}
 			}
 		});
-		// replThread.setContextClassLoader(urlLoader);
+	}
 
+	/**
+	 * Creates a new interpreter, and ties the streams for the provided console to
+	 * the new interpreter.
+	 *
+	 * @param console The console to bind to the interpreter streams.
+	 */
+	public KotlinGhidraInterpreter(InterpreterConsole console) {
+		this();
+		setStreams(console);
 	}
 
 	/**
