@@ -90,7 +90,7 @@ public class KotlinDragonPlugin extends DragonPlugin implements InterpreterConne
 	 */
 	@Override
 	public List<CodeCompletion> getCompletions(String cmd) {
-		// TODO currently just an empty list, need to actually implement
+		// TODO currently just an empty list, need to actually implements
 		return new ArrayList<CodeCompletion>();
 	}
 

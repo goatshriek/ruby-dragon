@@ -119,7 +119,12 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 		ResourceFile scriptFile = script.getSourceFile();
 		loadState(scriptState);
 
-		// TODO implement
+		try {
+			engine.eval(new InputStreamReader(scriptFile.getInputStream()));
+		} catch (ScriptException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		updateState(scriptState);
 	}
@@ -157,43 +162,43 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 	}
 
 	/**
-	 * Updates the current address pointed to by the "ghidra/current-address"
-	 * binding in the interpreter.
+	 * Updates the current address pointed to by the "currentAddress" binding in the
+	 * interpreter.
 	 *
 	 * @param address The new current address in the program.
 	 */
 	@Override
 	public void updateAddress(Address address) {
-		// TODO implement
+		engine.put("currentAddress", address);
 	}
 
 	/**
-	 * Updates the highlighted selection pointed to by the
-	 * "ghidra/current-highlight" variable.
+	 * Updates the highlighted selection pointed to by the "currentHighlight"
+	 * variable.
 	 *
 	 * @param sel The new highlighted selection.
 	 */
 	@Override
 	public void updateHighlight(ProgramSelection sel) {
-		// TODO implement
+		engine.put("currentHighlight", sel);
 	}
 
 	/**
-	 * Updates the location in the "ghidra/current-location" variable as well as the
-	 * address in the "ghidra/current-address" variable.
+	 * Updates the location in the "currentLocation" variable as well as the address
+	 * in the "ghidra/current-address" variable.
 	 *
 	 * @param loc The new location in the program.
 	 */
 	@Override
 	public void updateLocation(ProgramLocation loc) {
-		// TODO implement
+		engine.put("currentLocation", loc);
 		if (loc != null) {
 			updateAddress(loc.getAddress());
 		}
 	}
 
 	/**
-	 * Updates the program pointed to by the "ghidra/current-program" binding.
+	 * Updates the program pointed to by the "currentProgram" binding.
 	 *
 	 * @param program The new current program.
 	 */
@@ -203,13 +208,13 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 	}
 
 	/**
-	 * Updates the selection pointed to by the "ghidra/current-selection" binding.
+	 * Updates the selection pointed to by the "currentSelection" binding.
 	 *
 	 * @param sel The new selection.
 	 */
 	@Override
 	public void updateSelection(ProgramSelection sel) {
-		// TODO implement
+		engine.put("currentSelection", sel);
 	}
 
 	/**
@@ -220,7 +225,20 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 	 */
 	@Override
 	public void updateState(GhidraState scriptState) {
-		// TODO implement
+		Program currentProgram = (Program) engine.get("currentProgram");
+		scriptState.setCurrentProgram(currentProgram);
+
+		ProgramLocation currentLocation = (ProgramLocation) engine.get("currentLocation");
+		scriptState.setCurrentLocation(currentLocation);
+
+		Address addr = (Address) engine.get("currentAddress");
+		scriptState.setCurrentAddress(addr);
+
+		ProgramSelection highlight = (ProgramSelection) engine.get("currentHighlight");
+		scriptState.setCurrentHighlight(highlight);
+
+		ProgramSelection sel = (ProgramSelection) engine.get("currentSelection");
+		scriptState.setCurrentSelection(sel);
 	}
 
 }

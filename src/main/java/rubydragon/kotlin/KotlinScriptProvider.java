@@ -97,7 +97,7 @@ public class KotlinScriptProvider extends GhidraScriptProvider {
 	 */
 	@Override
 	public String getExtension() {
-		return ".kt";
+		return ".kts";
 	}
 
 	/**

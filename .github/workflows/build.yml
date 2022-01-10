@@ -76,6 +76,11 @@ jobs:
           $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript ./ghidra_scripts/GhidraBasicsScriptRb.rb HeadlessTest -deleteProject | awk '/^INFO  SCRIPT:/{flag=1;next}/^INFO  /{flag=0}flag' > actual.txt
           diff actual.txt src/test/resources/expected/${{ matrix.ghidra }}-GhidraBasicsScriptRb.txt
           rm actual.txt
+      - name: Ghidra Basics Kotlin Script
+        run: |
+          $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript ./ghidra_scripts/GhidraBasicsScriptKts.kts HeadlessTest -deleteProject | awk '/^INFO  SCRIPT:/{flag=1;next}/^INFO  /{flag=0}flag' > actual.txt
+          diff actual.txt src/test/resources/expected/${{ matrix.ghidra }}-GhidraBasicsScriptKts.txt
+          rm actual.txt
       - name: Ghidra Basics Clojure Script
         run: |
           $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript ./ghidra_scripts/GhidraBasicsScriptClj.clj HeadlessTest -deleteProject | awk '/^INFO  SCRIPT:/{flag=1;next}/^INFO  /{flag=0}flag' > actual.txt
