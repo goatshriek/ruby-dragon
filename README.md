@@ -22,15 +22,16 @@ plugin for Clojure. They should appear in the `Ghidra Core` listing, but you
 can check the `Configure All Plugins` option if you aren't able to find them.
 
 If you need to remove a language plugin, you can do so by unchecking the box in
-the configuration dialog in the CodeBrowser tool, and then in the
-`Install Extensions` menu from the project browser as well, and finally
-restarting Ghidra. You may also need to manually delete the folder from your
+the configuration dialog in the CodeBrowser tool. If you want to remove the
+extension as a whole, you'll also need to uncheck it in the `Install Extensions`
+menu from the project browser, and finally restart Ghidra. You may also need to
+manually delete the folder from your
 `.ghidra/<ghidrainstall>/Extensions` folder to completely remove it,
 particularly if you want to load the plugin via the Eclipse plugin for
 development.
 
 
-## Basic Ruby Usage
+## Ruby Usage
 Once the RubyDragon plugin is enabled, you will be able to open an interactive
 Ruby session from the CodeBrowser tool by going to `Window->Ruby`. This is a 
 tandard IRB session provided by JRuby.
@@ -60,7 +61,7 @@ You can also find help directly in the Ghidra help menu (press `F1`) on the
 `Ghidra Functionality->Scripting->Ruby Interpreter` page.
 
 
-## Basic Kotlin Usage
+## Kotlin Usage
 Kotlin is used in much the same way as the Ruby toolset with some obvious
 differences, such as being provided by the `KotlinDragon` plugin and being
 reached from the `Window->Kotlin` menu option. The built in variables for
@@ -77,7 +78,7 @@ currentSelection
 Kotlin scripts use a `kts` extension as they are interpreted as scripts rather
 than being compiled to java first.
 
-## Basic Clojure Usage
+## Clojure Usage
 Clojure follows the same patterns as the other languages, being provided in the
 `ClojureDragon` plugin and reachable from the `Window->Clojure` menu option.
 
