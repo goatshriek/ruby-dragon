@@ -1,5 +1,7 @@
 package rubydragon;
 
+import java.util.Collection;
+
 import javax.swing.ImageIcon;
 
 import ghidra.app.plugin.ProgramPlugin;
@@ -31,6 +33,16 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 		super(tool, true, true);
 		this.name = name;
 	}
+
+	/**
+	 * Gets all of the dependencies needed by this plugin to function correctly.
+	 *
+	 * This should never return null. If no dependencies are needed, then this list
+	 * will be empty.
+	 *
+	 * @return A Collection holding the plugin dependencies.
+	 */
+	public abstract Collection<DragonDependency> getDependencies();
 
 	/**
 	 * The icon for this plugin.

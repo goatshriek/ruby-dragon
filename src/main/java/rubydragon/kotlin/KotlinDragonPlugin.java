@@ -19,6 +19,8 @@
 package rubydragon.kotlin;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import ghidra.app.CorePluginPackage;
@@ -30,11 +32,12 @@ import ghidra.app.plugin.core.interpreter.InterpreterPanelService;
 import ghidra.framework.plugintool.PluginInfo;
 import ghidra.framework.plugintool.PluginTool;
 import ghidra.framework.plugintool.util.PluginStatus;
+import rubydragon.DragonDependency;
 import rubydragon.DragonPlugin;
 import rubydragon.GhidraInterpreter;
 
 /**
- * ClojureDragon provides Clojure support within Ghidra, both in an interactive
+ * KotlinDragon provides Kotlin support within Ghidra, both in an interactive
  * terminal session as well as standalone scripts.
  */
 //@formatter:off
@@ -49,6 +52,8 @@ import rubydragon.GhidraInterpreter;
 )
 //@formatter:on
 public class KotlinDragonPlugin extends DragonPlugin implements InterpreterConnection {
+
+	public static final Collection<DragonDependency> DEPENDENCIES = Arrays.asList();
 
 	private InterpreterConsole console;
 	private GhidraInterpreter interpreter;
@@ -70,6 +75,18 @@ public class KotlinDragonPlugin extends DragonPlugin implements InterpreterConne
 		interpreter.dispose();
 		console.dispose();
 		super.dispose();
+	}
+
+	/**
+	 * Gets all of the dependencies needed by KotlinDragon to function correctly.
+	 *
+	 * This is simply a wrapper for the static DEPENDENCIES class variable.
+	 *
+	 * @return A Collection holding all KotlinDragon dependencies.
+	 */
+	@Override
+	public Collection<DragonDependency> getDependencies() {
+		return DEPENDENCIES;
 	}
 
 	/**
