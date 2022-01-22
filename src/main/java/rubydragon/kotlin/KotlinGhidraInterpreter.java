@@ -58,8 +58,6 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 
 		context = new SimpleScriptContext();
 
-		// ScriptEngineFactory factory = new KotlinJsr223JvmLocalScriptEngineFactory();
-		// engine = factory.getScriptEngine();
 		ScriptEngineManager scriptManager = new ScriptEngineManager();
 		engine = scriptManager.getEngineByExtension("kts");
 		engine.setContext(context);
@@ -67,7 +65,11 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 		replThread = new Thread(() -> {
 			while (true) {
 				try {
-					engine.eval(replReader.readLine());
+					Object result = engine.eval(replReader.readLine());
+					if (result != null) {
+						context.getWriter().write(result + "\n");
+						context.getWriter().flush();
+					}
 				} catch (ScriptException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

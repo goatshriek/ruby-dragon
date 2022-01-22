@@ -1,5 +1,8 @@
 package rubydragon;
 
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 
 import javax.swing.ImageIcon;
@@ -7,6 +10,9 @@ import javax.swing.ImageIcon;
 import ghidra.app.plugin.ProgramPlugin;
 import ghidra.app.plugin.core.interpreter.InterpreterConnection;
 import ghidra.framework.plugintool.PluginTool;
+import ghidra.framework.plugintool.dialog.ExtensionDetails;
+import ghidra.framework.plugintool.dialog.ExtensionException;
+import ghidra.framework.plugintool.dialog.ExtensionUtils;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
@@ -32,6 +38,33 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 	public DragonPlugin(PluginTool tool, String name) {
 		super(tool, true, true);
 		this.name = name;
+		this.downloadDependencies();
+	}
+
+	/**
+	 * Downloads all dependencies for this plugin into the RubyDragon extension
+	 * install folder.
+	 */
+	public void downloadDependencies() {
+		try {
+			for (ExtensionDetails det : ExtensionUtils.getExtensions()) {
+				System.out.println(det.getName());
+				if (det.getName().equals("RubyDragon")) {
+					for (DragonDependency dep : getDependencies()) {
+						dep.download(Paths.get(det.getInstallPath(), "lib"));
+					}
+				}
+			}
+		} catch (ExtensionException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
