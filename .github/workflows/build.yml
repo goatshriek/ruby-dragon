@@ -66,10 +66,10 @@ jobs:
           unzip dist/$(ls dist) -d $GHIDRA_INSTALL_DIR/Ghidra/Extensions
       - name: Download Dependencies
         run: |
+          mkdir ~/projects
           $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -preScript ./ghidra_scripts/DownloadDependenciesScript.java -deleteProject
       - name: JRubyBasics Script
         run: |
-          mkdir ~/projects
           $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -preScript ./ghidra_scripts/JRubyBasicsScriptRb.rb -deleteProject | grep -v "^\(INFO\)\|\(WARN\)\|\(    \)" > actual.txt
           awk '/^=begin$/{flag=1;next}/^=end$/{flag=0}flag' ghidra_scripts/JRubyBasicsScriptRb.rb > expected.txt
           diff actual.txt expected.txt
