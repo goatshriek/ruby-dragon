@@ -66,6 +66,7 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 			while (true) {
 				try {
 					Object result = engine.eval(replReader.readLine());
+
 					if (result != null) {
 						context.getWriter().write(result + "\n");
 						context.getWriter().flush();

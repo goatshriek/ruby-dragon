@@ -17,6 +17,9 @@ import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
 import resources.ResourceManager;
+import rubydragon.clojure.ClojureDragonPlugin;
+import rubydragon.kotlin.KotlinDragonPlugin;
+import rubydragon.ruby.RubyDragonPlugin;
 
 /**
  * A plugin for RubyDragon that provides an interactive interpreter for a chosen
@@ -42,15 +45,31 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 	}
 
 	/**
+	 * Downloads the dependencies for all known RubyDragon language plugins.
+	 */
+	public static void downloadAllDependencies() {
+		downloadDependencies(ClojureDragonPlugin.DEPENDENCIES);
+		downloadDependencies(KotlinDragonPlugin.DEPENDENCIES);
+		downloadDependencies(RubyDragonPlugin.DEPENDENCIES);
+	}
+
+	/**
 	 * Downloads all dependencies for this plugin into the RubyDragon extension
 	 * install folder.
 	 */
 	public void downloadDependencies() {
+		downloadDependencies(getDependencies());
+	}
+
+	/**
+	 * Downloads all given dependencies into the RubyDragon extension install
+	 * folder.
+	 */
+	public static void downloadDependencies(Collection<DragonDependency> dependencies) {
 		try {
 			for (ExtensionDetails det : ExtensionUtils.getExtensions()) {
-				System.out.println(det.getName());
 				if (det.getName().equals("RubyDragon")) {
-					for (DragonDependency dep : getDependencies()) {
+					for (DragonDependency dep : dependencies) {
 						dep.download(Paths.get(det.getInstallPath(), "lib"));
 					}
 				}
