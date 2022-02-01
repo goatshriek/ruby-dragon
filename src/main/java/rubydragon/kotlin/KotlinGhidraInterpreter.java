@@ -120,10 +120,14 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 	public void runScript(GhidraScript script, String[] scriptArguments, GhidraState scriptState)
 			throws IllegalArgumentException, FileNotFoundException, IOException {
 		ResourceFile scriptFile = script.getSourceFile();
+		InputStreamReader scriptReader = new InputStreamReader(scriptFile.getInputStream());
 		loadState(scriptState);
 
+		engine.put("script", this);
+
 		try {
-			engine.eval(new InputStreamReader(scriptFile.getInputStream()));
+			// engine.eval(scriptText);
+			engine.eval(scriptReader);
 		} catch (ScriptException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -172,7 +176,9 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 	 */
 	@Override
 	public void updateAddress(Address address) {
-		engine.put("currentAddress", address);
+		if (address != null) {
+			engine.put("currentAddress", address);
+		}
 	}
 
 	/**
@@ -183,7 +189,9 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 	 */
 	@Override
 	public void updateHighlight(ProgramSelection sel) {
-		engine.put("currentHighlight", sel);
+		if (sel != null) {
+			engine.put("currentHighlight", sel);
+		}
 	}
 
 	/**
@@ -194,8 +202,8 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 	 */
 	@Override
 	public void updateLocation(ProgramLocation loc) {
-		engine.put("currentLocation", loc);
 		if (loc != null) {
+			engine.put("currentLocation", loc);
 			updateAddress(loc.getAddress());
 		}
 	}
@@ -207,7 +215,9 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 	 */
 	@Override
 	public void updateProgram(Program program) {
-		engine.put("currentProgram", program);
+		if (program != null) {
+			engine.put("currentProgram", program);
+		}
 	}
 
 	/**
@@ -217,7 +227,9 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 	 */
 	@Override
 	public void updateSelection(ProgramSelection sel) {
-		engine.put("currentSelection", sel);
+		if (sel != null) {
+			engine.put("currentSelection", sel);
+		}
 	}
 
 	/**
