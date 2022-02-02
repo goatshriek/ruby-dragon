@@ -123,10 +123,9 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 		InputStreamReader scriptReader = new InputStreamReader(scriptFile.getInputStream());
 		loadState(scriptState);
 
-		engine.put("script", this);
+		engine.put("script", script);
 
 		try {
-			// engine.eval(scriptText);
 			engine.eval(scriptReader);
 		} catch (ScriptException e) {
 			// TODO Auto-generated catch block

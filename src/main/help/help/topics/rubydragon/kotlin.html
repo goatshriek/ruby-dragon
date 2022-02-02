@@ -26,12 +26,27 @@
     <H2>Environment</H2>
     <BLOCKQUOTE>
     <P>
-    The Kotlin interactive interpreter runs as a REPL, with all of the
-    same functionality.
+    The Kotlin interactive interpreter runs as a simple REPL.
 
     The same variables that are available in Ghidra's native Java and Python
     environments are also available in the Kotlin interpreter as global
-    variables, both for interactive sessions and scripts.
+    variables, both for interactive sessions and scripts:
+    </P>
+
+    <PRE>
+    currentAddress
+    currentHighlight
+    currentLocation
+    currentProgram
+    currentSelection
+    </PRE>
+
+    <P>
+    If you're writing a script, you'll also be able to access the KotlinScript
+    instance (a subclass of GhidraScript) using the script variable binding.
+    This will provide access to all public fields and methods for the
+    instance. There are examples of this in the GhidraBasicsScriptKts script
+    included in the Examples category with this plugin.
     </P>
     </BLOCKQUOTE>
 
