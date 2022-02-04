@@ -27,6 +27,7 @@ jobs:
 
     env:
       GHIDRA_INSTALL_DIR: /home/runner/ghidra/${{ matrix.ghidra-folder }}
+      GHIDRA_HOME_DIR: /home/runner/.ghidra/${{ matrix.ghidra-folder }}
     steps:
       - uses: actions/checkout@v2
       - name: Cache Ghidra
@@ -57,12 +58,13 @@ jobs:
         run: |
           source "/home/runner/.sdkman/bin/sdkman-init.sh"
           gradle buildExtension
-          rm -rf $GHIDRA_INSTALL_DIR/Ghidra/Extensions/*
-          unzip dist/$(ls dist) -d $GHIDRA_INSTALL_DIR/Ghidra/Extensions
+          rm -rf $GHIDRA_HOME_DIR/Extensions/*
+          unzip dist/$(ls dist) -d $GHIDRA_HOME_DIR/Extensions
           mkdir ~/projects
       - name: Download Dependencies
         run: |
           $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -preScript DownloadDependenciesScript.java -deleteProject
+          ls $GHIDRA_HOME_DIR/Extensions
       - name: JRubyBasics Script
         run: |
           $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -preScript JRubyBasicsScriptRb.rb -deleteProject | grep -v "^\(INFO\)\|\(WARN\)\|\(    \)" > actual.txt
