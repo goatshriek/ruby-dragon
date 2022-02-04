@@ -40,16 +40,13 @@ public class KotlinScript extends GhidraScript {
 
 	/**
 	 * Creates a new script, with its own interpreter instance.
+	 *
+	 * @throws MissingDragonDependency if the interpreter could not be created due
+	 *                                 to a missing dependency
 	 */
-	public KotlinScript() {
+	public KotlinScript() throws MissingDragonDependency {
 		super();
-
-		try {
-			interpreter = new KotlinGhidraInterpreter();
-		} catch (MissingDragonDependency e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		interpreter = new KotlinGhidraInterpreter();
 	}
 
 	/**
