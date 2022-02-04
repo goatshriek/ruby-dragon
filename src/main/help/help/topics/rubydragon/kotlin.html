@@ -48,6 +48,16 @@
     instance. There are examples of this in the GhidraBasicsScriptKts script
     included in the Examples category with this plugin.
     </P>
+
+    <P>
+    An unfortunate pitfall to be aware of is the println method, which exists
+    in Kotlin as a shortend version of System.out.println. If you call this
+    function in the interpreter window or one of your scripts, it will be the
+    same as a call to the System function, which is unlikely to be what you
+    intended. In scripts, you'll need to use script.println explicitly to
+    print output. In the interpreter, make sure that the expression evaluates
+    to a string, and it will be printed automatically.
+    </P>
     </BLOCKQUOTE>
 
     <H2>Headless Analysis</H2>
