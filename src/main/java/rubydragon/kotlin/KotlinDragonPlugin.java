@@ -35,6 +35,7 @@ import ghidra.framework.plugintool.util.PluginStatus;
 import rubydragon.DragonDependency;
 import rubydragon.DragonPlugin;
 import rubydragon.GhidraInterpreter;
+import rubydragon.MissingDragonDependency;
 
 /**
  * KotlinDragon provides Kotlin support within Ghidra, both in an interactive
@@ -173,7 +174,7 @@ public class KotlinDragonPlugin extends DragonPlugin implements InterpreterConne
 	 */
 	@Override
 	public List<CodeCompletion> getCompletions(String cmd) {
-		// TODO currently just an empty list, need to actually implements
+		// TODO currently just an empty list, need to actually implement
 		return new ArrayList<CodeCompletion>();
 	}
 
@@ -185,8 +186,12 @@ public class KotlinDragonPlugin extends DragonPlugin implements InterpreterConne
 		super.init();
 
 		console = getTool().getService(InterpreterPanelService.class).createInterpreterPanel(this, false);
+		try {
+			interpreter = new KotlinGhidraInterpreter(console);
+		} catch (MissingDragonDependency e) {
+			throw new RuntimeException(e.getMessage());
+		}
 		console.setPrompt("> ");
-		interpreter = new KotlinGhidraInterpreter(console);
 		console.addFirstActivationCallback(() -> {
 			interpreter.startInteractiveSession();
 		});

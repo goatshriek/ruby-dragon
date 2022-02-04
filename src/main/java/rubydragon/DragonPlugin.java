@@ -41,7 +41,6 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 	public DragonPlugin(PluginTool tool, String name) {
 		super(tool, true, true);
 		this.name = name;
-		this.downloadDependencies();
 	}
 
 	/**

@@ -29,6 +29,7 @@ import ghidra.app.script.GhidraScriptUtil;
 import ghidra.app.script.GhidraState;
 import ghidra.app.services.ConsoleService;
 import ghidra.framework.plugintool.PluginTool;
+import rubydragon.MissingDragonDependency;
 
 /**
  * A Ghidra script written in Kotlin.
@@ -42,7 +43,13 @@ public class KotlinScript extends GhidraScript {
 	 */
 	public KotlinScript() {
 		super();
-		interpreter = new KotlinGhidraInterpreter();
+
+		try {
+			interpreter = new KotlinGhidraInterpreter();
+		} catch (MissingDragonDependency e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**

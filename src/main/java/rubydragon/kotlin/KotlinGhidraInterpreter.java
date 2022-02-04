@@ -39,6 +39,7 @@ import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
 import rubydragon.GhidraInterpreter;
+import rubydragon.MissingDragonDependency;
 
 /**
  * A Kotlin intepreter for Ghidra.
@@ -51,8 +52,11 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 
 	/**
 	 * Creates a new interpreter, with no input stream or REPL thread.
+	 *
+	 * @throws MissingDragonDependency If dependencies are missing for a Kotlin
+	 *                                 interpeter.
 	 */
-	public KotlinGhidraInterpreter() {
+	public KotlinGhidraInterpreter() throws MissingDragonDependency {
 		// needed to avoid dll loading issues on Windows
 		System.setProperty("idea.io.use.nio2", "true");
 
@@ -60,10 +64,18 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 
 		ScriptEngineManager scriptManager = new ScriptEngineManager();
 		engine = scriptManager.getEngineByExtension("kts");
+
+		if (engine == null) {
+			String errorMessage = "A Kotlin interpreter could not be created due to missing "
+					+ "dependencies. Try running RubyDragon.DownloadAllDependenciesScript "
+					+ "(via the Script Manager), restarting Ghidra, and trying again.";
+			throw new MissingDragonDependency(errorMessage);
+		}
+
 		engine.setContext(context);
 
 		replThread = new Thread(() -> {
-			while (true) {
+			while (replReader != null) {
 				try {
 					Object result = engine.eval(replReader.readLine());
 
@@ -87,8 +99,11 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 	 * the new interpreter.
 	 *
 	 * @param console The console to bind to the interpreter streams.
+	 *
+	 * @throws MissingDragonDependency If dependencies are missing for a Kotlin
+	 *                                 interpeter.
 	 */
-	public KotlinGhidraInterpreter(InterpreterConsole console) {
+	public KotlinGhidraInterpreter(InterpreterConsole console) throws MissingDragonDependency {
 		this();
 		setStreams(console);
 	}
@@ -98,7 +113,7 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 	 */
 	@Override
 	public void dispose() {
-		// do nothing
+		replReader = null;
 	}
 
 	/**
