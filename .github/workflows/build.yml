@@ -27,7 +27,6 @@ jobs:
 
     env:
       GHIDRA_INSTALL_DIR: /home/runner/ghidra/${{ matrix.ghidra-folder }}
-      GHIDRA_HOME_DIR: /home/runner/.ghidra/${{ matrix.ghidra-folder }}
     steps:
       - uses: actions/checkout@v2
       - name: Cache Ghidra
@@ -64,7 +63,6 @@ jobs:
       - name: Download Dependencies
         run: |
           $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -preScript DownloadDependenciesScript.java -deleteProject
-          ls $GHIDRA_HOME_DIR/Extensions
           ls $GHIDRA_INSTALL_DIR/Ghidra/Extensions
       - name: JRubyBasics Script
         run: |
