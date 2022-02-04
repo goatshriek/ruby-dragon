@@ -68,7 +68,7 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 	public static void downloadDependencies(Collection<DragonDependency> dependencies, TaskMonitor monitor) {
 		try {
 			for (ExtensionDetails det : ExtensionUtils.getExtensions()) {
-				if (det.getName().equals("RubyDragon") || det.getName().equals("ruby-dragon")) {
+				if (det.getName().equals("RubyDragon")) {
 					for (DragonDependency dep : dependencies) {
 						monitor.setMessage("downloading " + dep.getName());
 						dep.download(Paths.get(det.getInstallPath(), "lib"));
