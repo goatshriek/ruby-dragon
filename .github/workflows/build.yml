@@ -58,13 +58,13 @@ jobs:
         run: |
           source "/home/runner/.sdkman/bin/sdkman-init.sh"
           gradle buildExtension
-          mkdir -p $GHIDRA_HOME_DIR/Extensions
-          unzip dist/$(ls dist) -d $GHIDRA_HOME_DIR/Extensions
+          unzip dist/$(ls dist) -d $GHIDRA_INSTALL_DIR/Ghidra/Extensions
           mkdir ~/projects
       - name: Download Dependencies
         run: |
-          $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -preScript DownloadDependenciesScript.java -scriptPath ./ghidra_scripts -deleteProject
+          $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -preScript DownloadDependenciesScript.java -deleteProject
           ls $GHIDRA_HOME_DIR/Extensions
+          ls $GHIDRA_INSTALL_DIR/Ghidra/Extensions
       - name: JRubyBasics Script
         run: |
           $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -preScript JRubyBasicsScriptRb.rb -deleteProject | grep -v "^\(INFO\)\|\(WARN\)\|\(    \)" > actual.txt
