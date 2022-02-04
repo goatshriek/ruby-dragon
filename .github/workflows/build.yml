@@ -58,7 +58,7 @@ jobs:
         run: |
           source "/home/runner/.sdkman/bin/sdkman-init.sh"
           gradle buildExtension
-          rm -rf $GHIDRA_HOME_DIR/Extensions/*
+          mkdir -p $GHIDRA_HOME_DIR/Extensions
           unzip dist/$(ls dist) -d $GHIDRA_HOME_DIR/Extensions
           mkdir ~/projects
       - name: Download Dependencies
