@@ -87,4 +87,11 @@ public class DragonDependency {
 					+ Hex.toHexString(sha256) + ", actual: `" + Hex.toHexString(actualSha256) + "'");
 		}
 	}
+
+	/**
+	 * Gets the name of this dependency.
+	 */
+	public String getName() {
+		return name;
+	}
 }

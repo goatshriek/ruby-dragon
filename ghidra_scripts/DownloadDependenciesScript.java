@@ -11,6 +11,6 @@ public class DownloadDependenciesScript extends GhidraScript {
 
 	@Override
 	public void run() {
-		DragonPlugin.downloadAllDependencies();
+		DragonPlugin.downloadAllDependencies(monitor);
 	}
 }

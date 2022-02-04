@@ -16,6 +16,7 @@ import ghidra.framework.plugintool.dialog.ExtensionUtils;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
+import ghidra.util.task.TaskMonitor;
 import resources.ResourceManager;
 import rubydragon.clojure.ClojureDragonPlugin;
 import rubydragon.kotlin.KotlinDragonPlugin;
@@ -46,36 +47,39 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 	/**
 	 * Downloads the dependencies for all known RubyDragon language plugins.
 	 */
-	public static void downloadAllDependencies() {
-		downloadDependencies(ClojureDragonPlugin.DEPENDENCIES);
-		downloadDependencies(KotlinDragonPlugin.DEPENDENCIES);
-		downloadDependencies(RubyDragonPlugin.DEPENDENCIES);
+	public static void downloadAllDependencies(TaskMonitor monitor) {
+		downloadDependencies(ClojureDragonPlugin.DEPENDENCIES, monitor);
+		downloadDependencies(KotlinDragonPlugin.DEPENDENCIES, monitor);
+		downloadDependencies(RubyDragonPlugin.DEPENDENCIES, monitor);
 	}
 
 	/**
 	 * Downloads all dependencies for this plugin into the RubyDragon extension
 	 * install folder.
 	 */
-	public void downloadDependencies() {
-		downloadDependencies(getDependencies());
+	public void downloadDependencies(TaskMonitor monitor) {
+		downloadDependencies(getDependencies(), monitor);
 	}
 
 	/**
 	 * Downloads all given dependencies into the RubyDragon extension install
 	 * folder.
 	 */
-	public static void downloadDependencies(Collection<DragonDependency> dependencies) {
+	public static void downloadDependencies(Collection<DragonDependency> dependencies, TaskMonitor monitor) {
 		try {
 			for (ExtensionDetails det : ExtensionUtils.getExtensions()) {
 				if (det.getName().equals("RubyDragon")) {
 					for (DragonDependency dep : dependencies) {
+						monitor.setMessage("downloading " + dep.getName());
 						dep.download(Paths.get(det.getInstallPath(), "lib"));
 					}
+
+					return;
 				}
 			}
-		} catch (ExtensionException e1) {
+		} catch (ExtensionException e) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			e.printStackTrace();
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
