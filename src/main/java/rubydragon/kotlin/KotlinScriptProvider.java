@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 import generic.jar.ResourceFile;
 import ghidra.app.script.GhidraScript;
 import ghidra.app.script.GhidraScriptProvider;
+import rubydragon.MissingDragonDependency;
 
 /**
  * Supports Kotlin scripts within Ghidra.
@@ -106,7 +107,14 @@ public class KotlinScriptProvider extends GhidraScriptProvider {
 	@Override
 	public GhidraScript getScriptInstance(ResourceFile sourceFile, PrintWriter writer)
 			throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-		GhidraScript script = new KotlinScript();
+		GhidraScript script;
+		try {
+			script = new KotlinScript();
+		} catch (MissingDragonDependency e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
 		script.setSourceFile(sourceFile);
 		return script;
 	}
