@@ -63,7 +63,7 @@ jobs:
           mkdir ~/projects
       - name: Download Dependencies
         run: |
-          $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -preScript DownloadDependenciesScript.java -deleteProject
+          $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -preScript DownloadDependenciesScript.java -scriptPath "./ghidra_scripts" -deleteProject
           ls $GHIDRA_HOME_DIR/Extensions
       - name: JRubyBasics Script
         run: |
