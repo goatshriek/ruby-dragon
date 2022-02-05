@@ -40,11 +40,12 @@ while (function != null) {
 
 // get the current location in the program
 script.println("Current Location: 0x%x".format(currentAddress.offset))
-
+script.println()
 
 // get some user input
 val userInput = script.askString("Hello", "Please enter a value")
 script.println("You entered '$userInput'")
+script.println()
 
 // output a popup window with the entered value
 script.popup(userInput)
