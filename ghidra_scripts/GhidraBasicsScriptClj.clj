@@ -73,7 +73,8 @@
     (println "No data type was chosen!"))
 (println)
 
-;# report progress to the user interface, do this anywhere things take a while
+; report progress to the user interface
+; do this anywhere things take a while
 (.initialize ghidra/monitor 10)
 (doseq [i (range 1 10)]
     (.checkCanceled ghidra/monitor) ; make sure we're still good to go
