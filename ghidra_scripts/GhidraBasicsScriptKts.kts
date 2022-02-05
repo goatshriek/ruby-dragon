@@ -37,6 +37,7 @@ while (function != null) {
   script.println(function.name)
   function = script.getFunctionAfter(function)
 }
+script.println()
 
 // get the current location in the program
 script.println("Current Location: 0x%x".format(currentAddress.offset))
