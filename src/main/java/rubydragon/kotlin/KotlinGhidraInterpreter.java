@@ -77,15 +77,17 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 		replThread = new Thread(() -> {
 			while (replReader != null) {
 				try {
-					Object result = engine.eval(replReader.readLine());
+					try {
+						Object result = engine.eval(replReader.readLine());
 
-					if (result != null) {
-						context.getWriter().write(result + "\n");
-						context.getWriter().flush();
+						if (result != null) {
+							context.getWriter().write(result + "\n");
+							context.getWriter().flush();
+						}
+					} catch (ScriptException e) {
+						context.getErrorWriter().write(e.getMessage() + "\n");
+						context.getErrorWriter().flush();
 					}
-				} catch (ScriptException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -139,12 +141,12 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 		loadState(scriptState);
 
 		engine.put("script", script);
-
+		engine.put("args", scriptArguments);
 		try {
 			engine.eval(scriptReader);
 		} catch (ScriptException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			engine.getContext().getErrorWriter().write(e.getMessage() + "\n");
+			engine.getContext().getErrorWriter().flush();
 		}
 
 		updateState(scriptState);

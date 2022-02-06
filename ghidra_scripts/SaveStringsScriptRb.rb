@@ -12,12 +12,11 @@ filename = ARGV.first || "saved_strings.txt"
 string_count = 0;
 
 # go through the data in the program
-
 open(filename, 'w') do |out_file|
     $current_program.listing.get_defined_data(true).each do |data|
         type_name = data.data_type.name
         val_rep = data.get_default_value_representation
-        if (type_name.include?('unicode') || type_name.include?('string')) && val_rep.length > 4
+        if %w(unicode string).include?(type_name) && val_rep.length > 4
             out_file.puts(val_rep)
             string_count += 1
         end
@@ -26,4 +25,3 @@ end
 
 # print out the final string count
 puts "\ntotal number of strings: #{string_count}\n"
-
