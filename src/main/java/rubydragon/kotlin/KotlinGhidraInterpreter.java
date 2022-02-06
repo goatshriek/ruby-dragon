@@ -111,7 +111,7 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 	}
 
 	/**
-	 * Should end the interpreter and release all resources. Currently does nothing.
+	 * Should end the interpreter and release all resources.
 	 */
 	@Override
 	public void dispose() {
