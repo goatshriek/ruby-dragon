@@ -93,7 +93,7 @@ jobs:
         run: |
           $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript ./ghidra_scripts/SaveStringsScriptKts.kts TestStringsKotlin.txt -deleteProject
           grep "Hello Ghidra!" TestStringsKotlin.txt
-          rm TestStringsRuby.txt
+          rm TestStringsKotlin.txt
       - name: Save Strings Clojure Script
         run: |
           $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript ./ghidra_scripts/SaveStringsScriptClj.clj TestStringsClojure.txt -deleteProject
