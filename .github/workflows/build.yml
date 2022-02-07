@@ -12,23 +12,18 @@ jobs:
     runs-on: "ubuntu-latest"
     strategy:
       matrix:
-        ghidra: ["9.2.4", "10.0.4", "10.1.1"]
+        ghidra: ["10.0.4", "10.1.2"]
         include:
-          - ghidra: "9.2.4"
-            ghidra-url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_9.2.4_build/ghidra_9.2.4_PUBLIC_20210427.zip"
-            ghidra-sha256: "c1f18cdb12e2e1c0313e7becf7f0387226937ac67ad6c6e5056fa889229f969a"
-            ghidra-filename: "ghidra_9.2.4_PUBLIC_20210427.zip"
-            ghidra-folder: "ghidra_9.2.4_PUBLIC"
           - ghidra: "10.0.4"
             ghidra-url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.0.4_build/ghidra_10.0.4_PUBLIC_20210928.zip"
             ghidra-sha256: "1ce9bdf2d7f6bdfe5dccd06da828af31bc74acfd800f71ade021d5211e820d5e"
             ghidra-filename: "ghidra_10.0.4_PUBLIC_20210928.zip"
             ghidra-folder: "ghidra_10.0.4_PUBLIC"
-          - ghidra: "10.1.1"
-            ghidra-url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.1.1_build/ghidra_10.1.1_PUBLIC_20211221.zip"
-            ghidra-sha256: "d4ee61ed669cec7e20748462f57f011b84b1e8777b327704f1646c0d47a5a0e8"
-            ghidra-filename: "ghidra_10.1.1_PUBLIC_20211221.zip"
-            ghidra-folder: "ghidra_10.1.1_PUBLIC"
+          - ghidra: "10.1.2"
+            ghidra-url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.1.2_build/ghidra_10.1.2_PUBLIC_20220125.zip"
+            ghidra-sha256: "ac96fbdde7f754e0eb9ed51db020e77208cdb12cf58c08657a2ab87cb2694940"
+            ghidra-filename: "ghidra_10.1.2_PUBLIC_20220125.zip"
+            ghidra-folder: "ghidra_10.1.2_PUBLIC"
 
     env:
       GHIDRA_INSTALL_DIR: /home/runner/ghidra/${{ matrix.ghidra-folder }}
@@ -62,32 +57,45 @@ jobs:
         run: |
           source "/home/runner/.sdkman/bin/sdkman-init.sh"
           gradle buildExtension
-          rm -rf $GHIDRA_INSTALL_DIR/Ghidra/Extensions/*
+          rm -rf $GHIDRA_INSTALL_DIR/Ghidra/Extensions/ruby-dragon
           unzip dist/$(ls dist) -d $GHIDRA_INSTALL_DIR/Ghidra/Extensions
+          mkdir ~/projects
+      - name: Download Dependencies
+        run: |
+          $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -preScript DownloadDependenciesScript.java -deleteProject
       - name: JRubyBasics Script
         run: |
-          mkdir ~/projects
-          $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -preScript ./ghidra_scripts/JRubyBasicsScriptRb.rb -deleteProject | grep -v "^\(INFO\)\|\(WARN\)\|\(    \)" > actual.txt
+          $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -preScript JRubyBasicsScriptRb.rb -deleteProject | grep -v "^\(INFO\)\|\(WARN\)\|\(    \)" > actual.txt
           awk '/^=begin$/{flag=1;next}/^=end$/{flag=0}flag' ghidra_scripts/JRubyBasicsScriptRb.rb > expected.txt
           diff actual.txt expected.txt
           rm actual.txt expected.txt
       - name: Ghidra Basics Ruby Script
         run: |
-          $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript ./ghidra_scripts/GhidraBasicsScriptRb.rb HeadlessTest -deleteProject | awk '/^INFO  SCRIPT:/{flag=1;next}/^INFO  /{flag=0}flag' > actual.txt
+          $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript GhidraBasicsScriptRb.rb HeadlessTest -deleteProject | awk '/^INFO  SCRIPT:/{flag=1;next}/^INFO  /{flag=0}flag' > actual.txt
           diff actual.txt src/test/resources/expected/${{ matrix.ghidra }}-GhidraBasicsScriptRb.txt
+          rm actual.txt
+      - name: Ghidra Basics Kotlin Script
+        run: |
+          $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript GhidraBasicsScriptKts.kts HeadlessTest -deleteProject | sed -n "s/^INFO  GhidraBasicsScriptKts.kts> \(.*\) (GhidraScript).*$/\1/p" > actual.txt
+          diff actual.txt src/test/resources/expected/${{ matrix.ghidra }}-GhidraBasicsScriptKts.txt
           rm actual.txt
       - name: Ghidra Basics Clojure Script
         run: |
-          $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript ./ghidra_scripts/GhidraBasicsScriptClj.clj HeadlessTest -deleteProject | awk '/^INFO  SCRIPT:/{flag=1;next}/^INFO  /{flag=0}flag' > actual.txt
+          $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript GhidraBasicsScriptClj.clj HeadlessTest -deleteProject | awk '/^INFO  SCRIPT:/{flag=1;next}/^INFO  /{flag=0}flag' > actual.txt
           diff actual.txt src/test/resources/expected/${{ matrix.ghidra }}-GhidraBasicsScriptClj.txt
           rm actual.txt
       - name: Save Strings Ruby Script
         run: |
-          $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript ./ghidra_scripts/SaveStringsScriptRb.rb TestStringsRuby.txt -deleteProject
+          $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript SaveStringsScriptRb.rb TestStringsRuby.txt -deleteProject
           grep "Hello Ghidra!" TestStringsRuby.txt
           rm TestStringsRuby.txt
+      - name: Save Strings Kotlin Script
+        run: |
+          $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript SaveStringsScriptKts.kts TestStringsKotlin.txt -deleteProject
+          grep "Hello Ghidra!" TestStringsKotlin.txt
+          rm TestStringsKotlin.txt
       - name: Save Strings Clojure Script
         run: |
-          $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript ./ghidra_scripts/SaveStringsScriptClj.clj TestStringsClojure.txt -deleteProject
+          $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript SaveStringsScriptClj.clj TestStringsClojure.txt  -deleteProject
           grep "Hello Ghidra!" TestStringsClojure.txt
           rm TestStringsClojure.txt

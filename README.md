@@ -2,7 +2,7 @@
 [![build](https://github.com/goatshriek/ruby-dragon/actions/workflows/build.yml/badge.svg)](https://github.com/goatshriek/ruby-dragon/actions/workflows/build.yml)
 [![Apache 2.0 License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Ruby and Clojure support for Ghidra, both interactive and scripting.
+Ruby, Kotlin, and Clojure support for Ghidra, both interactive and scripting.
 
 
 ## Installation
@@ -17,20 +17,29 @@ You will then need to activate the plugin before using it. You might get
 prompted to do this next time you open the CodeBrowser tool, in which case you
 can simply select OK. Otherwise, you can manually activate it by opening the
 CodeBrowser tool, going to `File->Configure...`, and selecting the `RubyDragon`
-plugin for Ruby, and the `ClojureDragon` plugin for Clojure. They should appear
-appear in the `Ghidra Core` listing, but you can check the `Configure All
-Plugins` option if you aren't able to find them.
+plugin for Ruby, the `KotlinDragon` plugin for Kotlin, and the `ClojureDragon`
+plugin for Clojure. They should appear in the `Ghidra Core` listing, but you
+can check the `Configure All Plugins` option if you aren't able to find them.
 
 If you need to remove a language plugin, you can do so by unchecking the box in
-the configuration dialog in the CodeBrowser tool, and then in the
-`Install Extensions` menu from the project browser as well, and finally
-restarting Ghidra. You may also need to manually delete the folder from your
+the configuration dialog in the CodeBrowser tool. If you want to remove the
+extension as a whole, you'll also need to uncheck it in the `Install Extensions`
+menu from the project browser, and finally restart Ghidra. You may also need to
+manually delete the folder from your
 `.ghidra/<ghidrainstall>/Extensions` folder to completely remove it,
 particularly if you want to load the plugin via the Eclipse plugin for
 development.
 
+The Kotlin extension has additional dependencies that are not included in the
+plugin itself for size reasons. If you try to enable this extension before these
+are available in the plugin directory, you'll receive a
+`MissingDragonDependency` error. You can either copy the files into the `lib`
+folder of the plugin yourself, or run the `DownloadDependenciesScript` Java
+script included with the plugin to do this automatically, and finally restart
+Ghidra (yet again).
 
-## Basic Ruby Usage
+
+## Ruby Usage
 Once the RubyDragon plugin is enabled, you will be able to open an interactive
 Ruby session from the CodeBrowser tool by going to `Window->Ruby`. This is a 
 tandard IRB session provided by JRuby.
@@ -60,10 +69,26 @@ You can also find help directly in the Ghidra help menu (press `F1`) on the
 `Ghidra Functionality->Scripting->Ruby Interpreter` page.
 
 
-## Basic Clojure Usage
-Clojure is used in much the same way as the Ruby toolset with some obvious
-differences, such as being provided by the `ClojureDragon` plugin and being
-reached from the `Window->Clojure` menu option.
+## Kotlin Usage
+Kotlin is used in much the same way as the Ruby toolset with some obvious
+differences, such as being provided by the `KotlinDragon` plugin and being
+reached from the `Window->Kotlin` menu option. The built in variables for
+scripts and the interpreter window in Kotlin are the same as Java:
+
+```
+currentAddress
+currentHighlight
+currentLocation
+currentProgram
+currentSelection
+```
+
+Kotlin scripts use a `kts` extension as they are interpreted as scripts rather
+than being compiled to java first.
+
+## Clojure Usage
+Clojure follows the same patterns as the other languages, being provided in the
+`ClojureDragon` plugin and reachable from the `Window->Clojure` menu option.
 
 The Clojure interpreter and scripts also have bindings that make the state
 information available to them, within the `ghidra` namespace. They are:
@@ -93,7 +118,7 @@ out and open an issue if you have any problems. Head over to the
 discussion!
 
 If you're feeling adventurous, you can add an example script in your language
-of choice. This could be an equiavlent to one of the scripts that come packaged
+of choice. This could be an equivalent to one of the scripts that come packaged
 with Ghidra, or it could be all new! Just be sure you add a test for it in the
 Github Action workflow so that it isn't broken later on. Check out the
 `ghidra_scripts` folder to see what's there now, and perhaps draw some

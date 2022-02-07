@@ -7,6 +7,12 @@ of the project, refer to the project repository at
 https://github.com/jruby/jruby. The full terms of the license can be found at
 https://github.com/jruby/jruby/blob/master/COPYING.
 
+The Kotlin logo included in the src/main/resources/images folder is
+Copyright (c) Kotlin Foundation. Kotlin is covered under the Apache 2.0 license.
+For more details on the language and its resources, see https://kotlinlang.org/.
+For the full terms of the license included with Kotlin, see
+https://github.com/JetBrains/kotlin/blob/master/license/LICENSE.txt.
+
 The Clojure binary included in the lib folder is from the Clojure project,
 Copyright (c) Rich Hickey. All rights reserved. It is covered by the EPL 1.0
 license. For the source code of the project, refer to the project repository at

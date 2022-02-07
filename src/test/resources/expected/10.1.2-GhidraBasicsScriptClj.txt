@@ -3,13 +3,13 @@ HelloGhidra.exe x86:LE:32:default (windows)
 
 Memory Layout:
 Imagebase: 0x400000
-Headers [start: 0x00400000, end:0x004003ff]
-.text [start: 0x00401000, end:0x00401fff]
-.rdata [start: 0x00402000, end:0x00402fff]
-.data [start: 0x00403000, end:0x004031ff]
-.data [start: 0x00403200, end:0x00403387]
-.rsrc [start: 0x00404000, end:0x004041ff]
-.reloc [start: 0x00405000, end:0x004051ff]
+Headers [start: 0x00400000, end: 0x004003ff]
+.text [start: 0x00401000, end: 0x00401fff]
+.rdata [start: 0x00402000, end: 0x00402fff]
+.data [start: 0x00403000, end: 0x004031ff]
+.data [start: 0x00403200, end: 0x00403387]
+.rsrc [start: 0x00404000, end: 0x004041ff]
+.reloc [start: 0x00405000, end: 0x004051ff]
 
 Function List:
 FUN_00401000
@@ -85,7 +85,7 @@ __filter_x86_sse2_floating_point_exception_default
 Unwind@00401f80
 Unwind@00401f88
 
-Current Location: 0x4194304
+Current Location: 0x400000
 
 You entered 'HeadlessTest'
 

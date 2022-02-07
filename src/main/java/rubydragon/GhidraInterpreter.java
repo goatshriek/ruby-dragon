@@ -35,6 +35,10 @@ import ghidra.util.Disposable;
 /**
  * An interpreter that users can use interactively as well as to run custom
  * scripts.
+ *
+ * This class provides a common base that all interpreters should implement in
+ * order to fit in to the overall system. It provides a common wrapper around
+ * the language-specific internals of a given language environment.
  */
 public abstract class GhidraInterpreter implements Disposable {
 

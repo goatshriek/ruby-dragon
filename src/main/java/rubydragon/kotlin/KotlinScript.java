@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package rubydragon.clojure;
+package rubydragon.kotlin;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -29,20 +29,24 @@ import ghidra.app.script.GhidraScriptUtil;
 import ghidra.app.script.GhidraState;
 import ghidra.app.services.ConsoleService;
 import ghidra.framework.plugintool.PluginTool;
+import rubydragon.MissingDragonDependency;
 
 /**
- * A Ghidra script written in Clojure.
+ * A Ghidra script written in Kotlin.
  */
-public class ClojureScript extends GhidraScript {
+public class KotlinScript extends GhidraScript {
 
-	private ClojureGhidraInterpreter interpreter;
+	private KotlinGhidraInterpreter interpreter;
 
 	/**
 	 * Creates a new script, with its own interpreter instance.
+	 *
+	 * @throws MissingDragonDependency if the interpreter could not be created due
+	 *                                 to a missing dependency
 	 */
-	public ClojureScript() {
+	public KotlinScript() throws MissingDragonDependency {
 		super();
-		interpreter = new ClojureGhidraInterpreter();
+		interpreter = new KotlinGhidraInterpreter();
 	}
 
 	/**
@@ -50,7 +54,7 @@ public class ClojureScript extends GhidraScript {
 	 */
 	@Override
 	public String getCategory() {
-		return "Clojure";
+		return "Kotlin";
 	}
 
 	/**

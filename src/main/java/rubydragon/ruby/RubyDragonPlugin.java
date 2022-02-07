@@ -21,13 +21,11 @@ package rubydragon.ruby;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-
-import javax.swing.ImageIcon;
 
 import ghidra.app.CorePluginPackage;
 import ghidra.app.plugin.PluginCategoryNames;
-import ghidra.app.plugin.ProgramPlugin;
 import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConnection;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
@@ -36,10 +34,8 @@ import ghidra.framework.Application;
 import ghidra.framework.plugintool.PluginInfo;
 import ghidra.framework.plugintool.PluginTool;
 import ghidra.framework.plugintool.util.PluginStatus;
-import ghidra.program.model.listing.Program;
-import ghidra.program.util.ProgramLocation;
-import ghidra.program.util.ProgramSelection;
-import resources.ResourceManager;
+import rubydragon.DragonDependency;
+import rubydragon.DragonPlugin;
 import rubydragon.GhidraInterpreter;
 
 /**
@@ -57,7 +53,9 @@ import rubydragon.GhidraInterpreter;
 	isSlowInstallation = true
 )
 //@formatter:on
-public class RubyDragonPlugin extends ProgramPlugin implements InterpreterConnection {
+public class RubyDragonPlugin extends DragonPlugin implements InterpreterConnection {
+
+	public static final Collection<DragonDependency> DEPENDENCIES = Arrays.asList();
 
 	private InterpreterConsole console;
 	private GhidraInterpreter interpreter;
@@ -68,7 +66,7 @@ public class RubyDragonPlugin extends ProgramPlugin implements InterpreterConnec
 	 * @param tool The plugin tool that this plugin is added to.
 	 */
 	public RubyDragonPlugin(PluginTool tool) {
-		super(tool, true, true);
+		super(tool, "Ruby");
 	}
 
 	/**
@@ -82,22 +80,6 @@ public class RubyDragonPlugin extends ProgramPlugin implements InterpreterConnec
 	}
 
 	/**
-	 * The title of the plugin.
-	 */
-	@Override
-	public String getTitle() {
-		return "Ruby";
-	}
-
-	/**
-	 * The icon for this plugin.
-	 */
-	@Override
-	public ImageIcon getIcon() {
-		return ResourceManager.loadImage("images/ruby.png");
-	}
-
-	/**
 	 * Get a list of completions for the given command prefix.
 	 *
 	 * Currently not implemented, and will always return an empty list.
@@ -106,6 +88,29 @@ public class RubyDragonPlugin extends ProgramPlugin implements InterpreterConnec
 	public List<CodeCompletion> getCompletions(String cmd) {
 		// TODO currently just an empty list, need to actually implement
 		return new ArrayList<CodeCompletion>();
+	}
+
+	/**
+	 * Gets all of the dependencies needed by RubyDragon to function correctly.
+	 *
+	 * This is simply a wrapper for the static DEPENDENCIES class variable.
+	 *
+	 * @return A Collection holding all RubyDragon dependencies.
+	 */
+	@Override
+	public Collection<DragonDependency> getDependencies() {
+		return DEPENDENCIES;
+	}
+
+	/**
+	 * Gives the ruby interpreter currently in use.
+	 *
+	 * @return The ruby interpreter for this plugin. Will always be a
+	 *         RubyGhidraInterpreter instance.
+	 */
+	@Override
+	public GhidraInterpreter getInterpreter() {
+		return interpreter;
 	}
 
 	/**
@@ -133,37 +138,5 @@ public class RubyDragonPlugin extends ProgramPlugin implements InterpreterConnec
 
 			interpreter.startInteractiveSession();
 		});
-	}
-
-	/**
-	 * Called whenever the highlight is changed within the CodeBrowser tool.
-	 */
-	@Override
-	public void highlightChanged(ProgramSelection sel) {
-		interpreter.updateHighlight(sel);
-	}
-
-	/**
-	 * Called whenever the location is changed within the CodeBrowser tool.
-	 */
-	@Override
-	public void locationChanged(ProgramLocation loc) {
-		interpreter.updateLocation(loc);
-	}
-
-	/**
-	 * Called whenever a program is activate within the CodeBrowser tool.
-	 */
-	@Override
-	public void programActivated(Program program) {
-		interpreter.updateProgram(program);
-	}
-
-	/**
-	 * Called whenever the selection is changed within the CodeBrowser tool.
-	 */
-	@Override
-	public void selectionChanged(ProgramSelection sel) {
-		interpreter.updateSelection(sel);
 	}
 }

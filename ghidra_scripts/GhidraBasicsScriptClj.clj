@@ -17,7 +17,7 @@
 (println (format "Imagebase: 0x%x"
     (.getOffset (.getImageBase ghidra/current-program))))
 (doseq [block (.. ghidra/current-program getMemory getBlocks)]
-    (println (format "%s [start: 0x%s, end:0x%s]"
+    (println (format "%s [start: 0x%s, end: 0x%s]"
         (.getName block)
         (.. block getStart toString)
         (.. block getEnd toString))))
@@ -32,7 +32,7 @@
 (println)
 
 ; get the current location in the program
-(println (format "Current Location: 0x%s" (.getOffset ghidra/current-address)))
+(println (format "Current Location: 0x%x" (.getOffset ghidra/current-address)))
 (println)
 
 ; get some user input
@@ -73,7 +73,8 @@
     (println "No data type was chosen!"))
 (println)
 
-;# report progress to the user interface, do this anywhere things take a while
+; report progress to the user interface
+; do this anywhere things take a while
 (.initialize ghidra/monitor 10)
 (doseq [i (range 1 10)]
     (.checkCanceled ghidra/monitor) ; make sure we're still good to go
@@ -88,13 +89,13 @@
 ;
 ;Memory Layout:
 ;Imagebase: 0x400000
-;Headers [start: 0x00400000, end:0x004003ff]
-;.text [start: 0x00401000, end:0x00401fff]
-;.rdata [start: 0x00402000, end:0x00402fff]
-;.data [start: 0x00403000, end:0x004031ff]
-;.data [start: 0x00403200, end:0x00403387]
-;.rsrc [start: 0x00404000, end:0x004041ff]
-;.reloc [start: 0x00405000, end:0x004051ff]
+;Headers [start: 0x00400000, end: 0x004003ff]
+;.text [start: 0x00401000, end: 0x00401fff]
+;.rdata [start: 0x00402000, end: 0x00402fff]
+;.data [start: 0x00403000, end: 0x004031ff]
+;.data [start: 0x00403200, end: 0x00403387]
+;.rsrc [start: 0x00404000, end: 0x004041ff]
+;.reloc [start: 0x00405000, end: 0x004051ff]
 ;
 ;Function List:
 ;FUN_00401000
@@ -170,7 +171,7 @@
 ;Unwind@00401f80
 ;Unwind@00401f88
 ;
-;Current Location: 0x4194304
+;Current Location: 0x400000
 ;
 ;You entered 'HeadlessTest'
 
