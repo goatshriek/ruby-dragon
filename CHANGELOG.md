@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [1.1.0] - 2022-01-26
+## [1.1.0] - 2022-02-06
 ### Added
  - Kotlin script capability (uses Kotlin 1.6.0)
 

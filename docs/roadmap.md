@@ -4,11 +4,13 @@ or want to make a suggestion, please submit an issue on the project's
 [Github page](https://github.com/goatshriek/ruby-dragon).
 
 
-## 1.1.0
- * [ADD] **Add Documentation for Adding New Languages**
-
-
 ## 1.2.0
+ * [ADD] **JShell Support**
+   JShell is an obvious feature to add, giving parity to Python and Java in both
+   scripts and interactive options.
+
+
+## 1.3.0
  * [ADD] **Groovy Language Bindings**
    While initially aimed at Ruby, this project is ultimately aimed at making a
    variety of JVM-based languages available to Ghidra users. Groovy is an easy

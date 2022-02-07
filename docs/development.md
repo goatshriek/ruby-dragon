@@ -17,13 +17,49 @@ for the language, all from Java code:
  * executing a script file within an interpreter
 
 Once you can do these things from Java, then adding the language to Ghidra via
-Ruby Dragon reduces to essentially a documentation and branding exercise.
+Ruby Dragon is a straightforward class implementation, documentation, and
+branding exercise. If you're ever stuck, take a look at one of the existing
+language implementations to see how to approach your problem area.
+
+
+### Create a Plugin Class
+Most Ghidra plugins extend the `ProgramPlugin` class in order to hook in and
+provide functionality. RubyDragon provides an abstract subclass of this which
+takes care of a number of boilerplate tasks such as dependency downloading and
+setting up the window titles and icons. Start by subclassing this and adding
+concrete functions where needed.
 
 
 ### Create an Interpreter Class
-Do it.
+The `GhidraInterpreter` class serves as a wrapper around the language-specific
+details of your new language. Create a new subclass of this for your language,
+and use the primitives described above to implement the necessary features.
+
+
+### Add Script Support
+In order to support scripts, you'll need to extend `GhidraScript` and
+`GhidraScriptProvider` with support for your own language. These classes are
+very straightforward to extend, and existing RubyDragon subclasses are a great
+place to look if you get stuck.
 
 
 ### Add Help Page
-Documentation is important. Do it.
+Ghidra has a robust help system built in, and users expect to be able to find
+information about whatever they're working in there. Add a help page describing
+the specifics of using your language within Ghidra, by adding an entry into
+`src/main/help/help/TOC_Source.xml` and then a new page alongside the others in
+`src/main/help/help/topics/rubydragon`. Once again, the existing pages are the
+best place to look for examples of what to do.
 
+
+### Add Example Scripts and Tests
+Example scripts serve two purposes. First, they provide a way for newcomers to
+quickly check to see how to do the basics within your language setup, such as
+how script arguments are handled or how to interace with the Ghidra-provided
+classes and variables. Second, they are run by the continuous integration
+pipeline as a test for functionality after installation. All languages implement
+two of these which you will need to provide. The first is a basics script that
+does several common tasks in Ghidra. The second saves all strings that are
+defined in a program to a given file. You will need to implement these two
+scripts, and also add runs of them in the Github Action tests and verify their
+output against an expected value.

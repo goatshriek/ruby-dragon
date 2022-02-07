@@ -3,6 +3,7 @@ package rubydragon;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.swing.ImageIcon;
@@ -25,6 +26,9 @@ import rubydragon.ruby.RubyDragonPlugin;
 /**
  * A plugin for RubyDragon that provides an interactive interpreter for a chosen
  * language.
+ *
+ * This abstract class takes care of a number of boilerplate tasks that should
+ * be common across all plugins.
  */
 public abstract class DragonPlugin extends ProgramPlugin implements InterpreterConnection {
 	/**
@@ -48,9 +52,7 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 	 * Downloads the dependencies for all known RubyDragon language plugins.
 	 */
 	public static void downloadAllDependencies(TaskMonitor monitor) {
-		downloadDependencies(ClojureDragonPlugin.DEPENDENCIES, monitor);
-		downloadDependencies(KotlinDragonPlugin.DEPENDENCIES, monitor);
-		downloadDependencies(RubyDragonPlugin.DEPENDENCIES, monitor);
+		downloadDependencies(getAllDependencies(), monitor);
 	}
 
 	/**
@@ -87,6 +89,21 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * Gets all dependencies used by all plugins in this extension.
+	 *
+	 * @return
+	 */
+	public static Collection<DragonDependency> getAllDependencies() {
+		Collection<DragonDependency> all = new ArrayList<DragonDependency>();
+
+		all.addAll(ClojureDragonPlugin.DEPENDENCIES);
+		all.addAll(KotlinDragonPlugin.DEPENDENCIES);
+		all.addAll(RubyDragonPlugin.DEPENDENCIES);
+
+		return all;
 	}
 
 	/**

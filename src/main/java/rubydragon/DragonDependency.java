@@ -94,4 +94,12 @@ public class DragonDependency {
 	public String getName() {
 		return name;
 	}
+
+	/**
+	 * String representation of the dependency name, url, and sha256 sum.
+	 */
+	@Override
+	public String toString() {
+		return name + ": " + url.toString() + " (" + Hex.toHexString(sha256) + ")";
+	}
 }
