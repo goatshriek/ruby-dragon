@@ -55,7 +55,13 @@ import rubydragon.GhidraInterpreter;
 //@formatter:on
 public class RubyDragonPlugin extends DragonPlugin implements InterpreterConnection {
 
-	public static final Collection<DragonDependency> DEPENDENCIES = Arrays.asList();
+	//@formatter:off
+	public static final Collection<DragonDependency> DEPENDENCIES = Arrays.asList(
+		new DragonDependency(
+			"jruby-complete-9.3.4.0.jar",
+			"https://repo1.maven.org/maven2/org/jruby/jruby-complete/9.3.4.0/jruby-complete-9.3.4.0.jar",
+			"89245e1b751a9fd827e102c192eb5220b88281c62153c9f40371ceb07c51ee33"));
+	//@formatter:on
 
 	private InterpreterConsole console;
 	private GhidraInterpreter interpreter;
