@@ -38,7 +38,6 @@
 ; get some user input
 (def input-val (.askString ghidra/script "Hello" "Please enter a value"))
 (println (format "You entered '%s'" input-val))
-(println)
 
 ; output a popup window with the entered value
 (.popup ghidra/script input-val)
