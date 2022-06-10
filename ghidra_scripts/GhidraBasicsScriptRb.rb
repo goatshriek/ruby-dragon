@@ -34,6 +34,7 @@ puts
 
 # get the current location in the program
 puts "Current location: 0x%x" % $current_address.getOffset
+puts
 
 # get some user input
 val = $script.askString('Hello', 'Please enter a value')

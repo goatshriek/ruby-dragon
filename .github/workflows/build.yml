@@ -12,7 +12,7 @@ jobs:
     runs-on: "ubuntu-latest"
     strategy:
       matrix:
-        ghidra: ["10.0.4", "10.1.2"]
+        ghidra: ["10.0.4", "10.1.2", "10.1.4"]
         include:
           - ghidra: "10.0.4"
             ghidra-url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.0.4_build/ghidra_10.0.4_PUBLIC_20210928.zip"
@@ -24,6 +24,11 @@ jobs:
             ghidra-sha256: "ac96fbdde7f754e0eb9ed51db020e77208cdb12cf58c08657a2ab87cb2694940"
             ghidra-filename: "ghidra_10.1.2_PUBLIC_20220125.zip"
             ghidra-folder: "ghidra_10.1.2_PUBLIC"
+          - ghidra: "10.1.4"
+            ghidra-url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.1.4_build/ghidra_10.1.4_PUBLIC_20220519.zip"
+            ghidra-sha256: "91556c77c7b00f376ca101a6026c0d079efbf24a35b09daaf80bda897318c1f1"
+            ghidra-filename: "ghidra_10.1.4_PUBLIC_20220519.zip"
+            ghidra-folder: "ghidra_10.1.4_PUBLIC"
 
     env:
       GHIDRA_INSTALL_DIR: /home/runner/ghidra/${{ matrix.ghidra-folder }}
@@ -45,14 +50,13 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: '11'
-      - name: Run Unit Tests
+      - name: Set Up SDK Environment
         run: |
           curl -s "https://get.sdkman.io?rcupdate=false" | bash
           source "/home/runner/.sdkman/bin/sdkman-init.sh"
           sdk install gradle 6.9
           sdk use gradle 6.9
           sdk default gradle 6.9
-          gradle test
       - name: Build and Install
         run: |
           source "/home/runner/.sdkman/bin/sdkman-init.sh"
@@ -63,6 +67,10 @@ jobs:
       - name: Download Dependencies
         run: |
           $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -preScript DownloadDependenciesScript.java -deleteProject
+          cp ~/.ghidra/.${{ matrix.ghidra-folder }}/Extensions/RubyDragon/lib/* lib/
+      - name: Run Unit Tests
+        run: |
+          gradle test
       - name: JRubyBasics Script
         run: |
           $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -preScript JRubyBasicsScriptRb.rb -deleteProject | grep -v "^\(INFO\)\|\(WARN\)\|\(    \)" > actual.txt
@@ -72,17 +80,17 @@ jobs:
       - name: Ghidra Basics Ruby Script
         run: |
           $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript GhidraBasicsScriptRb.rb HeadlessTest -deleteProject | awk '/^INFO  SCRIPT:/{flag=1;next}/^INFO  /{flag=0}flag' > actual.txt
-          diff actual.txt src/test/resources/expected/${{ matrix.ghidra }}-GhidraBasicsScriptRb.txt
+          diff actual.txt src/test/resources/expected/GhidraBasicsScriptRb.txt
           rm actual.txt
       - name: Ghidra Basics Kotlin Script
         run: |
           $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript GhidraBasicsScriptKts.kts HeadlessTest -deleteProject | sed -n "s/^INFO  GhidraBasicsScriptKts.kts> \(.*\) (GhidraScript).*$/\1/p" > actual.txt
-          diff actual.txt src/test/resources/expected/${{ matrix.ghidra }}-GhidraBasicsScriptKts.txt
+          diff actual.txt src/test/resources/expected/GhidraBasicsScriptKts.txt
           rm actual.txt
       - name: Ghidra Basics Clojure Script
         run: |
           $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript GhidraBasicsScriptClj.clj HeadlessTest -deleteProject | awk '/^INFO  SCRIPT:/{flag=1;next}/^INFO  /{flag=0}flag' > actual.txt
-          diff actual.txt src/test/resources/expected/${{ matrix.ghidra }}-GhidraBasicsScriptClj.txt
+          diff actual.txt src/test/resources/expected/GhidraBasicsScript.txt
           rm actual.txt
       - name: Save Strings Ruby Script
         run: |
