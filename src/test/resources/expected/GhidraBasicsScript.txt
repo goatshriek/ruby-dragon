@@ -85,6 +85,6 @@ __filter_x86_sse2_floating_point_exception_default
 Unwind@00401f80
 Unwind@00401f88
 
-Current location: 0x400000
+Current Location: 0x400000
 
 You entered 'HeadlessTest'

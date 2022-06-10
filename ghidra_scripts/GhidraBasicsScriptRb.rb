@@ -33,7 +33,7 @@ end
 puts
 
 # get the current location in the program
-puts "Current location: 0x%x" % $current_address.getOffset
+puts "Current Location: 0x%x" % $current_address.getOffset
 puts
 
 # get some user input
