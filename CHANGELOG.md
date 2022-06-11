@@ -5,6 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.2.0] - 2022-06-11
+### Changed
+ - Upgrade to JRuby 9.3.4.0 (Ruby 2.6.8)
+ - Upgrade to Clojure 1.11.1
+ - Upgrade to Kotlin 1.7.0
+ - Dependencies are now managed via Gradle
+
+
 ## [1.1.0] - 2022-02-06
 ### Added
  - Kotlin script capability (uses Kotlin 1.6.0)

@@ -21,7 +21,6 @@ package rubydragon.ruby;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import ghidra.app.CorePluginPackage;
@@ -34,7 +33,6 @@ import ghidra.framework.Application;
 import ghidra.framework.plugintool.PluginInfo;
 import ghidra.framework.plugintool.PluginTool;
 import ghidra.framework.plugintool.util.PluginStatus;
-import rubydragon.DragonDependency;
 import rubydragon.DragonPlugin;
 import rubydragon.GhidraInterpreter;
 
@@ -54,8 +52,6 @@ import rubydragon.GhidraInterpreter;
 )
 //@formatter:on
 public class RubyDragonPlugin extends DragonPlugin implements InterpreterConnection {
-
-	public static final Collection<DragonDependency> DEPENDENCIES = Arrays.asList();
 
 	private InterpreterConsole console;
 	private GhidraInterpreter interpreter;
@@ -91,18 +87,6 @@ public class RubyDragonPlugin extends DragonPlugin implements InterpreterConnect
 	}
 
 	/**
-	 * Gets all of the dependencies needed by RubyDragon to function correctly.
-	 *
-	 * This is simply a wrapper for the static DEPENDENCIES class variable.
-	 *
-	 * @return A Collection holding all RubyDragon dependencies.
-	 */
-	@Override
-	public Collection<DragonDependency> getDependencies() {
-		return DEPENDENCIES;
-	}
-
-	/**
 	 * Gives the ruby interpreter currently in use.
 	 *
 	 * @return The ruby interpreter for this plugin. Will always be a
@@ -123,7 +107,8 @@ public class RubyDragonPlugin extends DragonPlugin implements InterpreterConnect
 		console = getTool().getService(InterpreterPanelService.class).createInterpreterPanel(this, false);
 		interpreter = new RubyGhidraInterpreter(console);
 		console.addFirstActivationCallback(() -> {
-			List<String> brokenVersions = Arrays.asList("10.0.3", "10.0.4", "10.1", "10.1.1");
+			List<String> brokenVersions = Arrays.asList("10.0.3", "10.0.4", "10.1", "10.1.1", "10.1.2", "10.1.3",
+					"10.1.4");
 			String ghidraVersion = Application.getApplicationVersion();
 			if (brokenVersions.contains(ghidraVersion)) {
 				PrintWriter errWriter = new PrintWriter(console.getStdErr());
