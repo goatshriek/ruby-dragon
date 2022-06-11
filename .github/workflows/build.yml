@@ -57,10 +57,6 @@ jobs:
           sdk install gradle 6.9
           sdk use gradle 6.9
           sdk default gradle 6.9
-      - name: Get Build Jars
-        run: |
-          wget -q "https://repo1.maven.org/maven2/org/jruby/jruby-complete/9.3.4.0/jruby-complete-9.3.4.0.jar"
-          mv jruby-complete-9.3.4.0.jar lib/
       - name: Run Unit Tests
         run: |
           gradle test
