@@ -60,6 +60,12 @@ provided for scripts to use in the same manner.
 You can also find help directly in the Ghidra help menu (press `F1`) on the 
 `Ghidra Functionality->Scripting->Ruby Interpreter` page.
 
+Current versions of Ghidra suffer from a class loading problem that may cause
+issues with Ruby depending on your version of Java. If you run into this, copy
+the `launch.properties` file in the `data` folder (both in this repo and in
+the extension package) into your Ghidra installation's `support` directory.
+This will add the necessary arguments to the JVM to resolve the issue.
+
 
 ## Kotlin Usage
 Kotlin is used in much the same way as the Ruby toolset with some obvious
