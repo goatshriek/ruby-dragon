@@ -67,9 +67,6 @@ jobs:
           rm -rf $GHIDRA_INSTALL_DIR/Ghidra/Extensions/ruby-dragon
           unzip dist/$(ls dist) -d $GHIDRA_INSTALL_DIR/Ghidra/Extensions
           mkdir ~/projects
-      - name: Download Dependencies
-        run: |
-          $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -preScript DownloadDependenciesScript.java -deleteProject
       - name: JRubyBasics Script
         run: |
           $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -preScript JRubyBasicsScriptRb.rb -deleteProject | grep -v "^\(INFO\)\|\(WARN\)\|\(    \)" > actual.txt
