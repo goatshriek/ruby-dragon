@@ -19,8 +19,6 @@
 package rubydragon.clojure;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import ghidra.app.CorePluginPackage;
@@ -32,7 +30,6 @@ import ghidra.app.plugin.core.interpreter.InterpreterPanelService;
 import ghidra.framework.plugintool.PluginInfo;
 import ghidra.framework.plugintool.PluginTool;
 import ghidra.framework.plugintool.util.PluginStatus;
-import rubydragon.DragonDependency;
 import rubydragon.DragonPlugin;
 import rubydragon.GhidraInterpreter;
 
@@ -52,8 +49,6 @@ import rubydragon.GhidraInterpreter;
 )
 //@formatter:on
 public class ClojureDragonPlugin extends DragonPlugin implements InterpreterConnection {
-
-	public static final Collection<DragonDependency> DEPENDENCIES = Arrays.asList();
 
 	private InterpreterConsole console;
 	private GhidraInterpreter interpreter;
@@ -86,18 +81,6 @@ public class ClojureDragonPlugin extends DragonPlugin implements InterpreterConn
 	public List<CodeCompletion> getCompletions(String cmd) {
 		// TODO currently just an empty list, need to actually implement
 		return new ArrayList<CodeCompletion>();
-	}
-
-	/**
-	 * Gets all of the dependencies needed by ClojureDragon to function correctly.
-	 *
-	 * This is simply a wrapper for the static DEPENDENCIES class variable.
-	 *
-	 * @return A Collection holding all ClojureDragon dependencies.
-	 */
-	@Override
-	public Collection<DragonDependency> getDependencies() {
-		return DEPENDENCIES;
 	}
 
 	/**

@@ -22,6 +22,7 @@ dependencies {
 	implementation('org.jruby:jruby-complete:9.3.4.0')
 	implementation('org.clojure:clojure:1.11.1')
 	testImplementation('junit:junit:4.13')
+	runtimeOnly('org.jetbrains.kotlin:kotlin-scripting-jsr223:1.7.0')
 }
 
 test {

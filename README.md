@@ -30,14 +30,6 @@ manually delete the folder from your
 particularly if you want to load the plugin via the Eclipse plugin for
 development.
 
-The Kotlin extension has additional dependencies that are not included in the
-plugin itself for size reasons. If you try to enable this extension before these
-are available in the plugin directory, you'll receive a
-`MissingDragonDependency` error. You can either copy the files into the `lib`
-folder of the plugin yourself, or run the `DownloadDependenciesScript` Java
-script included with the plugin to do this automatically, and finally restart
-Ghidra (yet again).
-
 
 ## Ruby Usage
 Once the RubyDragon plugin is enabled, you will be able to open an interactive
