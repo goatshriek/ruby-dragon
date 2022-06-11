@@ -14,6 +14,8 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+// this non-standard import is necessary until Java 17, when
+// java.util.HexFormat is available
 import org.bouncycastle.util.encoders.Hex;
 
 /**
