@@ -12,19 +12,18 @@ jobs:
     runs-on: "ubuntu-latest"
     strategy:
       matrix:
-#        ghidra: ["10.0.4", "10.1.2", "10.1.4"]
-        ghidra: ["10.1.2", "10.1.4"]
+        ghidra: ["10.1.2", "10.1.3", "10.1.4"]
         include:
-#          - ghidra: "10.0.4"
-#            ghidra-url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.0.4_build/ghidra_10.0.4_PUBLIC_20210928.zip"
-#            ghidra-sha256: "1ce9bdf2d7f6bdfe5dccd06da828af31bc74acfd800f71ade021d5211e820d5e"
-#            ghidra-filename: "ghidra_10.0.4_PUBLIC_20210928.zip"
-#            ghidra-folder: "ghidra_10.0.4_PUBLIC"
           - ghidra: "10.1.2"
             ghidra-url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.1.2_build/ghidra_10.1.2_PUBLIC_20220125.zip"
             ghidra-sha256: "ac96fbdde7f754e0eb9ed51db020e77208cdb12cf58c08657a2ab87cb2694940"
             ghidra-filename: "ghidra_10.1.2_PUBLIC_20220125.zip"
             ghidra-folder: "ghidra_10.1.2_PUBLIC"
+          - ghidra: "10.1.3"
+            ghidra-url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.1.3_build/ghidra_10.1.3_PUBLIC_20220421.zip"
+            ghidra-sha256: "9c73b6657413686c0af85909c20581e764107add2a789038ebc6eca49dc4e812"
+            ghidra-filename: "ghidra_10.1.3_PUBLIC_20220421.zip"
+            ghidra-folder: "ghidra_10.1.3_PUBLIC"
           - ghidra: "10.1.4"
             ghidra-url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.1.4_build/ghidra_10.1.4_PUBLIC_20220519.zip"
             ghidra-sha256: "91556c77c7b00f376ca101a6026c0d079efbf24a35b09daaf80bda897318c1f1"
