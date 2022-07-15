@@ -51,7 +51,7 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 	private SimpleScriptContext context;
 
 	/**
-	 * Creates a new interpreter, with no input stream or REPL thread.
+	 * Creates a new interpreter, with no input stream.
 	 *
 	 * @throws MissingDragonDependency If dependencies are missing for a Kotlin
 	 *                                 interpeter.
