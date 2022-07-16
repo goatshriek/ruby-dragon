@@ -1,6 +1,5 @@
 package rubydragon.jshell;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import ghidra.app.CorePluginPackage;
@@ -33,7 +32,7 @@ import rubydragon.GhidraInterpreter;
 public class JShellDragonPlugin extends DragonPlugin implements InterpreterConnection {
 
 	private InterpreterConsole console;
-	private GhidraInterpreter interpreter;
+	private JShellGhidraInterpreter interpreter;
 
 	/**
 	 * Plugin constructor.
@@ -68,12 +67,13 @@ public class JShellDragonPlugin extends DragonPlugin implements InterpreterConne
 	/**
 	 * Get a list of completions for the given command prefix.
 	 *
-	 * Currently not implemented, and will always return an empty list.
+	 * @param cmd The command to try to complete.
+	 *
+	 * @return A list of possible code completions.
 	 */
 	@Override
 	public List<CodeCompletion> getCompletions(String cmd) {
-		// TODO currently just an empty list, need to actually implement
-		return new ArrayList<CodeCompletion>();
+		return interpreter.getCompletions(cmd);
 	}
 
 	/**

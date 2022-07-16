@@ -24,11 +24,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.app.script.GhidraScript;
 import ghidra.app.script.GhidraState;
@@ -38,6 +40,7 @@ import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
 import jdk.jshell.JShell;
 import jdk.jshell.SnippetEvent;
+import jdk.jshell.SourceCodeAnalysis;
 import jdk.jshell.execution.LocalExecutionControlProvider;
 import rubydragon.GhidraInterpreter;
 
@@ -79,9 +82,12 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 		replThread = new Thread(() -> {
 			while (replReader != null) {
 				try {
-					List<SnippetEvent> events = jshell.eval(replReader.readLine());
-					for (SnippetEvent e : events) {
-						handleSnippetEvent(e);
+					String snippet = replReader.readLine();
+					if (snippet != null) {
+						List<SnippetEvent> events = jshell.eval(snippet);
+						for (SnippetEvent e : events) {
+							handleSnippetEvent(e);
+						}
 					}
 				} catch (IllegalStateException e) {
 					// TODO Auto-generated catch block
@@ -91,6 +97,8 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 					e.printStackTrace();
 				}
 			}
+
+			jshell.close();
 		});
 	}
 
@@ -100,8 +108,33 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	@Override
 	public void dispose() {
 		replReader = null;
-		// TODO need to make sure this happens after the replThread exits
-		jshell.close();
+	}
+
+	/**
+	 * Get a list of completions for the given command prefix.
+	 *
+	 * @param cmd The beginning of a command to try to complete.
+	 *
+	 * @return A list of possible code completions.
+	 */
+	public List<CodeCompletion> getCompletions(String cmd) {
+		List<CodeCompletion> result = new ArrayList<CodeCompletion>();
+		int[] anchor = new int[1];
+		List<SourceCodeAnalysis.Suggestion> suggestions;
+
+		SourceCodeAnalysis analyzer = jshell.sourceCodeAnalysis();
+		suggestions = analyzer.completionSuggestions(cmd, cmd.length(), anchor);
+		for (SourceCodeAnalysis.Suggestion s : suggestions) {
+			String c = s.continuation();
+			String added = "";
+			if (c.startsWith(cmd)) {
+				added = c.substring(cmd.length());
+			}
+			CodeCompletion completion = new CodeCompletion(c, added, null);
+			result.add(completion);
+		}
+
+		return result;
 	}
 
 	/**
