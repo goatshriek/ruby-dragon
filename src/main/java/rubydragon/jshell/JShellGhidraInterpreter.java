@@ -22,6 +22,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -58,15 +59,16 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	private PrintWriter errWriter;
 
 	/**
-	 * Creates a new interpreter, and ties the streams for the provided console to
-	 * the new interpreter.
+	 * Creates a new interpreter, and ties the given streams to the new interpreter.
 	 *
-	 * @param console The console to bind to the interpreter streams.
+	 * @param in  The input stream to use for the interpeter.
+	 * @param out The output stream to use for the interpreter.
+	 * @param err The error stream to use for the interpreter.
 	 */
-	public JShellGhidraInterpreter(InterpreterConsole console) {
+	public JShellGhidraInterpreter(InputStream in, OutputStream out, OutputStream err) {
 		JShell.Builder builder = JShell.builder();
-		builder.out(new PrintStream(console.getStdOut()));
-		builder.err(new PrintStream(console.getStdErr()));
+		builder.out(new PrintStream(out));
+		builder.err(new PrintStream(err));
 		builder.executionEngine(new LocalExecutionControlProvider(), new HashMap<String, String>());
 		jshell = builder.build();
 
@@ -77,7 +79,9 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 		jshell.eval(String.format("%s currentProgram = null;", Program.class.getName()));
 		jshell.eval(String.format("%s currentSelection = null;", ProgramSelection.class.getName()));
 
-		setStreams(console);
+		setInput(in);
+		setOutWriter(new PrintWriter(out));
+		setErrWriter(new PrintWriter(err));
 
 		replThread = new Thread(() -> {
 			while (replReader != null) {
@@ -96,10 +100,22 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				outWriter.flush();
+				errWriter.flush();
 			}
 
 			jshell.close();
 		});
+	}
+
+	/**
+	 * Creates a new interpreter, and ties the streams for the provided console to
+	 * the new interpreter.
+	 *
+	 * @param console The console to bind to the interpreter streams.
+	 */
+	public JShellGhidraInterpreter(InterpreterConsole console) {
+		this(console.getStdin(), console.getStdOut(), console.getStdErr());
 	}
 
 	/**
