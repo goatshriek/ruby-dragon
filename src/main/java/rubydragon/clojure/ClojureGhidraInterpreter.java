@@ -27,6 +27,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.List;
 
 import clojure.lang.LineNumberingPushbackReader;
 import clojure.lang.Namespace;
@@ -34,6 +35,7 @@ import clojure.lang.RT;
 import clojure.lang.Symbol;
 import clojure.lang.Var;
 import generic.jar.ResourceFile;
+import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.app.script.GhidraScript;
 import ghidra.app.script.GhidraState;
@@ -96,6 +98,19 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 	@Override
 	public void dispose() {
 		// do nothing
+	}
+
+	/**
+	 * Get a list of completions for the given command prefix.
+	 *
+	 * Currently not implemented, and will always return an empty list.
+	 *
+	 * @param cmd The beginning of a command to try to complete.
+	 *
+	 * @return A list of possible code completions.
+	 */
+	public List<CodeCompletion> getCompletions(String cmd) {
+		return new ArrayList<CodeCompletion>();
 	}
 
 	/**

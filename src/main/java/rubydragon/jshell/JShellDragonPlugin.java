@@ -1,10 +1,7 @@
 package rubydragon.jshell;
 
-import java.util.List;
-
 import ghidra.app.CorePluginPackage;
 import ghidra.app.plugin.PluginCategoryNames;
-import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConnection;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.app.plugin.core.interpreter.InterpreterPanelService;
@@ -62,18 +59,6 @@ public class JShellDragonPlugin extends DragonPlugin implements InterpreterConne
 	@Override
 	public GhidraInterpreter getInterpreter() {
 		return interpreter;
-	}
-
-	/**
-	 * Get a list of completions for the given command prefix.
-	 *
-	 * @param cmd The command to try to complete.
-	 *
-	 * @return A list of possible code completions.
-	 */
-	@Override
-	public List<CodeCompletion> getCompletions(String cmd) {
-		return interpreter.getCompletions(cmd);
 	}
 
 	/**

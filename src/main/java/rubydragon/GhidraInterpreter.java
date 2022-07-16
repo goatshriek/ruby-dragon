@@ -22,7 +22,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.util.List;
 
+import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.app.script.GhidraScript;
 import ghidra.app.script.GhidraState;
@@ -62,6 +64,15 @@ public abstract class GhidraInterpreter implements Disposable {
 		// since it clobbers the current address right now
 		updateAddress(state.getCurrentAddress());
 	}
+
+	/**
+	 * Get a list of completions for the given command prefix.
+	 *
+	 * @param cmd The command to try to complete.
+	 *
+	 * @return A list of possible code completions.
+	 */
+	public abstract List<CodeCompletion> getCompletions(String cmd);
 
 	/**
 	 * Runs the given script with the arguments and state provided.

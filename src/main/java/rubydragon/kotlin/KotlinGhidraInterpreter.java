@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -31,6 +33,7 @@ import javax.script.ScriptException;
 import javax.script.SimpleScriptContext;
 
 import generic.jar.ResourceFile;
+import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.app.script.GhidraScript;
 import ghidra.app.script.GhidraState;
@@ -116,6 +119,19 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 	@Override
 	public void dispose() {
 		replReader = null;
+	}
+
+	/**
+	 * Get a list of completions for the given command prefix.
+	 *
+	 * Currently not implemented, and will always return an empty list.
+	 *
+	 * @param cmd The beginning of a command to try to complete.
+	 *
+	 * @return A list of possible code completions.
+	 */
+	public List<CodeCompletion> getCompletions(String cmd) {
+		return new ArrayList<CodeCompletion>();
 	}
 
 	/**

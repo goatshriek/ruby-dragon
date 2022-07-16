@@ -18,12 +18,8 @@
 
 package rubydragon.clojure;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ghidra.app.CorePluginPackage;
 import ghidra.app.plugin.PluginCategoryNames;
-import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConnection;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.app.plugin.core.interpreter.InterpreterPanelService;
@@ -70,17 +66,6 @@ public class ClojureDragonPlugin extends DragonPlugin implements InterpreterConn
 	protected void dispose() {
 		interpreter.dispose();
 		super.dispose();
-	}
-
-	/**
-	 * Get a list of completions for the given command prefix.
-	 *
-	 * Currently not implemented, and will always return an empty list.
-	 */
-	@Override
-	public List<CodeCompletion> getCompletions(String cmd) {
-		// TODO currently just an empty list, need to actually implement
-		return new ArrayList<CodeCompletion>();
 	}
 
 	/**
