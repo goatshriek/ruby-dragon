@@ -2,7 +2,8 @@
 [![build](https://github.com/goatshriek/ruby-dragon/actions/workflows/build.yml/badge.svg)](https://github.com/goatshriek/ruby-dragon/actions/workflows/build.yml)
 [![Apache 2.0 License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Ruby, Kotlin, and Clojure support for Ghidra, both interactive and scripting.
+Ruby, Kotlin, JShell, and Clojure support for Ghidra, both interactive and
+scripting.
 
 
 ## Installation
@@ -83,6 +84,25 @@ currentSelection
 
 Kotlin scripts use a `kts` extension as they are interpreted as scripts rather
 than being compiled to java first.
+
+
+## JShell Usage
+The JShell plugin provides an interactive Java interpreter by JShell, a Java
+REPL included in Java. It provides the same built in variables that are
+available in Java scripts:
+
+```
+currentAddress
+currentHighlight
+currentLocation
+currentProgram
+currentSelection
+```
+
+This interpreter is especially handy when writing Java scripts, as it allows you
+to iteratively test snippets of code from the script without needing to do any
+sort of conversion to other languages like Python or Kotlin.
+
 
 ## Clojure Usage
 Clojure follows the same patterns as the other languages, being provided in the

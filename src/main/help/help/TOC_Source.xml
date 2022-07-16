@@ -52,6 +52,7 @@
 	<tocref id="Ghidra Functionality">
 		<tocref id="Scripting">
 			<tocdef id="Clojure Interpreter" sortgroup="z" text="Clojure Interpreter" target="help/topics/rubydragon/clojure.html" />
+			<tocdef id="JShell Interpreter" sortgroup="z" text="JShell Interpreter" target="help/topics/rubydragon/jshell.html" />
 			<tocdef id="Kotlin Interpreter" sortgroup="z" text="Kotlin Interpreter" target="help/topics/rubydragon/kotlin.html" />
 			<tocdef id="Ruby Interpreter" sortgroup="z" text="Ruby Interpreter" target="help/topics/rubydragon/ruby.html" />
 		</tocref>
