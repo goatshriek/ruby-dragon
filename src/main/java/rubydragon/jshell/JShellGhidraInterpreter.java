@@ -26,6 +26,8 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.app.script.GhidraScript;
@@ -44,7 +46,8 @@ import rubydragon.GhidraInterpreter;
  * A Kotlin intepreter for Ghidra.
  */
 public class JShellGhidraInterpreter extends GhidraInterpreter {
-	public static String testStr = "oogaboogabooga";
+	public static AtomicInteger counter = new AtomicInteger();
+	public static ConcurrentHashMap<Integer, Object> variables = new ConcurrentHashMap<Integer, Object>();
 
 	private Thread replThread;
 	private BufferedReader replReader;
@@ -57,7 +60,6 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 * @param console The console to bind to the interpreter streams.
 	 */
 	public JShellGhidraInterpreter(InterpreterConsole console) {
-		System.out.println("constructor called");
 		JShell.Builder builder = JShell.builder();
 		builder.out(new PrintStream(console.getStdOut()));
 		// builder.in(console.getStdin());
@@ -65,7 +67,8 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 		builder.executionEngine(new LocalExecutionControlProvider(), new HashMap<String, String>());
 		jshell = builder.build();
 
-		jshell.eval("String currentAddress = rubydragon.jshell.JShellGhidraInterpreter.testStr;");
+		jshell.eval("ghidra.program.model.address.Address currentAddress = null;");
+
 		setStreams(console);
 
 		replThread = new Thread(() -> {
@@ -188,10 +191,15 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 */
 	@Override
 	public void updateAddress(Address address) {
-		// if (address != null) {
-		// engine.put("currentAddress", address);
-		// }
-		return;
+		System.out.println("current address updated!");
+		if (address != null) {
+			Integer varId = counter.incrementAndGet();
+			variables.put(varId, address);
+			String command = String.format("currentAddress = (%s) %s.variables.get(%d)", Address.class.getName(),
+					this.getClass().getName(), varId);
+			jshell.eval(command);
+			variables.remove(varId);
+		}
 	}
 
 	/**
@@ -216,11 +224,10 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 */
 	@Override
 	public void updateLocation(ProgramLocation loc) {
-//		if (loc != null) {
-//			engine.put("currentLocation", loc);
-//			updateAddress(loc.getAddress());
-//		}
-		return;
+		if (loc != null) {
+			// engine.put("currentLocation", loc);
+			updateAddress(loc.getAddress());
+		}
 	}
 
 	/**
