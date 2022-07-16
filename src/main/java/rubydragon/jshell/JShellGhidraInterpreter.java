@@ -37,7 +37,6 @@ import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
 import jdk.jshell.JShell;
-import jdk.jshell.Snippet;
 import jdk.jshell.SnippetEvent;
 import jdk.jshell.execution.LocalExecutionControlProvider;
 import rubydragon.GhidraInterpreter;
@@ -52,6 +51,8 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	private Thread replThread;
 	private BufferedReader replReader;
 	private JShell jshell;
+	private PrintWriter outWriter;
+	private PrintWriter errWriter;
 
 	/**
 	 * Creates a new interpreter, and ties the streams for the provided console to
@@ -62,54 +63,25 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	public JShellGhidraInterpreter(InterpreterConsole console) {
 		JShell.Builder builder = JShell.builder();
 		builder.out(new PrintStream(console.getStdOut()));
-		// builder.in(console.getStdin());
 		builder.err(new PrintStream(console.getStdErr()));
 		builder.executionEngine(new LocalExecutionControlProvider(), new HashMap<String, String>());
 		jshell = builder.build();
 
-		jshell.eval("ghidra.program.model.address.Address currentAddress = null;");
+		// declare the built-in variables
+		jshell.eval(String.format("%s currentAddress = null;", Address.class.getName()));
+		jshell.eval(String.format("%s currentHighlight = null;", ProgramSelection.class.getName()));
+		jshell.eval(String.format("%s currentLocation = null;", ProgramLocation.class.getName()));
+		jshell.eval(String.format("%s currentProgram = null;", Program.class.getName()));
+		jshell.eval(String.format("%s currentSelection = null;", ProgramSelection.class.getName()));
 
 		setStreams(console);
 
 		replThread = new Thread(() -> {
 			while (replReader != null) {
 				try {
-					System.out.println("started eval");
 					List<SnippetEvent> events = jshell.eval(replReader.readLine());
-					System.out.println("eval returned");
-
 					for (SnippetEvent e : events) {
-						StringBuilder sb = new StringBuilder();
-						if (e.causeSnippet() == null) {
-							// We have a snippet creation event
-							switch (e.status()) {
-							case VALID:
-								sb.append("Successful ");
-								break;
-							case RECOVERABLE_DEFINED:
-								sb.append("With unresolved references ");
-								break;
-							case RECOVERABLE_NOT_DEFINED:
-								sb.append("Possibly reparable, failed  ");
-								break;
-							case REJECTED:
-								sb.append("Failed ");
-								break;
-							}
-							if (e.previousStatus() == Snippet.Status.NONEXISTENT) {
-								sb.append("addition");
-							} else {
-								sb.append("modification");
-							}
-							sb.append(" of ");
-							sb.append(e.snippet().source());
-							System.out.println(sb);
-							console.getOutWriter().print(sb);
-							if (e.value() != null) {
-								console.getOutWriter().printf("Value is: %s\n", e.value());
-							}
-							console.getOutWriter().flush();
-						}
+						handleSnippetEvent(e);
 					}
 				} catch (IllegalStateException e) {
 					// TODO Auto-generated catch block
@@ -128,6 +100,34 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	@Override
 	public void dispose() {
 		replReader = null;
+		// TODO need to make sure this happens after the replThread exits
+		jshell.close();
+	}
+
+	/**
+	 * Prints a status message to the console for the given event.
+	 *
+	 * @param e The SnippetEvent to report a status for.
+	 */
+	private void handleSnippetEvent(SnippetEvent e) {
+		if (e.causeSnippet() == null) {
+			switch (e.status()) {
+			case RECOVERABLE_DEFINED:
+				errWriter.println("jshell snipped failed: RECOVERABLE_DEFINED");
+				break;
+			case RECOVERABLE_NOT_DEFINED:
+				errWriter.println("jshell snippet failed: RECOVERABLE_NOT_DEFINED");
+				break;
+			case REJECTED:
+				errWriter.println("jshell snippet failed");
+				break;
+			default:
+				if (e.value() != null) {
+					outWriter.println(e.value());
+				}
+				break;
+			}
+		}
 	}
 
 	/**
@@ -154,7 +154,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 */
 	@Override
 	public void setErrWriter(PrintWriter errOut) {
-		return;
+		errWriter = errOut;
 	}
 
 	/**
@@ -162,7 +162,6 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 */
 	@Override
 	public void setInput(InputStream input) {
-		System.out.println("input set");
 		replReader = new BufferedReader(new InputStreamReader(input));
 	}
 
@@ -171,7 +170,22 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 */
 	@Override
 	public void setOutWriter(PrintWriter output) {
-		return;
+		outWriter = output;
+	}
+
+	/**
+	 * Sets an existing variable with the given name to the given value.
+	 *
+	 * @param name  The name of the variable.
+	 * @param type  The type of the variable.
+	 * @param value The new value of the variable.
+	 */
+	private void setVariable(String name, String type, Object value) {
+		Integer varId = counter.incrementAndGet();
+		variables.put(varId, value);
+		String command = String.format("%s = (%s) %s.variables.get(%d)", name, type, this.getClass().getName(), varId);
+		jshell.eval(command);
+		variables.remove(varId);
 	}
 
 	/**
@@ -180,7 +194,6 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	@Override
 	public void startInteractiveSession() {
 		replThread.start();
-		System.out.println("repl started");
 	}
 
 	/**
@@ -191,14 +204,8 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 */
 	@Override
 	public void updateAddress(Address address) {
-		System.out.println("current address updated!");
 		if (address != null) {
-			Integer varId = counter.incrementAndGet();
-			variables.put(varId, address);
-			String command = String.format("currentAddress = (%s) %s.variables.get(%d)", Address.class.getName(),
-					this.getClass().getName(), varId);
-			jshell.eval(command);
-			variables.remove(varId);
+			setVariable("currentAddress", Address.class.getName(), address);
 		}
 	}
 
@@ -210,10 +217,9 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 */
 	@Override
 	public void updateHighlight(ProgramSelection sel) {
-		// if (sel != null) {
-		// engine.put("currentHighlight", sel);
-		// }
-		return;
+		if (sel != null) {
+			setVariable("currentHighlight", ProgramSelection.class.getName(), sel);
+		}
 	}
 
 	/**
@@ -225,7 +231,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	@Override
 	public void updateLocation(ProgramLocation loc) {
 		if (loc != null) {
-			// engine.put("currentLocation", loc);
+			setVariable("currentLocation", ProgramLocation.class.getName(), loc);
 			updateAddress(loc.getAddress());
 		}
 	}
@@ -237,10 +243,9 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 */
 	@Override
 	public void updateProgram(Program program) {
-//		if (program != null) {
-//			engine.put("currentProgram", program);
-//		}
-		return;
+		if (program != null) {
+			setVariable("currentProgram", Program.class.getName(), program);
+		}
 	}
 
 	/**
@@ -250,17 +255,19 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 */
 	@Override
 	public void updateSelection(ProgramSelection sel) {
-//		if (sel != null) {
-//			engine.put("currentSelection", sel);
-//		}
-		return;
+		if (sel != null) {
+			setVariable("currentSelection", ProgramSelection.class.getName(), sel);
+		}
 	}
 
 	/**
 	 * Updates a state with the current selection/location/etc. variables from the
 	 * interpreter.
 	 *
-	 * Ignored because this interpreter doesn't do scripts.
+	 * Ignored because the JShell interpreter doesn't handle scripts.
+	 *
+	 * This is a sign that the parent class should probably be refactored so that a
+	 * nullsub like this doesn't need to exist.
 	 *
 	 * @param scriptState The state to update.
 	 */

@@ -16,8 +16,8 @@ import rubydragon.DragonPlugin;
 import rubydragon.GhidraInterpreter;
 
 /**
- * KotlinDragon provides Kotlin support within Ghidra, both in an interactive
- * terminal session as well as standalone scripts.
+ * JShellDragon provides an interactive Java terminal session within Ghidra via
+ * JShell.
  */
 //@formatter:off
 @PluginInfo(
