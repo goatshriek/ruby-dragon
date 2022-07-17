@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PipedInputStream;
@@ -39,25 +40,74 @@ public class JShellGhidraInterpreterTest {
 		outputReader = new BufferedReader(new InputStreamReader(scriptOutputInStream));
 		errorReader = new BufferedReader(new InputStreamReader(scriptErrorInStream));
 		inputWriter = new BufferedWriter(new OutputStreamWriter(scriptInputOutStream));
+
+		interpreter.startInteractiveSession();
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		// interpreter.dispose();
+		interpreter.dispose();
+	}
+
+	/**
+	 * Writes the given command to the interpreter input stream.
+	 *
+	 * @param cmd The command to run.
+	 * @throws IOException
+	 */
+	private void writeCommand(String cmd) throws IOException {
+		inputWriter.write(cmd + "\n");
+		inputWriter.flush();
+	}
+
+	@Test
+	public void testCurrentAddressDeclared() throws Exception {
+		writeCommand("currentAddress = null;");
+
+		assertEquals("null should be printed", "null", outputReader.readLine());
+		assertFalse(errorReader.ready());
+	}
+
+	@Test
+	public void testCurrentHighlightDeclared() throws Exception {
+		writeCommand("currentHighlight = null;");
+
+		assertEquals("null should be printed", "null", outputReader.readLine());
+		assertFalse(errorReader.ready());
+	}
+
+	@Test
+	public void testCurrentLocationDeclared() throws Exception {
+		writeCommand("currentLocation = null;");
+
+		assertEquals("null should be printed", "null", outputReader.readLine());
+		assertFalse(errorReader.ready());
+	}
+
+	@Test
+	public void testCurrentProgramDeclared() throws Exception {
+		writeCommand("currentProgram = null;");
+
+		assertEquals("null should be printed", "null", outputReader.readLine());
+		assertFalse(errorReader.ready());
+	}
+
+	@Test
+	public void testCurrentSelectionDeclared() throws Exception {
+		writeCommand("currentSelection = null;");
+
+		assertEquals("null should be printed", "null", outputReader.readLine());
+		assertFalse(errorReader.ready());
 	}
 
 	@Test
 	public void testIntResult() throws Exception {
-		interpreter.startInteractiveSession();
-
-		inputWriter.write("int var = 3;\n");
-		inputWriter.flush();
+		writeCommand("int var = 3;");
 
 		assertEquals("The initial value should be printed", "3", outputReader.readLine());
 		assertFalse(errorReader.ready());
 
-		inputWriter.write("var = 4;\n");
-		inputWriter.flush();
+		writeCommand("var = 4;");
 
 		assertEquals("The new value should be printed", "4", outputReader.readLine());
 		assertFalse(errorReader.ready());
