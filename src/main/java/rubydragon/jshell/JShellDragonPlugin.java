@@ -1,5 +1,12 @@
 package rubydragon.jshell;
 
+import java.awt.event.KeyEvent;
+
+import docking.ActionContext;
+import docking.DockingUtils;
+import docking.action.DockingAction;
+import docking.action.KeyBindingData;
+import docking.action.ToolBarData;
 import ghidra.app.CorePluginPackage;
 import ghidra.app.plugin.PluginCategoryNames;
 import ghidra.app.plugin.core.interpreter.InterpreterConnection;
@@ -8,6 +15,8 @@ import ghidra.app.plugin.core.interpreter.InterpreterPanelService;
 import ghidra.framework.plugintool.PluginInfo;
 import ghidra.framework.plugintool.PluginTool;
 import ghidra.framework.plugintool.util.PluginStatus;
+import ghidra.util.HelpLocation;
+import resources.ResourceManager;
 import rubydragon.DragonPlugin;
 import rubydragon.GhidraInterpreter;
 
@@ -74,5 +83,32 @@ public class JShellDragonPlugin extends DragonPlugin implements InterpreterConne
 		console.addFirstActivationCallback(() -> {
 			interpreter.startInteractiveSession();
 		});
+
+		DockingAction interruptAction = new DockingAction("Interrupt Interpreter", getName()) {
+			@Override
+			public void actionPerformed(ActionContext context) {
+				interpreter.interrupt();
+			}
+		};
+		interruptAction.setDescription("Interrupt Interpreter");
+		interruptAction.setToolBarData(new ToolBarData(ResourceManager.loadImage("images/dialog-cancel.png"), null));
+		interruptAction.setEnabled(true);
+		interruptAction.setKeyBindingData(new KeyBindingData(KeyEvent.VK_I, DockingUtils.CONTROL_KEY_MODIFIER_MASK));
+		interruptAction.setHelpLocation(new HelpLocation(getTitle(), "Interrupt_Interpreter"));
+		console.addAction(interruptAction);
+
+		DockingAction resetAction = new DockingAction("Reset Interpreter", getName()) {
+			@Override
+			public void actionPerformed(ActionContext context) {
+				interpreter.reset();
+				console.clear();
+			}
+		};
+		resetAction.setDescription("Reset Interpreter");
+		resetAction.setToolBarData(new ToolBarData(ResourceManager.loadImage("images/reload3.png"), null));
+		resetAction.setEnabled(true);
+		resetAction.setKeyBindingData(new KeyBindingData(KeyEvent.VK_D, DockingUtils.CONTROL_KEY_MODIFIER_MASK));
+		resetAction.setHelpLocation(new HelpLocation(getTitle(), "Reset_Interpreter"));
+		console.addAction(resetAction);
 	}
 }

@@ -53,9 +53,12 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	public static ConcurrentHashMap<Integer, Object> variables = new ConcurrentHashMap<Integer, Object>();
 
 	private Thread replThread;
-	private BufferedReader replReader;
 	private JShell jshell;
+	private InputStream inStream;
+	private BufferedReader replReader;
+	private OutputStream outStream;
 	private PrintWriter outWriter;
+	private OutputStream errStream;
 	private PrintWriter errWriter;
 
 	/**
@@ -66,22 +69,15 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 * @param err The error stream to use for the interpreter.
 	 */
 	public JShellGhidraInterpreter(InputStream in, OutputStream out, OutputStream err) {
-		JShell.Builder builder = JShell.builder();
-		builder.out(new PrintStream(out));
-		builder.err(new PrintStream(err));
-		builder.executionEngine(new LocalExecutionControlProvider(), new HashMap<String, String>());
-		jshell = builder.build();
+		inStream = in;
+		outStream = out;
+		errStream = err;
 
-		// declare the built-in variables
-		jshell.eval(String.format("%s currentAddress = null;", Address.class.getName()));
-		jshell.eval(String.format("%s currentHighlight = null;", ProgramSelection.class.getName()));
-		jshell.eval(String.format("%s currentLocation = null;", ProgramLocation.class.getName()));
-		jshell.eval(String.format("%s currentProgram = null;", Program.class.getName()));
-		jshell.eval(String.format("%s currentSelection = null;", ProgramSelection.class.getName()));
+		setInput(inStream);
+		setOutWriter(new PrintWriter(outStream));
+		setErrWriter(new PrintWriter(errStream));
 
-		setInput(in);
-		setOutWriter(new PrintWriter(out));
-		setErrWriter(new PrintWriter(err));
+		createJShell();
 
 		replThread = new Thread(() -> {
 			while (replReader != null) {
@@ -116,6 +112,24 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 */
 	public JShellGhidraInterpreter(InterpreterConsole console) {
 		this(console.getStdin(), console.getStdOut(), console.getStdErr());
+	}
+
+	/**
+	 * Creates a new JShell interpreter, and declares the internal variables.
+	 */
+	private void createJShell() {
+		JShell.Builder builder = JShell.builder();
+		builder.out(new PrintStream(outStream));
+		builder.err(new PrintStream(errStream));
+		builder.executionEngine(new LocalExecutionControlProvider(), new HashMap<String, String>());
+		jshell = builder.build();
+
+		// declare the built-in variables
+		jshell.eval(String.format("%s currentAddress = null;", Address.class.getName()));
+		jshell.eval(String.format("%s currentHighlight = null;", ProgramSelection.class.getName()));
+		jshell.eval(String.format("%s currentLocation = null;", ProgramLocation.class.getName()));
+		jshell.eval(String.format("%s currentProgram = null;", Program.class.getName()));
+		jshell.eval(String.format("%s currentSelection = null;", ProgramSelection.class.getName()));
 	}
 
 	/**
@@ -180,6 +194,13 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	}
 
 	/**
+	 * Interrupts this interpreter.
+	 */
+	public void interrupt() {
+		jshell.stop();
+	}
+
+	/**
 	 * Does nothing, since this interpeter is only for interactive sessions and
 	 * doesn't support scripts.
 	 *
@@ -196,6 +217,14 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	@Override
 	public void runScript(GhidraScript script, String[] scriptArguments, GhidraState scriptState) {
 		return;
+	}
+
+	/**
+	 * Resets this interpreter.
+	 */
+	public void reset() {
+		jshell.close();
+		createJShell();
 	}
 
 	/**
