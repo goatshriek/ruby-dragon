@@ -2,6 +2,7 @@ package rubydragon.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -111,5 +112,19 @@ public class JShellGhidraInterpreterTest {
 
 		assertEquals("The new value should be printed", "4", outputReader.readLine());
 		assertFalse(errorReader.ready());
+	}
+
+	@Test
+	public void testReset() throws Exception {
+		writeCommand("String s = \"declared variable\";");
+
+		assertEquals("The initial value should be printed", "\"declared variable\"", outputReader.readLine());
+		assertFalse(errorReader.ready());
+
+		interpreter.reset();
+
+		writeCommand("s");
+		String error = errorReader.readLine();
+		assertTrue(error.contains("fail"));
 	}
 }
