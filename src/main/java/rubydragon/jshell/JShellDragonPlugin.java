@@ -101,6 +101,10 @@ public class JShellDragonPlugin extends DragonPlugin implements InterpreterConne
 			@Override
 			public void actionPerformed(ActionContext context) {
 				interpreter.reset();
+				interpreter.updateHighlight(getProgramHighlight());
+				interpreter.updateLocation(getProgramLocation());
+				interpreter.updateProgram(getCurrentProgram());
+				interpreter.updateSelection(getProgramSelection());
 				console.clear();
 			}
 		};
