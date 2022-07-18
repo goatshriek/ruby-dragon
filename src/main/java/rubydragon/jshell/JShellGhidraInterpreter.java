@@ -267,10 +267,11 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 * @param type  The type of the variable.
 	 * @param value The new value of the variable.
 	 */
-	private void setVariable(String name, String type, Object value) {
+	private void setVariable(String name, Class<?> type, Object value) {
 		Integer varId = counter.incrementAndGet();
 		variables.put(varId, value);
-		String command = String.format("%s = (%s) %s.variables.get(%d)", name, type, this.getClass().getName(), varId);
+		String command = String.format("%s = (%s) %s.variables.get(%d)", name, type.getName(),
+				this.getClass().getName(), varId);
 		jshell.eval(command);
 		variables.remove(varId);
 	}
@@ -292,7 +293,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	@Override
 	public void updateAddress(Address address) {
 		if (address != null) {
-			setVariable("currentAddress", Address.class.getName(), address);
+			setVariable("currentAddress", Address.class, address);
 		}
 	}
 
@@ -305,7 +306,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	@Override
 	public void updateHighlight(ProgramSelection sel) {
 		if (sel != null) {
-			setVariable("currentHighlight", ProgramSelection.class.getName(), sel);
+			setVariable("currentHighlight", ProgramSelection.class, sel);
 		}
 	}
 
@@ -318,7 +319,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	@Override
 	public void updateLocation(ProgramLocation loc) {
 		if (loc != null) {
-			setVariable("currentLocation", ProgramLocation.class.getName(), loc);
+			setVariable("currentLocation", ProgramLocation.class, loc);
 			updateAddress(loc.getAddress());
 		}
 	}
@@ -331,7 +332,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	@Override
 	public void updateProgram(Program program) {
 		if (program != null) {
-			setVariable("currentProgram", Program.class.getName(), program);
+			setVariable("currentProgram", Program.class, program);
 		}
 	}
 
@@ -343,7 +344,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	@Override
 	public void updateSelection(ProgramSelection sel) {
 		if (sel != null) {
-			setVariable("currentSelection", ProgramSelection.class.getName(), sel);
+			setVariable("currentSelection", ProgramSelection.class, sel);
 		}
 	}
 
