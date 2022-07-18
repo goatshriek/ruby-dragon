@@ -61,6 +61,37 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	private OutputStream errStream;
 	private PrintWriter errWriter;
 
+	private Runnable inputThread = () -> {
+		while (replReader != null) {
+			try {
+				StringBuilder completeSnippet = new StringBuilder();
+				SourceCodeAnalysis analyzer = jshell.sourceCodeAnalysis();
+				SourceCodeAnalysis.CompletionInfo ci;
+				SourceCodeAnalysis.Completeness c;
+				do {
+					String snippet = replReader.readLine();
+					completeSnippet.append(snippet);
+					ci = analyzer.analyzeCompletion(completeSnippet.toString());
+					c = ci.completeness();
+				} while (c != SourceCodeAnalysis.Completeness.COMPLETE && c != SourceCodeAnalysis.Completeness.UNKNOWN);
+				List<SnippetEvent> events = jshell.eval(completeSnippet.toString());
+				for (SnippetEvent e : events) {
+					handleSnippetEvent(e);
+				}
+			} catch (IllegalStateException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			outWriter.flush();
+			errWriter.flush();
+		}
+
+		jshell.close();
+	};
+
 	/**
 	 * Creates a new interpreter, and ties the given streams to the new interpreter.
 	 *
@@ -79,29 +110,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 
 		createJShell();
 
-		replThread = new Thread(() -> {
-			while (replReader != null) {
-				try {
-					String snippet = replReader.readLine();
-					if (snippet != null) {
-						List<SnippetEvent> events = jshell.eval(snippet);
-						for (SnippetEvent e : events) {
-							handleSnippetEvent(e);
-						}
-					}
-				} catch (IllegalStateException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				outWriter.flush();
-				errWriter.flush();
-			}
-
-			jshell.close();
-		});
+		replThread = new Thread(inputThread);
 	}
 
 	/**
