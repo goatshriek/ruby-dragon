@@ -115,6 +115,24 @@ public class JShellGhidraInterpreterTest {
 	}
 
 	@Test
+	public void testBlock() throws Exception {
+		writeCommand("int sum = 0;");
+
+		assertEquals("The initial value should be printed", "0", outputReader.readLine());
+		assertFalse(errorReader.ready());
+
+		writeCommand("for( int i = 0; i < 10; i++ ){");
+		writeCommand("  sum += i;");
+		writeCommand("}");
+		outputReader.readLine();
+		assertFalse(errorReader.ready());
+
+		writeCommand("sum");
+		assertEquals("The total sum should be printed", "45", outputReader.readLine());
+		assertFalse(errorReader.ready());
+	}
+
+	@Test
 	public void testReset() throws Exception {
 		writeCommand("String s = \"declared variable\";");
 
