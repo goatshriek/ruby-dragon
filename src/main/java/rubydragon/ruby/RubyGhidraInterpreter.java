@@ -22,11 +22,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jruby.embed.LocalContextScope;
 import org.jruby.embed.LocalVariableBehavior;
 import org.jruby.embed.ScriptingContainer;
 
+import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.app.script.GhidraScript;
 import ghidra.app.script.GhidraState;
@@ -74,6 +77,19 @@ public class RubyGhidraInterpreter extends GhidraInterpreter {
 	public void dispose() {
 		disposed = true;
 		// container.terminate(); // makes ghidra hang on close
+	}
+
+	/**
+	 * Get a list of completions for the given command prefix.
+	 *
+	 * Currently not implemented, and will always return an empty list.
+	 *
+	 * @param cmd The beginning of a command to try to complete.
+	 *
+	 * @return A list of possible code completions.
+	 */
+	public List<CodeCompletion> getCompletions(String cmd) {
+		return new ArrayList<CodeCompletion>();
 	}
 
 	/**

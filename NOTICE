@@ -1,11 +1,14 @@
 Ruby Dragon
-Copyright 2021 Joel E. Anderson
+Copyright 2021-2022 Joel E. Anderson
 
-The JRuby binary included in the lib folder is Copyright (c) 2007-2018 The JRuby
-project and covered by a tri EPL 2.0/GPL 2/LGPL 2.1 license. For the source code
-of the project, refer to the project repository at
-https://github.com/jruby/jruby. The full terms of the license can be found at
+The JRuby project is Copyright (c) 2007-2018 The JRuby project and covered by a
+tri EPL 2.0/GPL 2/LGPL 2.1 license. For the source code of the project, refer
+to the project repository at https://github.com/jruby/jruby. The full terms of
+the license can be found at
 https://github.com/jruby/jruby/blob/master/COPYING.
+
+The Java log included in the src/main/resources/images folder is Copyright (c)
+Oracle.
 
 The Kotlin logo included in the src/main/resources/images folder is
 Copyright (c) Kotlin Foundation. Kotlin is covered under the Apache 2.0 license.
@@ -13,9 +16,10 @@ For more details on the language and its resources, see https://kotlinlang.org/.
 For the full terms of the license included with Kotlin, see
 https://github.com/JetBrains/kotlin/blob/master/license/LICENSE.txt.
 
-The Clojure binary included in the lib folder is from the Clojure project,
-Copyright (c) Rich Hickey. All rights reserved. It is covered by the EPL 1.0
-license. For the source code of the project, refer to the project repository at
-https://github.com/clojure/clojure. The full terms of the license can be found
-at https://github.com/clojure/clojure/blob/master/epl-v10.html.
+The Clojure logo included in the src/main/resources/images folder is from the
+Clojure project, Copyright (c) Rich Hickey. All rights reserved. Clojure is
+covered by the EPL 1.0 license. For the source code of the project, refer to
+the project repository at https://github.com/clojure/clojure. The full terms
+of the license can be found at
+https://github.com/clojure/clojure/blob/master/epl-v10.html.
 

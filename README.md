@@ -2,7 +2,8 @@
 [![build](https://github.com/goatshriek/ruby-dragon/actions/workflows/build.yml/badge.svg)](https://github.com/goatshriek/ruby-dragon/actions/workflows/build.yml)
 [![Apache 2.0 License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Ruby, Kotlin, and Clojure support for Ghidra, both interactive and scripting.
+Ruby, Kotlin, JShell, and Clojure support for Ghidra, both interactive and
+scripting.
 
 
 ## Installation
@@ -17,9 +18,10 @@ You will then need to activate the plugin before using it. You might get
 prompted to do this next time you open the CodeBrowser tool, in which case you
 can simply select OK. Otherwise, you can manually activate it by opening the
 CodeBrowser tool, going to `File->Configure...`, and selecting the `RubyDragon`
-plugin for Ruby, the `KotlinDragon` plugin for Kotlin, and the `ClojureDragon`
-plugin for Clojure. They should appear in the `Ghidra Core` listing, but you
-can check the `Configure All Plugins` option if you aren't able to find them.
+plugin for Ruby, the `KotlinDragon` plugin for Kotlin, the `JShellDragon` plugin
+for the Java interpreter, and the `ClojureDragon` plugin for Clojure. They
+should appear in the `Ghidra Core` listing, but you can check the `Configure All
+Plugins` option if you aren't able to find them.
 
 If you need to remove a language plugin, you can do so by unchecking the box in
 the configuration dialog in the CodeBrowser tool. If you want to remove the
@@ -34,7 +36,7 @@ development.
 ## Ruby Usage
 Once the RubyDragon plugin is enabled, you will be able to open an interactive
 Ruby session from the CodeBrowser tool by going to `Window->Ruby`. This is a 
-tandard IRB session provided by JRuby.
+standard IRB session provided by JRuby.
 
 The same environmental variables provided in Java and Python scripts are also
 available in this session, as the following global variables:
@@ -83,6 +85,25 @@ currentSelection
 
 Kotlin scripts use a `kts` extension as they are interpreted as scripts rather
 than being compiled to java first.
+
+
+## JShell Usage
+The JShell plugin provides an interactive Java interpreter by JShell, a Java
+REPL included in Java. It provides the same built in variables that are
+available in Java scripts:
+
+```
+currentAddress
+currentHighlight
+currentLocation
+currentProgram
+currentSelection
+```
+
+This interpreter is especially handy when writing Java scripts, as it allows you
+to iteratively test snippets of code from the script without needing to do any
+sort of conversion to other languages like Python or Kotlin.
+
 
 ## Clojure Usage
 Clojure follows the same patterns as the other languages, being provided in the

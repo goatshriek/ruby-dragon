@@ -1,8 +1,11 @@
 package rubydragon;
 
+import java.util.List;
+
 import javax.swing.ImageIcon;
 
 import ghidra.app.plugin.ProgramPlugin;
+import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConnection;
 import ghidra.framework.plugintool.PluginTool;
 import ghidra.program.model.listing.Program;
@@ -33,6 +36,18 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 	public DragonPlugin(PluginTool tool, String name) {
 		super(tool, true, true);
 		this.name = name;
+	}
+
+	/**
+	 * Get a list of completions for the given command prefix.
+	 *
+	 * @param cmd The command to try to complete.
+	 *
+	 * @return A list of possible code completions.
+	 */
+	@Override
+	public List<CodeCompletion> getCompletions(String cmd) {
+		return getInterpreter().getCompletions(cmd);
 	}
 
 	/**
