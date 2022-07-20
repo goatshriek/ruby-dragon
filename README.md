@@ -2,8 +2,8 @@
 [![build](https://github.com/goatshriek/ruby-dragon/actions/workflows/build.yml/badge.svg)](https://github.com/goatshriek/ruby-dragon/actions/workflows/build.yml)
 [![Apache 2.0 License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Ruby, Kotlin, JShell, and Clojure support for Ghidra, both interactive and
-scripting.
+[Ruby](#ruby-usage), [Kotlin](#kotlin-usage), [JShell](#jshell-usage), and
+[Clojure](#clojure-usage) support for Ghidra, both interactive and scripting.
 
 
 ## Installation
@@ -99,6 +99,11 @@ currentLocation
 currentProgram
 currentSelection
 ```
+
+Another variable named `currentAPI` is also provided, which is an instance of
+`FlatProgramAPI` created with `currentProgram`. This has many (but not all) of
+the convenience functions that would be available within a `GhidraScript`
+instance.
 
 This interpreter is especially handy when writing Java scripts, as it allows you
 to iteratively test snippets of code from the script without needing to do any
