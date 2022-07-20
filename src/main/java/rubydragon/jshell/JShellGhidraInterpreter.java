@@ -35,6 +35,7 @@ import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.app.script.GhidraScript;
 import ghidra.app.script.GhidraState;
+import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
@@ -135,6 +136,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 
 		// declare the built-in variables
 		jshell.eval(String.format("%s currentAddress = null;", Address.class.getName()));
+		jshell.eval(String.format("%s currentAPI = null;", FlatProgramAPI.class.getName()));
 		jshell.eval(String.format("%s currentHighlight = null;", ProgramSelection.class.getName()));
 		jshell.eval(String.format("%s currentLocation = null;", ProgramLocation.class.getName()));
 		jshell.eval(String.format("%s currentProgram = null;", Program.class.getName()));
@@ -333,6 +335,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	public void updateProgram(Program program) {
 		if (program != null) {
 			setVariable("currentProgram", Program.class, program);
+			setVariable("currentAPI", FlatProgramAPI.class, new FlatProgramAPI(program));
 		}
 	}
 
