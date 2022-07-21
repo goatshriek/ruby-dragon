@@ -168,9 +168,11 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 		suggestions = analyzer.completionSuggestions(cmd, cmd.length(), anchor);
 		for (SourceCodeAnalysis.Suggestion s : suggestions) {
 			String c = s.continuation();
+
+			int commonLength = cmd.length() - anchor[0];
 			String added = "";
-			if (c.startsWith(cmd)) {
-				added = c.substring(cmd.length());
+			if (cmd.substring(anchor[0]).equals(c.substring(0, commonLength))) {
+				added = c.substring(commonLength);
 			}
 			CodeCompletion completion = new CodeCompletion(c, added, null);
 			result.add(completion);
