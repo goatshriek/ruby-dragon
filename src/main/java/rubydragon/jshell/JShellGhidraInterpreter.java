@@ -61,9 +61,10 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	private PrintWriter outWriter;
 	private OutputStream errStream;
 	private PrintWriter errWriter;
+	private boolean disposed = false;
 
 	private Runnable inputThread = () -> {
-		while (replReader != null) {
+		while (!disposed) {
 			try {
 				StringBuilder completeSnippet = new StringBuilder();
 				SourceCodeAnalysis analyzer = jshell.sourceCodeAnalysis();
@@ -148,7 +149,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 */
 	@Override
 	public void dispose() {
-		replReader = null;
+		disposed = true;
 	}
 
 	/**

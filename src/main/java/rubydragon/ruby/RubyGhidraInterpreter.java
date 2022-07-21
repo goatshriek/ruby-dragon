@@ -196,8 +196,10 @@ public class RubyGhidraInterpreter extends GhidraInterpreter {
 	 */
 	@Override
 	public void updateProgram(Program program) {
-		container.put("$current_program", program);
-		container.put("$current_api", new FlatProgramAPI(program));
+		if (program != null) {
+			container.put("$current_program", program);
+			container.put("$current_api", new FlatProgramAPI(program));
+		}
 	}
 
 	/**
