@@ -47,13 +47,19 @@
     </PRE>
 
     <P>
+    In the interactive interpreter, there is also another global variable named
+    $current_api, which has an instance of FlatProgramAPI for the current
+    program. This can be used to access the convenience functions provided by
+    the flat API.
+    </P>
+
+    <P>
     If you're writing a script, you'll also be able to access the RubyScript
     instance (a subclass of GhidraScript) using the $script binding. This
-    will provide access to all fields and methods for the
-    instance. For example, to access the TaskMonitor for the script, simply
-    use $script.monitor. There are examples of this
-    in the GhidraBasicsScriptRuby script included in the Examples category with
-    this plugin.
+    will provide access to all fields and methods for the instance.
+    For example, to access the TaskMonitor for the script, simply use
+    $script.monitor. There are examples of this in the GhidraBasicsScriptRuby
+    script included in the Examples category with this plugin.
     </P>
     </BLOCKQUOTE>
 

@@ -39,6 +39,7 @@ import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.app.script.GhidraScript;
 import ghidra.app.script.GhidraState;
+import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
@@ -252,13 +253,15 @@ public class ClojureGhidraInterpreter extends GhidraInterpreter {
 	}
 
 	/**
-	 * Updates the program pointed to by the "ghidra/current-program" binding.
+	 * Updates the program pointed to by the "ghidra/current-program" binding, as
+	 * well as the "ghidra/current-api" flat api instance.
 	 *
 	 * @param program The new current program.
 	 */
 	@Override
 	public void updateProgram(Program program) {
 		RT.var("ghidra", "current-program", program);
+		RT.var("ghidra", "current-api", new FlatProgramAPI(program));
 	}
 
 	/**

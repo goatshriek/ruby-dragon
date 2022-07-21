@@ -37,6 +37,7 @@ import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.app.script.GhidraScript;
 import ghidra.app.script.GhidraState;
+import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
@@ -241,7 +242,8 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 	}
 
 	/**
-	 * Updates the program pointed to by the "currentProgram" binding.
+	 * Updates the program pointed to by the "currentProgram" binding, as well as
+	 * the "currentAPI" binding to a FlatProgramAPI instance.
 	 *
 	 * @param program The new current program.
 	 */
@@ -249,6 +251,7 @@ public class KotlinGhidraInterpreter extends GhidraInterpreter {
 	public void updateProgram(Program program) {
 		if (program != null) {
 			engine.put("currentProgram", program);
+			engine.put("currentAPI", new FlatProgramAPI(program));
 		}
 	}
 
