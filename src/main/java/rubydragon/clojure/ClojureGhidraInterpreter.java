@@ -45,12 +45,12 @@ import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
 import ghidra.util.exception.AssertException;
-import rubydragon.GhidraInterpreter;
+import rubydragon.ScriptableGhidraInterpreter;
 
 /**
  * A Clojure intepreter for Ghidra.
  */
-public class ClojureGhidraInterpreter extends GhidraInterpreter {
+public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 	private Thread replThread;
 	final private ClassLoader clojureClassLoader;
 

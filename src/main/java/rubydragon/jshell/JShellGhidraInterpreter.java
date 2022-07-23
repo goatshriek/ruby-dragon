@@ -33,8 +33,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
-import ghidra.app.script.GhidraScript;
-import ghidra.app.script.GhidraState;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
@@ -215,25 +213,6 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	}
 
 	/**
-	 * Does nothing, since this interpeter is only for interactive sessions and
-	 * doesn't support scripts.
-	 *
-	 * This is a sign that the parent class should probably be refactored so that a
-	 * nullsub like this doesn't need to exist.
-	 *
-	 * @param script          The script to run.
-	 *
-	 * @param scriptArguments The arguments to pass to the script.
-	 *
-	 * @param scriptState     The script to load before the script runs, and update
-	 *                        after the script finishes.
-	 */
-	@Override
-	public void runScript(GhidraScript script, String[] scriptArguments, GhidraState scriptState) {
-		return;
-	}
-
-	/**
 	 * Resets this interpreter.
 	 */
 	public void reset() {
@@ -352,22 +331,6 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 		if (sel != null) {
 			setVariable("currentSelection", ProgramSelection.class, sel);
 		}
-	}
-
-	/**
-	 * Updates a state with the current selection/location/etc. variables from the
-	 * interpreter.
-	 *
-	 * Ignored because the JShell interpreter doesn't handle scripts.
-	 *
-	 * This is a sign that the parent class should probably be refactored so that a
-	 * nullsub like this doesn't need to exist.
-	 *
-	 * @param scriptState The state to update.
-	 */
-	@Override
-	public void updateState(GhidraState scriptState) {
-		return;
 	}
 
 }

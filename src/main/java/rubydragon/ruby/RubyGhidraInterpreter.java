@@ -38,12 +38,12 @@ import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
-import rubydragon.GhidraInterpreter;
+import rubydragon.ScriptableGhidraInterpreter;
 
 /**
  * A Ruby interpreter for Ghidra, built using JRuby.
  */
-public class RubyGhidraInterpreter extends GhidraInterpreter {
+public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	private ScriptingContainer container;
 	private Thread irbThread;
 	private boolean disposed = false;

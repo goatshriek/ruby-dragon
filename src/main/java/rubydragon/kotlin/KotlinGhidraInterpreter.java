@@ -42,13 +42,13 @@ import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
-import rubydragon.GhidraInterpreter;
 import rubydragon.MissingDragonDependency;
+import rubydragon.ScriptableGhidraInterpreter;
 
 /**
  * A Kotlin intepreter for Ghidra.
  */
-public class KotlinGhidraInterpreter extends GhidraInterpreter {
+public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	private Thread replThread;
 	private ScriptEngine engine;
 	private BufferedReader replReader;
