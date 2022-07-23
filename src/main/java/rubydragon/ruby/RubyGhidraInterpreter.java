@@ -33,16 +33,17 @@ import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.app.script.GhidraScript;
 import ghidra.app.script.GhidraState;
+import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
-import rubydragon.GhidraInterpreter;
+import rubydragon.ScriptableGhidraInterpreter;
 
 /**
  * A Ruby interpreter for Ghidra, built using JRuby.
  */
-public class RubyGhidraInterpreter extends GhidraInterpreter {
+public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	private ScriptingContainer container;
 	private Thread irbThread;
 	private boolean disposed = false;
@@ -188,13 +189,17 @@ public class RubyGhidraInterpreter extends GhidraInterpreter {
 	}
 
 	/**
-	 * Updates the current program in "$current_program" to the one provided.
+	 * Updates the current program in "$current_program" to the one provided, as
+	 * well as the "$current_api" variable holding a flat api instance.
 	 *
 	 * @param program The new current program.
 	 */
 	@Override
 	public void updateProgram(Program program) {
-		container.put("$current_program", program);
+		if (program != null) {
+			container.put("$current_program", program);
+			container.put("$current_api", new FlatProgramAPI(program));
+		}
 	}
 
 	/**

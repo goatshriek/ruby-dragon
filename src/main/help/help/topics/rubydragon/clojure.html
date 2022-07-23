@@ -44,6 +44,13 @@
     </PRE>
 
     <P>
+    In the interactive interpreter, there is also another variable named
+    ghidra/current-api, which has an instance of FlatProgramAPI for the current
+    program. This can be used to access the convenience functions provided by
+    the flat API.
+    </P>
+
+    <P>
     If you're writing a script, you'll also be able to access the ClojureScript
     instance (a subclass of GhidraScript) using the ghidra/script
     binding. This will provide access to all public fields and methods for the

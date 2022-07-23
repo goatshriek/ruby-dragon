@@ -2,8 +2,8 @@
 [![build](https://github.com/goatshriek/ruby-dragon/actions/workflows/build.yml/badge.svg)](https://github.com/goatshriek/ruby-dragon/actions/workflows/build.yml)
 [![Apache 2.0 License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Ruby, Kotlin, JShell, and Clojure support for Ghidra, both interactive and
-scripting.
+[Ruby](#ruby-usage), [Kotlin](#kotlin-usage), [JShell](#jshell-usage), and
+[Clojure](#clojure-usage) support for Ghidra, both interactive and scripting.
 
 
 ## Installation
@@ -49,6 +49,11 @@ $current_program
 $current_selection
 ```
 
+Another variable named `$current_api` is also provided, which is an instance of
+`FlatProgramAPI` created with `currentProgram`. This has many (but not all) of
+the convenience functions that would be available within a `GhidraScript`
+instance.
+
 You can also write scripts in Ruby, much the same way as you would with Java or
 Python. Ruby will be available as a new script type, and you can see several
 example scripts in the `Examples.Ruby` directory of the Script Manager that
@@ -83,6 +88,9 @@ currentProgram
 currentSelection
 ```
 
+`currentAPI` is also provided similar to the Ruby interpreter, again holding an
+instance of `FlatProgramAPI` created with `currentProgram`.
+
 Kotlin scripts use a `kts` extension as they are interpreted as scripts rather
 than being compiled to java first.
 
@@ -99,6 +107,9 @@ currentLocation
 currentProgram
 currentSelection
 ```
+
+`currentAPI` is also provided as with the Kotlin interpreter, again holding an
+instance of `FlatProgramAPI` created with `currentProgram`.
 
 This interpreter is especially handy when writing Java scripts, as it allows you
 to iteratively test snippets of code from the script without needing to do any
@@ -119,6 +130,9 @@ ghidra/current-location
 ghidra/current-program
 ghidra/current-selection
 ```
+
+`ghidra/current-api` is provided as the instance of `FlatProgramAPI` created
+with `currentProgram`, as with the other interpreters.
 
 And, as with Ruby, a `ghidra/script` binding is available within scripts that
 provides access to the underlying `ClojureScript` instance. Unlike Ruby however,

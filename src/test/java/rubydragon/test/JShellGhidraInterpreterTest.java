@@ -70,6 +70,14 @@ public class JShellGhidraInterpreterTest {
 	}
 
 	@Test
+	public void testCurrentAPIDeclared() throws Exception {
+		writeCommand("currentAPI = null;");
+
+		assertEquals("null should be printed", "null", outputReader.readLine());
+		assertFalse(errorReader.ready());
+	}
+
+	@Test
 	public void testCurrentHighlightDeclared() throws Exception {
 		writeCommand("currentHighlight = null;");
 

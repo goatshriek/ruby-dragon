@@ -33,8 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
-import ghidra.app.script.GhidraScript;
-import ghidra.app.script.GhidraState;
+import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
@@ -60,9 +59,10 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	private PrintWriter outWriter;
 	private OutputStream errStream;
 	private PrintWriter errWriter;
+	private boolean disposed = false;
 
 	private Runnable inputThread = () -> {
-		while (replReader != null) {
+		while (!disposed) {
 			try {
 				StringBuilder completeSnippet = new StringBuilder();
 				SourceCodeAnalysis analyzer = jshell.sourceCodeAnalysis();
@@ -135,6 +135,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 
 		// declare the built-in variables
 		jshell.eval(String.format("%s currentAddress = null;", Address.class.getName()));
+		jshell.eval(String.format("%s currentAPI = null;", FlatProgramAPI.class.getName()));
 		jshell.eval(String.format("%s currentHighlight = null;", ProgramSelection.class.getName()));
 		jshell.eval(String.format("%s currentLocation = null;", ProgramLocation.class.getName()));
 		jshell.eval(String.format("%s currentProgram = null;", Program.class.getName()));
@@ -146,7 +147,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 */
 	@Override
 	public void dispose() {
-		replReader = null;
+		disposed = true;
 	}
 
 	/**
@@ -165,9 +166,11 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 		suggestions = analyzer.completionSuggestions(cmd, cmd.length(), anchor);
 		for (SourceCodeAnalysis.Suggestion s : suggestions) {
 			String c = s.continuation();
+
+			int commonLength = cmd.length() - anchor[0];
 			String added = "";
-			if (c.startsWith(cmd)) {
-				added = c.substring(cmd.length());
+			if (cmd.substring(anchor[0]).equals(c.substring(0, commonLength))) {
+				added = c.substring(commonLength);
 			}
 			CodeCompletion completion = new CodeCompletion(c, added, null);
 			result.add(completion);
@@ -207,25 +210,6 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 */
 	public void interrupt() {
 		jshell.stop();
-	}
-
-	/**
-	 * Does nothing, since this interpeter is only for interactive sessions and
-	 * doesn't support scripts.
-	 *
-	 * This is a sign that the parent class should probably be refactored so that a
-	 * nullsub like this doesn't need to exist.
-	 *
-	 * @param script          The script to run.
-	 *
-	 * @param scriptArguments The arguments to pass to the script.
-	 *
-	 * @param scriptState     The script to load before the script runs, and update
-	 *                        after the script finishes.
-	 */
-	@Override
-	public void runScript(GhidraScript script, String[] scriptArguments, GhidraState scriptState) {
-		return;
 	}
 
 	/**
@@ -333,6 +317,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	public void updateProgram(Program program) {
 		if (program != null) {
 			setVariable("currentProgram", Program.class, program);
+			setVariable("currentAPI", FlatProgramAPI.class, new FlatProgramAPI(program));
 		}
 	}
 
@@ -346,22 +331,6 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 		if (sel != null) {
 			setVariable("currentSelection", ProgramSelection.class, sel);
 		}
-	}
-
-	/**
-	 * Updates a state with the current selection/location/etc. variables from the
-	 * interpreter.
-	 *
-	 * Ignored because the JShell interpreter doesn't handle scripts.
-	 *
-	 * This is a sign that the parent class should probably be refactored so that a
-	 * nullsub like this doesn't need to exist.
-	 *
-	 * @param scriptState The state to update.
-	 */
-	@Override
-	public void updateState(GhidraState scriptState) {
-		return;
 	}
 
 }
