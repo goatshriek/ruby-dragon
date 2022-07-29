@@ -1,13 +1,10 @@
 ---
 title: Ruby Dragon
-keywords: ruby, kotlin, clojure, ghidra, jruby, plugin
-last_updated: February 6, 2022
+keywords: ruby, kotlin, clojure, ghidra, jruby, java, jshell, plugin
+last_updated: July 29, 2022
 layout: default
 ---
 
-# Ruby Dragon
-Ruby Dragon is a plugin for Ghidra, offering Ruby, Kotlin, and Clojure support
-for both interactive sessions as well as writing reusable scripts.
 
 ## Installation
 Check out the
@@ -21,9 +18,10 @@ You will then need to activate the plugin before using it. You might get
 prompted to do this next time you open the CodeBrowser tool, in which case you
 can simply select OK. Otherwise, you can manually activate it by opening the
 CodeBrowser tool, going to `File->Configure...`, and selecting the `RubyDragon`
-plugin for Ruby, the `KotlinDragon` plugin for Kotlin, and the `ClojureDragon`
-plugin for Clojure. They should appear in the `Ghidra Core` listing, but you
-can check the `Configure All Plugins` option if you aren't able to find them.
+plugin for Ruby, the `KotlinDragon` plugin for Kotlin, the `JShellDragon` plugin
+for the Java interpreter, and the `ClojureDragon` plugin for Clojure. They
+should appear in the `Ghidra Core` listing, but you can check the `Configure All
+Plugins` option if you aren't able to find them.
 
 If you need to remove a language plugin, you can do so by unchecking the box in
 the configuration dialog in the CodeBrowser tool. If you want to remove the
@@ -34,19 +32,11 @@ manually delete the folder from your
 particularly if you want to load the plugin via the Eclipse plugin for
 development.
 
-The Kotlin extension has additional dependencies that are not included in the
-plugin itself for size reasons. If you try to enable this extension before these
-are available in the plugin directory, you'll receive a
-`MissingDragonDependency` error. You can either copy the files into the `lib`
-folder of the plugin yourself, or run the `DownloadDependenciesScript` Java
-script included with the plugin to do this automatically, and finally restart
-Ghidra (yet again).
-
 
 ## Ruby Usage
 Once the RubyDragon plugin is enabled, you will be able to open an interactive
 Ruby session from the CodeBrowser tool by going to `Window->Ruby`. This is a 
-tandard IRB session provided by JRuby.
+standard IRB session provided by JRuby.
 
 The same environmental variables provided in Java and Python scripts are also
 available in this session, as the following global variables:
@@ -58,6 +48,11 @@ $current_location
 $current_program
 $current_selection
 ```
+
+Another variable named `$current_api` is also provided, which is an instance of
+`FlatProgramAPI` created with `currentProgram`. This has many (but not all) of
+the convenience functions that would be available within a `GhidraScript`
+instance.
 
 You can also write scripts in Ruby, much the same way as you would with Java or
 Python. Ruby will be available as a new script type, and you can see several
@@ -71,6 +66,12 @@ provided for scripts to use in the same manner.
 
 You can also find help directly in the Ghidra help menu (press `F1`) on the 
 `Ghidra Functionality->Scripting->Ruby Interpreter` page.
+
+Current versions of Ghidra suffer from a class loading problem that may cause
+issues with Ruby depending on your version of Java. If you run into this, copy
+the `launch.properties` file in the `data` folder (both in this repo and in
+the extension package) into your Ghidra installation's `support` directory.
+This will add the necessary arguments to the JVM to resolve the issue.
 
 
 ## Kotlin Usage
@@ -87,8 +88,33 @@ currentProgram
 currentSelection
 ```
 
+`currentAPI` is also provided similar to the Ruby interpreter, again holding an
+instance of `FlatProgramAPI` created with `currentProgram`.
+
 Kotlin scripts use a `kts` extension as they are interpreted as scripts rather
 than being compiled to java first.
+
+
+## JShell Usage
+The JShell plugin provides an interactive Java interpreter by JShell, a Java
+REPL included in Java. It provides the same built in variables that are
+available in Java scripts:
+
+```
+currentAddress
+currentHighlight
+currentLocation
+currentProgram
+currentSelection
+```
+
+`currentAPI` is also provided as with the Kotlin interpreter, again holding an
+instance of `FlatProgramAPI` created with `currentProgram`.
+
+This interpreter is especially handy when writing Java scripts, as it allows you
+to iteratively test snippets of code from the script without needing to do any
+sort of conversion to other languages like Python or Kotlin.
+
 
 ## Clojure Usage
 Clojure follows the same patterns as the other languages, being provided in the
@@ -104,6 +130,9 @@ ghidra/current-location
 ghidra/current-program
 ghidra/current-selection
 ```
+
+`ghidra/current-api` is provided as the instance of `FlatProgramAPI` created
+with `currentProgram`, as with the other interpreters.
 
 And, as with Ruby, a `ghidra/script` binding is available within scripts that
 provides access to the underlying `ClojureScript` instance. Unlike Ruby however,

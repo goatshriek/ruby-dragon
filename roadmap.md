@@ -1,7 +1,7 @@
 ---
 title: Roadmap
-keywords: ruby, kotlin, jruby, ghidra, plugin, roadmap, future
-last_updated: July 14, 2022
+keywords: ruby, kotlin, jruby, ghidra, plugin, java, jshell roadmap, future
+last_updated: July 29, 2022
 summary: "Planned Future Direction for Ruby Dragon."
 layout: default
 ---
@@ -10,12 +10,6 @@ layout: default
 See below for details about upcoming releases of Ruby Dragon. If you have feedback
 or want to make a suggestion, please submit an issue on the project's
 [Github page](https://github.com/goatshriek/ruby-dragon).
-
-
-## 1.3.0
- * [ADD] **JShell Support**
-   JShell is an obvious feature to add, giving parity to Python and Java in both
-   scripts and interactive options.
 
 
 ## 1.4.0
