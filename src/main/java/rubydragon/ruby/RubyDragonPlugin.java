@@ -95,7 +95,7 @@ public class RubyDragonPlugin extends DragonPlugin implements InterpreterConnect
 		interpreter = new RubyGhidraInterpreter(console);
 		console.addFirstActivationCallback(() -> {
 			List<String> brokenVersions = Arrays.asList("10.0.3", "10.0.4", "10.1", "10.1.1", "10.1.2", "10.1.3",
-					"10.1.4");
+					"10.1.4", "10.1.5");
 			String ghidraVersion = Application.getApplicationVersion();
 			if (brokenVersions.contains(ghidraVersion)) {
 				PrintWriter errWriter = new PrintWriter(console.getStdErr());
