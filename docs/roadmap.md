@@ -4,13 +4,6 @@ or want to make a suggestion, please submit an issue on the project's
 [Github page](https://github.com/goatshriek/ruby-dragon).
 
 
-## 1.4.0
- * [ADD] **Groovy Language Bindings**
-   While initially aimed at Ruby, this project is ultimately aimed at making a
-   variety of JVM-based languages available to Ghidra users. Groovy is an easy
-   target, being the most Java-friendly interpreted language.
-
-
 ## Unallocated to a release
  * [ADD] **Complete Example Set**
    A full suite of example scripts is needed for users to quickly understand how

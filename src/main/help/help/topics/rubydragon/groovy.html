@@ -9,26 +9,26 @@
     <META name="GENERATOR" content="Microsoft FrontPage 4.0">
     <META name="ProgId" content="FrontPage.Editor.Document">
 
-    <TITLE>Kotlin Interpreter</TITLE>
+    <TITLE>Groovy Interpreter</TITLE>
     <LINK rel="stylesheet" type="text/css" href="../../shared/Frontpage.css">
   </HEAD>
 
   <BODY>
-    <H1><a name="Kotlin"></a>Kotlin Interpreter</H1>
+    <H1><a name="Groovy"></a>Groovy Interpreter</H1>
 
     <P>
-    Ruby Dragon adds interactive Kotlin shells to Ghidra, and also
-    allows scripts to be written in Kotlin with full access to all of
+    Ruby Dragon adds interactive Groovy shells to Ghidra, and also
+    allows scripts to be written in Groovy with full access to all of
     Ghidra's functionality.
     </P>
 
     <H2>Environment</H2>
     <BLOCKQUOTE>
     <P>
-    The Kotlin interactive interpreter runs as a simple REPL.
+    The Groovy interactive interpreter runs as a simple REPL.
 
     The same variables that are available in Ghidra's native Java and Python
-    environments are also available in the Kotlin interpreter as global
+    environments are also available in the Groovy interpreter as global
     variables, both for interactive sessions and scripts:
     </P>
 
@@ -48,29 +48,19 @@
     </P>
 
     <P>
-    If you're writing a script, you'll also be able to access the KotlinScript
+    If you're writing a script, you'll also be able to access the GroovyScript
     instance (a subclass of GhidraScript) using the script variable binding.
     This will provide access to all public fields and methods for the
-    instance. There are examples of this in the GhidraBasicsScriptKts script
+    instance. There are examples of this in the GhidraBasicsScriptGroovy script
     included in the Examples category with this plugin.
-    </P>
-
-    <P>
-    An unfortunate pitfall to be aware of is the println method, which exists
-    in Kotlin as a shortend version of System.out.println. If you call this
-    function in the interpreter window or one of your scripts, it will be the
-    same as a call to the System function, which is unlikely to be what you
-    intended. In scripts, you'll need to use script.println explicitly to
-    print output. In the interpreter, make sure that the expression evaluates
-    to a string, and it will be printed automatically.
     </P>
     </BLOCKQUOTE>
 
     <H2>Headless Analysis</H2>
     <BLOCKQUOTE>
     <P>
-    Kotlin scripts may also be run during headless analysis. The following
-    invocation uses one of the Kotlin example scripts to save all strings found
+    Groovy scripts may also be run during headless analysis. The following
+    invocation uses one of the Groovy example scripts to save all strings found
     in a demo executable to a file named example_file_strings.txt.
     </P>
 
@@ -78,7 +68,7 @@
     support\analyzeHeadless ^
         my\ghidra\projects DummyProject ^
         -import demo_binary.exe ^
-        -postScript SaveStringsScriptKts.kts example_file_strings.txt ^
+        -postScript SaveStringsScriptGroovy.groovy example_file_strings.txt ^
         -deleteProject
     </PRE>
     </BLOCKQUOTE>
@@ -86,8 +76,8 @@
     <H2>Copy/Paste</H2>
     <BLOCKQUOTE>
     <P>
-    Copy and paste from within the Kotlin interpreter should work as expected for
-    your given environment:
+    Copy and paste from within the Groovy interpreter should work as expected
+    for your given environment:
     <UL>
       <LI><B>Windows:</B>&nbsp;&nbsp;CTRL+C / CTRL+V</LI>
       <LI><B>Linux:</B>&nbsp;&nbsp;CTRL+C / CTRL+V</LI>
@@ -96,6 +86,21 @@
     </P>
     </BLOCKQUOTE>
 
-    <P align="left" class="providedbyplugin">Provided by: <I>KotlinDragon</I></P>
+    <H2><A name="Clear_Interpreter"></A>Clear <IMG border="0" src="images/erase16.png"></H2>
+    <BLOCKQUOTE>
+    <P>
+    This command clears the interpreter's display.  Its effect is purely visual.
+    It does not affect the state of the interpreter in any way.
+    </P>
+    </BLOCKQUOTE>
+
+    <H2><A name="Reset_Interpreter"></A>Reset <IMG border="0" src="images/reload3.png"></H2>
+    <BLOCKQUOTE>
+    <P>
+    This command resets the interpreter, which clears the display and resets all state.
+    </P>
+    </BLOCKQUOTE>
+
+    <P align="left" class="providedbyplugin">Provided by: <I>GroovyDragon</I></P>
   </BODY>
 </HTML>

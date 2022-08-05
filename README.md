@@ -2,8 +2,8 @@
 [![build](https://github.com/goatshriek/ruby-dragon/actions/workflows/build.yml/badge.svg)](https://github.com/goatshriek/ruby-dragon/actions/workflows/build.yml)
 [![Apache 2.0 License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-[Ruby](#ruby-usage), [Kotlin](#kotlin-usage), [JShell](#jshell-usage), and
-[Clojure](#clojure-usage) support for Ghidra, both interactive and scripting.
+[Ruby](#ruby-usage), [Kotlin](#kotlin-usage), [JShell](#jshell-usage),
+[Groovy](#groovy-usage), and [Clojure](#clojure-usage) support for Ghidra.
 
 
 ## Installation
@@ -116,9 +116,26 @@ to iteratively test snippets of code from the script without needing to do any
 sort of conversion to other languages like Python or Kotlin.
 
 
+## Groovy Usage
+Groovy follows the same patterns as the other languages, being provided in the
+`GroovyDragon` plugin and reachable from the `Window->Groovy` menu option. It
+has the same built-in variables that the others provide:
+
+```
+currentAddress
+currentHighlight
+currentLocation
+currentProgram
+currentSelection
+```
+
+`currentAPI` is also provided as with the Kotlin interpreter, again holding an
+instance of `FlatProgramAPI` created with `currentProgram`.
+
+
 ## Clojure Usage
 Clojure follows the same patterns as the other languages, being provided in the
-`ClojureDragon` plugin and reachable from the `Window->Clojure` menu option.
+`ClojureDragon` plugin and the menu item `Window->Clojure`.
 
 The Clojure interpreter and scripts also have bindings that make the state
 information available to them, within the `ghidra` namespace. They are:
