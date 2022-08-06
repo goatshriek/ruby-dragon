@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.codehaus.groovy.control.CompilerConfiguration;
 
@@ -39,8 +40,10 @@ import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
+import groovy.lang.Binding;
 import groovy.lang.GroovyRuntimeException;
 import groovy.lang.GroovyShell;
+import groovy.lang.Script;
 import rubydragon.ScriptableGhidraInterpreter;
 
 /**
@@ -60,17 +63,21 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 
 	private Runnable inputThread = () -> {
 		while (!disposed) {
-			String snippet = "";
 			try {
-				snippet = replReader.readLine();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			try {
-				Object result = shell.evaluate(snippet);
-				outWriter.println(result.toString());
+				String snippet = replReader.readLine();
+				// Object result = shell.evaluate(snippet);
+				Script script = shell.parse(snippet);
+				Object result = script.run();
+				if (result != null) {
+					outWriter.println(result.toString());
+					outWriter.flush();
+				}
+				Map variables = shell.getContext().getVariables();
+				outWriter.println(variables.toString());
 				outWriter.flush();
+			} catch (IOException e) {
+				errWriter.println(e.getMessage());
+				errWriter.flush();
 			} catch (GroovyRuntimeException e) {
 				errWriter.println(e.getMessage());
 				errWriter.flush();
@@ -90,7 +97,7 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	/**
 	 * Creates a new Groovy interpreter.
 	 *
-	 * @param scriptable
+	 * @param scriptable Whether or not this interpreter should be made scriptable.
 	 */
 	public GroovyGhidraInterpreter(boolean scriptable) {
 		if (scriptable) {
@@ -137,7 +144,8 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	private void createScriptableShell() {
 		CompilerConfiguration config = new CompilerConfiguration();
 		config.setScriptBaseClass(GroovyScript.class.getName());
-		shell = new GroovyShell(config);
+		Binding binding = new Binding();
+		shell = new GroovyShell(binding, config);
 	}
 
 	/**
@@ -146,7 +154,8 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	private void createShell() {
 		CompilerConfiguration config = new CompilerConfiguration();
 		config.setScriptBaseClass(FlatProgramAPI.class.getName());
-		shell = new GroovyShell();
+		Binding binding = new Binding();
+		shell = new GroovyShell(binding);
 	}
 
 	/**
