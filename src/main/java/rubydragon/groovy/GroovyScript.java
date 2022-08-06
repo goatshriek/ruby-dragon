@@ -42,7 +42,7 @@ public class GroovyScript extends GhidraScript {
 	 */
 	public GroovyScript() {
 		super();
-		interpreter = new GroovyGhidraInterpreter(true);
+		interpreter = new GroovyGhidraInterpreter();
 	}
 
 	/**

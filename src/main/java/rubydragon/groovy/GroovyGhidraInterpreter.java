@@ -27,9 +27,9 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import org.codehaus.groovy.control.CompilerConfiguration;
+import org.apache.groovy.groovysh.Groovysh;
+import org.codehaus.groovy.tools.shell.IO;
 
 import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
@@ -41,9 +41,7 @@ import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
 import groovy.lang.Binding;
-import groovy.lang.GroovyRuntimeException;
 import groovy.lang.GroovyShell;
-import groovy.lang.Script;
 import rubydragon.ScriptableGhidraInterpreter;
 
 /**
@@ -52,7 +50,9 @@ import rubydragon.ScriptableGhidraInterpreter;
 public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 
 	private Thread replThread;
-	private GroovyShell shell;
+	private Groovysh interactiveShell;
+	private Binding interactiveBinding;
+	private GroovyShell scriptShell;
 	private InputStream inStream;
 	private BufferedReader replReader;
 	private OutputStream outStream;
@@ -63,48 +63,14 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 
 	private Runnable inputThread = () -> {
 		while (!disposed) {
-			try {
-				String snippet = replReader.readLine();
-				// Object result = shell.evaluate(snippet);
-				Script script = shell.parse(snippet);
-				Object result = script.run();
-				if (result != null) {
-					outWriter.println(result.toString());
-					outWriter.flush();
-				}
-				Map variables = shell.getContext().getVariables();
-				outWriter.println(variables.toString());
-				outWriter.flush();
-			} catch (IOException e) {
-				errWriter.println(e.getMessage());
-				errWriter.flush();
-			} catch (GroovyRuntimeException e) {
-				errWriter.println(e.getMessage());
-				errWriter.flush();
-			}
+			interactiveShell.run("");
 		}
-
-		shell = null;
 	};
 
 	/**
 	 * Creates a new Groovy interpreter.
 	 */
 	public GroovyGhidraInterpreter() {
-		this(false);
-	}
-
-	/**
-	 * Creates a new Groovy interpreter.
-	 *
-	 * @param scriptable Whether or not this interpreter should be made scriptable.
-	 */
-	public GroovyGhidraInterpreter(boolean scriptable) {
-		if (scriptable) {
-			createScriptableShell();
-		} else {
-			createShell();
-		}
 		replThread = new Thread(inputThread);
 	}
 
@@ -124,7 +90,7 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 		setOutWriter(new PrintWriter(outStream));
 		setErrWriter(new PrintWriter(errStream));
 
-		createShell();
+		createInteractiveShell(in, out, err);
 		replThread = new Thread(inputThread);
 	}
 
@@ -139,23 +105,19 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	}
 
 	/**
-	 * Creates a new Groovy intepreter for scripts.
+	 * Creates a new Groovy shell to run scripts.
 	 */
 	private void createScriptableShell() {
-		CompilerConfiguration config = new CompilerConfiguration();
-		config.setScriptBaseClass(GroovyScript.class.getName());
-		Binding binding = new Binding();
-		shell = new GroovyShell(binding, config);
+		scriptShell = new GroovyShell();
 	}
 
 	/**
 	 * Creates a new Groovy interpreter for interactive sessions.
 	 */
-	private void createShell() {
-		CompilerConfiguration config = new CompilerConfiguration();
-		config.setScriptBaseClass(FlatProgramAPI.class.getName());
-		Binding binding = new Binding();
-		shell = new GroovyShell(binding);
+	private void createInteractiveShell(InputStream in, OutputStream out, OutputStream err) {
+		IO shellIo = new IO(in, out, err);
+		interactiveBinding = new Binding();
+		interactiveShell = new Groovysh(interactiveBinding, shellIo);
 	}
 
 	/**
@@ -180,17 +142,34 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	}
 
 	/**
+	 * Loads a provided GhidraState into the script interpreter.
+	 *
+	 * @param state The state to load.
+	 */
+	@Override
+	public void loadState(GhidraState state) {
+		// we overload this to make sure that the state is loaded into the script
+		// interpreter instead of the interactive one
+		scriptShell.setVariable("currentHighlight", state.getCurrentHighlight());
+		scriptShell.setVariable("currentLocation", state.getCurrentLocation());
+		scriptShell.setVariable("currentSelection", state.getCurrentSelection());
+		scriptShell.setVariable("currentProgram", state.getCurrentProgram());
+		scriptShell.setVariable("currentAddress", state.getCurrentAddress());
+	}
+
+	/**
 	 * Resets this interpreter.
 	 */
 	public void reset() {
-		createShell();
+		createInteractiveShell(inStream, outStream, errStream);
 	}
 
 	@Override
 	public void runScript(GhidraScript script, String[] scriptArguments, GhidraState scriptState)
 			throws IllegalArgumentException, FileNotFoundException, IOException {
+		createScriptableShell();
 		loadState(scriptState);
-		shell.run(script.getSourceFile().getFile(true), scriptArguments);
+		scriptShell.run(script.getSourceFile().getFile(true), scriptArguments);
 		updateState(scriptState);
 	}
 
@@ -235,7 +214,7 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void updateAddress(Address address) {
 		if (address != null) {
-			shell.setVariable("currentAddress", address);
+			interactiveBinding.setVariable("currentAddress", address);
 		}
 	}
 
@@ -248,7 +227,7 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void updateHighlight(ProgramSelection sel) {
 		if (sel != null) {
-			shell.setVariable("currentHighlight", sel);
+			interactiveBinding.setVariable("currentHighlight", sel);
 		}
 	}
 
@@ -261,7 +240,7 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void updateLocation(ProgramLocation loc) {
 		if (loc != null) {
-			shell.setVariable("currentLocation", loc);
+			interactiveBinding.setVariable("currentLocation", loc);
 			updateAddress(loc.getAddress());
 		}
 	}
@@ -274,8 +253,8 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void updateProgram(Program program) {
 		if (program != null) {
-			shell.setVariable("currentProgram", program);
-			shell.setVariable("currentAPI", new FlatProgramAPI(program));
+			interactiveBinding.setVariable("currentProgram", program);
+			interactiveBinding.setVariable("currentAPI", new FlatProgramAPI(program));
 		}
 	}
 
@@ -287,31 +266,31 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void updateSelection(ProgramSelection sel) {
 		if (sel != null) {
-			shell.setVariable("currentSelection", sel);
+			interactiveBinding.setVariable("currentSelection", sel);
 		}
 	}
 
 	/**
 	 * Updates a state with the current selection/location/etc. variables from the
-	 * interpreter.
+	 * script interpreter.
 	 *
 	 * @param scriptState The state to update.
 	 */
 	@Override
 	public void updateState(GhidraState scriptState) {
-		Program currentProgram = (Program) shell.getVariable("currentProgram");
+		Program currentProgram = (Program) scriptShell.getVariable("currentProgram");
 		scriptState.setCurrentProgram(currentProgram);
 
-		ProgramLocation programLoc = (ProgramLocation) shell.getVariable("currentLocation");
+		ProgramLocation programLoc = (ProgramLocation) scriptShell.getVariable("currentLocation");
 		scriptState.setCurrentLocation(programLoc);
 
-		Address addr = (Address) shell.getVariable("currentAddress");
+		Address addr = (Address) scriptShell.getVariable("currentAddress");
 		scriptState.setCurrentAddress(addr);
 
-		ProgramSelection highlight = (ProgramSelection) shell.getVariable("currentHighlight");
+		ProgramSelection highlight = (ProgramSelection) scriptShell.getVariable("currentHighlight");
 		scriptState.setCurrentHighlight(highlight);
 
-		ProgramSelection sel = (ProgramSelection) shell.getVariable("currentSelection");
+		ProgramSelection sel = (ProgramSelection) scriptShell.getVariable("currentSelection");
 		scriptState.setCurrentSelection(sel);
 	}
 
