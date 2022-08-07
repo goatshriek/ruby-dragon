@@ -30,9 +30,9 @@ jobs:
             ghidra-filename: "ghidra_10.1.4_PUBLIC_20220519.zip"
             ghidra-folder: "ghidra_10.1.4_PUBLIC"
           - ghidra: "10.1.5"
-            ghidra-url: ""
-            ghidra-sha256: ""
-            ghidra-filename: ""
+            ghidra-url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.1.5_build/ghidra_10.1.5_PUBLIC_20220726.zip"
+            ghidra-sha256: "17db4ba7d411d11b00d1638f163ab5d61ef38712cd68e462eb8c855ec5cfb5ed"
+            ghidra-filename: "ghidra_10.1.5_PUBLIC_20220726.zip"
             ghidra-folder: "ghidra_10.1.5_PUBLIC"
 
     env:
