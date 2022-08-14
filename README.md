@@ -74,6 +74,26 @@ the extension package) into your Ghidra installation's `support` directory.
 This will add the necessary arguments to the JVM to resolve the issue.
 
 
+### Installing Gems
+If you want to install some gems to be available in your interactive interpreter
+or scripts, then you'll need to take a few extra steps. First, you'll need to
+point JRuby at a home directory to install the gems to. This is best done by
+adding a `jruby.home` definition in the JVM launch options by modifying the
+`launch.properties` file with the following line:
+
+```
+VMARGS=-Djruby.home=my/jruby/homedir
+```
+
+This will point RubyDragon's embedded JRuby interpreter to this directory when
+it looks for gems. To install gems to this directory, invoke a gem install from
+the JRuby jar with the following incantation:
+
+```
+java -jar .ghidra/.ghidra_<version>/Extensions/RubyDragon/lib/jruby-complete-<version>.jar -S gem install <cool-gem>
+```
+
+
 ## Kotlin Usage
 Kotlin is used in much the same way as the Ruby toolset with some obvious
 differences, such as being provided by the `KotlinDragon` plugin and being
