@@ -75,23 +75,42 @@ This will add the necessary arguments to the JVM to resolve the issue.
 
 
 ### Installing Gems
-If you want to install some gems to be available in your interactive interpreter
-or scripts, then you'll need to take a few extra steps. First, you'll need to
-point JRuby at a home directory to install the gems to. This is best done by
-adding a `jruby.home` definition in the JVM launch options by modifying the
-`launch.properties` file with the following line:
+If you want to install gems to be available in your interactive interpreter
+or scripts, then you'll need to take a few extra steps, depending on how
+isolated you want the gem environment to be.
 
-```
-VMARGS=-Djruby.home=my/jruby/homedir
+If you're using something like rvm to manage your Ruby environment, then you can
+simply rely on this to have already set the `GEM_PATH` environment variable to
+point to your gem installation. For maximum success however, you should switch
+to a JRuby installation, ideally of the same version as packaged in RubyDragon,
+and let rvm point to a gemset within that.
+
+If you want the Ghidra gem set to be specific to Ghidra, or if you don't have a
+Ruby environment outside of Ghidra to point to, you can choose a location on
+your own and set the `GEM_PATH` environment variable to point to that. To
+install new gems to the path, invoke the version of `gem` from the bundled JRuby
+jar like so, changing version and paths as needed. Here the gem path will be set
+to `~/ghidra_gems`
+
+```sh
+# from a shell environment
+java -jar ~/.ghidra/.ghidra_10.1.5_PUBLIC/Extensions/RubyDragon/lib/jruby-complete-9.3.4.0.jar -S gem install -i ~/ghidra_gems wrapture
 ```
 
-This will point RubyDragon's embedded JRuby interpreter to this directory when
-it looks for gems. To install gems to this directory, invoke a gem install from
-the JRuby jar with the following incantation:
+```bat
+REM from a windows command line
+java -jar %USERPROFILE%\.ghidra\.ghidra_10.1.5_PUBLIC\Extensions\RubyDragon\lib\jruby-complete-9.3.4.0.jar -S gem install -i %USERPROFILE%\ghidra_gems wrapture
+```
 
-```
-java -jar .ghidra/.ghidra_<version>/Extensions/RubyDragon/lib/jruby-complete-<version>.jar -S gem install <cool-gem>
-```
+Once this is done, you can require the `wrapture` gem (or whatever you chose
+to install) from scripts and the interactive terminal.
+
+If you don't want to create an environment variable in your global
+configuration, you'll need to mess with the script used to launch Ghidra in
+order to set `GEM_PATH` appropriately. You can do this by adding a `set`
+command in `launch.bat` or `launch.sh` (depending on your OS). For Windows
+systems, you'll also need to remove the `\I` parameter from the `start`
+command used to launch Ghidra so that the environment variable is passed on.
 
 
 ## Kotlin Usage
