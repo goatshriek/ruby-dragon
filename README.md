@@ -109,7 +109,7 @@ If you don't want to create an environment variable in your global
 configuration, you'll need to mess with the script used to launch Ghidra in
 order to set `GEM_PATH` appropriately. You can do this by adding a `set`
 command in `launch.bat` or `launch.sh` (depending on your OS). For Windows
-systems, you'll also need to remove the `\I` parameter from the `start`
+systems, you'll also need to remove the `/I` parameter from the `start`
 command used to launch Ghidra so that the environment variable is passed on.
 
 
