@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.jruby.embed.LocalContextScope;
@@ -54,8 +55,10 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	public RubyGhidraInterpreter() {
 		container = new ScriptingContainer(LocalContextScope.SINGLETHREAD, LocalVariableBehavior.PERSISTENT);
 		irbThread = new Thread(() -> {
+			// allow java-like package names, and import irb and completions
+			container.runScriptlet("def ghidra;Java::ghidra;end; require 'irb'; require 'irb/completion';");
 			while (!disposed) {
-				container.runScriptlet("require 'irb';IRB.start");
+				container.runScriptlet("IRB.start");
 			}
 		});
 	}
@@ -90,7 +93,11 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 * @return A list of possible code completions.
 	 */
 	public List<CodeCompletion> getCompletions(String cmd) {
-		return new ArrayList<CodeCompletion>();
+		container.put("GHIDRA_LAST_PARTIAL", cmd);
+		// CodeCompletion.new(description, text_to_append, optional_nil)
+		// use IRB to get the completed lines, then strip off the relevant parts
+		CodeCompletion[] tmp = (CodeCompletion[])container.runScriptlet("IRB::InputCompletor::CompletionProc.call(GHIDRA_LAST_PARTIAL).reject(&:nil?).map{|y|compl = y[GHIDRA_LAST_PARTIAL.length..-1];desc = y.split(/\\s+|\\.|::/).last;Java::GhidraAppPluginCoreConsole::CodeCompletion.new(desc, compl, nil)}.to_java(Java::GhidraAppPluginCoreConsole::CodeCompletion)");
+		return Arrays.asList(tmp);
 	}
 
 	/**
