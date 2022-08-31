@@ -95,9 +95,15 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	public List<CodeCompletion> getCompletions(String cmd) {
 		container.put("GHIDRA_LAST_PARTIAL", cmd);
 		// CodeCompletion.new(description, text_to_append, optional_nil)
-		// use IRB to get the completed lines, then strip off the relevant parts
-		CodeCompletion[] tmp = (CodeCompletion[])container.runScriptlet("IRB::InputCompletor::CompletionProc.call(GHIDRA_LAST_PARTIAL).reject(&:nil?).map{|y|compl = y[GHIDRA_LAST_PARTIAL.length..-1];desc = y.split(/\\s+|\\.|::/).last;Java::GhidraAppPluginCoreConsole::CodeCompletion.new(desc, compl, nil)}.to_java(Java::GhidraAppPluginCoreConsole::CodeCompletion)");
-		return Arrays.asList(tmp);
+		try{
+			// use IRB to get the completed lines, then strip off the relevant parts
+			CodeCompletion[] tmp = (CodeCompletion[])container.runScriptlet("IRB::InputCompletor::CompletionProc.call(GHIDRA_LAST_PARTIAL).reject(&:nil?).map{|y|compl = y[GHIDRA_LAST_PARTIAL.length..-1];desc = y.split(/\\s+|\\.|::/).last;Java::GhidraAppPluginCoreConsole::CodeCompletion.new(desc, compl, nil)}.to_java(Java::GhidraAppPluginCoreConsole::CodeCompletion)");
+			return Arrays.asList(tmp);
+		} catch (Throwable t){// often: org.jruby.embed.EvalFailedException: (ArgumentError) Java package 'ghidra.program' does not have a method `instance_methods' with 1 argument
+			// test this code path with: [].length.t<TAB>
+			// ignore, see https://github.com/ruby/irb/issues/295 and https://github.com/jruby/jruby/issues/7323 for exceptions this catches
+			return new ArrayList<>();
+		}
 	}
 
 	/**
