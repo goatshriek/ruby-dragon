@@ -114,7 +114,8 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 * Sets up method proxies at the top level to mirror $script or $current_api methods, as jython does.
 	 */
 	public void createProxies() {
-		container.runScriptlet("(($current_api.methods - java.lang.Object.new.methods) - self.methods).each { |mn| \n"+
+		// ignore base java Object, ruby Object, main, and Kernel methods. We don't want to overwrite any of them.
+		container.runScriptlet("((($current_api.methods - java.lang.Object.new.methods) - self.methods) - Kernel.methods).each { |mn| \n"+
 			" define_method(mn){|*argv|($current_api).send(mn, *argv);}\n"+ //proxy the current object (hence not method binding)
 			" private(mn)\n"+ // hide from all other objects so we don't see it in autocomplete when called with an explicit receiver
 			" }");
