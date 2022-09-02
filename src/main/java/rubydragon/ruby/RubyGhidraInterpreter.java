@@ -55,8 +55,12 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	public RubyGhidraInterpreter() {
 		container = new ScriptingContainer(LocalContextScope.SINGLETHREAD, LocalVariableBehavior.PERSISTENT);
 		irbThread = new Thread(() -> {
-			// allow java-like package names, and import irb and completions
-			container.runScriptlet("def ghidra;Java::ghidra;end; require 'irb'; require 'irb/completion';");
+			try{
+				InputStream stream = getClass().getResourceAsStream("/scripts/ruby-init.rb");
+				container.runScriptlet(stream, "ruby-init.rb");
+			} catch(Throwable t){
+				throw new RuntimeException(t);
+			}
 			while (!disposed) {
 				container.runScriptlet("IRB.start");
 			}
@@ -107,6 +111,17 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	}
 
 	/**
+	 * Sets up method proxies at the top level to mirror $script or $current_api methods, as jython does.
+	 */
+	public void createProxies() {
+		// ignore base java Object, ruby Object, main, and Kernel methods. We don't want to overwrite any of them.
+		container.runScriptlet("((($current_api.methods - java.lang.Object.new.methods) - self.methods) - Kernel.methods).each { |mn| \n"+
+			" define_method(mn){|*argv|($current_api).send(mn, *argv);}\n"+ //proxy the current object (hence not method binding)
+			" private(mn)\n"+ // hide from all other objects so we don't see it in autocomplete when called with an explicit receiver
+			" }");
+	}
+
+	/**
 	 * Runs the given script with the arguments and state provided.
 	 *
 	 * The provided state is loaded into the interpreter at the beginning of
@@ -126,9 +141,14 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 			throws IllegalArgumentException, FileNotFoundException, IOException {
 		InputStream scriptStream = script.getSourceFile().getInputStream();
 		loadState(scriptState);
+		Object savedAPI = container.get("$current_api");
 		container.put("$script", script);
+		container.put("$current_api", script);
 		container.put("ARGV", scriptArguments);
+		createProxies();
 		container.runScriptlet(scriptStream, script.getScriptName());
+		container.remove("$script");
+		container.put("$current_api", savedAPI);
 		updateState(scriptState);
 	}
 
@@ -212,6 +232,7 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 		if (program != null) {
 			container.put("$current_program", program);
 			container.put("$current_api", new FlatProgramAPI(program));
+			createProxies();
 		}
 	}
 
