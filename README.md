@@ -94,12 +94,12 @@ to `~/ghidra_gems`
 
 ```sh
 # from a shell environment
-java -jar ~/.ghidra/.ghidra_10.1.5_PUBLIC/Extensions/RubyDragon/lib/jruby-complete-9.3.4.0.jar -S gem install -i ~/ghidra_gems wrapture
+java -jar ~/.ghidra/.ghidra_10.2_PUBLIC/Extensions/RubyDragon/lib/jruby-complete-9.3.9.0.jar -S gem install -i ~/ghidra_gems wrapture
 ```
 
 ```bat
 REM from a windows command line
-java -jar %USERPROFILE%\.ghidra\.ghidra_10.1.5_PUBLIC\Extensions\RubyDragon\lib\jruby-complete-9.3.4.0.jar -S gem install -i %USERPROFILE%\ghidra_gems wrapture
+java -jar %USERPROFILE%\.ghidra\.ghidra_10.2_PUBLIC\Extensions\RubyDragon\lib\jruby-complete-9.3.9.0.jar -S gem install -i %USERPROFILE%\ghidra_gems wrapture
 ```
 
 Once this is done, you can require the `wrapture` gem (or whatever you chose
