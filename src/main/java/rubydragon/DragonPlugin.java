@@ -52,7 +52,7 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 	 * @param name The name of the language provided by the instance.
 	 */
 	public DragonPlugin(PluginTool tool, String name) {
-		super(tool, true, true);
+		super(tool);
 		this.name = name;
 	}
 

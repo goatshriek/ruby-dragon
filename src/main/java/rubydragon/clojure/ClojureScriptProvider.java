@@ -24,6 +24,7 @@ import java.io.PrintWriter;
 
 import generic.jar.ResourceFile;
 import ghidra.app.script.GhidraScript;
+import ghidra.app.script.GhidraScriptLoadException;
 import ghidra.app.script.GhidraScriptProvider;
 
 /**
@@ -73,7 +74,7 @@ public class ClojureScriptProvider extends GhidraScriptProvider {
 	 */
 	@Override
 	public GhidraScript getScriptInstance(ResourceFile sourceFile, PrintWriter writer)
-			throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+			throws GhidraScriptLoadException {
 		GhidraScript script = new ClojureScript();
 		script.setSourceFile(sourceFile);
 		return script;
