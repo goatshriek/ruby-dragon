@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.jruby.embed.LocalContextScope;
@@ -54,8 +55,14 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	public RubyGhidraInterpreter() {
 		container = new ScriptingContainer(LocalContextScope.SINGLETHREAD, LocalVariableBehavior.PERSISTENT);
 		irbThread = new Thread(() -> {
+			try{
+				InputStream stream = getClass().getResourceAsStream("/scripts/ruby-init.rb");
+				container.runScriptlet(stream, "ruby-init.rb");
+			} catch(Throwable t){
+				throw new RuntimeException(t);
+			}
 			while (!disposed) {
-				container.runScriptlet("require 'irb';IRB.start");
+				container.runScriptlet("IRB.start");
 			}
 		});
 	}
@@ -90,7 +97,28 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 * @return A list of possible code completions.
 	 */
 	public List<CodeCompletion> getCompletions(String cmd) {
-		return new ArrayList<CodeCompletion>();
+		container.put("GHIDRA_LAST_PARTIAL", cmd);
+		// CodeCompletion.new(description, text_to_append, optional_nil)
+		try{
+			// use IRB to get the completed lines, then strip off the relevant parts
+			CodeCompletion[] tmp = (CodeCompletion[])container.runScriptlet("IRB::InputCompletor::CompletionProc.call(GHIDRA_LAST_PARTIAL).reject(&:nil?).map{|y|compl = y[GHIDRA_LAST_PARTIAL.length..-1];desc = y.split(/\\s+|\\.|::/).last;Java::GhidraAppPluginCoreConsole::CodeCompletion.new(desc, compl, nil)}.to_java(Java::GhidraAppPluginCoreConsole::CodeCompletion)");
+			return Arrays.asList(tmp);
+		} catch (Throwable t){// often: org.jruby.embed.EvalFailedException: (ArgumentError) Java package 'ghidra.program' does not have a method `instance_methods' with 1 argument
+			// test this code path with: [].length.t<TAB>
+			// ignore, see https://github.com/ruby/irb/issues/295 and https://github.com/jruby/jruby/issues/7323 for exceptions this catches
+			return new ArrayList<>();
+		}
+	}
+
+	/**
+	 * Sets up method proxies at the top level to mirror $script or $current_api methods, as jython does.
+	 */
+	public void createProxies() {
+		// ignore base java Object, ruby Object, main, and Kernel methods. We don't want to overwrite any of them.
+		container.runScriptlet("((($current_api.methods - java.lang.Object.new.methods) - self.methods) - Kernel.methods).each { |mn| \n"+
+			" define_method(mn){|*argv|($current_api).send(mn, *argv);}\n"+ //proxy the current object (hence not method binding)
+			" private(mn)\n"+ // hide from all other objects so we don't see it in autocomplete when called with an explicit receiver
+			" }");
 	}
 
 	/**
@@ -113,9 +141,14 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 			throws IllegalArgumentException, FileNotFoundException, IOException {
 		InputStream scriptStream = script.getSourceFile().getInputStream();
 		loadState(scriptState);
+		Object savedAPI = container.get("$current_api");
 		container.put("$script", script);
+		container.put("$current_api", script);
 		container.put("ARGV", scriptArguments);
+		createProxies();
 		container.runScriptlet(scriptStream, script.getScriptName());
+		container.remove("$script");
+		container.put("$current_api", savedAPI);
 		updateState(scriptState);
 	}
 
@@ -199,6 +232,7 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 		if (program != null) {
 			container.put("$current_program", program);
 			container.put("$current_api", new FlatProgramAPI(program));
+			createProxies();
 		}
 	}
 

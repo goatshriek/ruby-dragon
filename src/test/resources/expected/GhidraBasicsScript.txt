@@ -10,12 +10,17 @@ Headers [start: 0x00400000, end: 0x004003ff]
 .data [start: 0x00403200, end: 0x00403387]
 .rsrc [start: 0x00404000, end: 0x004041ff]
 .reloc [start: 0x00405000, end: 0x004051ff]
+tdb [start: 0xffdff000, end: 0xffdfffff]
 
 Function List:
 FUN_00401000
 FUN_00401010
 Catch_All@004011b0
+FUN_004011d0
+FUN_00401230
+FUN_004012a0
 FUN_004012ea
+FUN_004013bd
 entry
 FUN_00401549
 FUN_00401571
