@@ -1,7 +1,7 @@
 ---
 title: Roadmap
-keywords: ruby, kotlin, jruby, ghidra, plugin, java, jshell roadmap, future
-last_updated: July 29, 2022
+keywords: ruby, kotlin, jruby, ghidra, plugin, java, jshell, roadmap, future, dragon, rubydragon
+last_updated: November 6, 2022
 summary: "Planned Future Direction for Ruby Dragon."
 layout: default
 ---
@@ -12,7 +12,7 @@ or want to make a suggestion, please submit an issue on the project's
 [Github page](https://github.com/goatshriek/ruby-dragon).
 
 
-## 1.4.0
+## 2.1.0
  * [ADD] **Groovy Language Bindings**
    While initially aimed at Ruby, this project is ultimately aimed at making a
    variety of JVM-based languages available to Ghidra users. Groovy is an easy
@@ -26,7 +26,7 @@ or want to make a suggestion, please submit an issue on the project's
    be considered adequate when there is at least a 1-1 parity with the existing
    Python examples.
  * [ADD] **Colorization Support in Interactive Terminal**
- * [ADD] **Tab-completion Support**
+ * [ADD] **Tab-completion Support in all languages**
  * [ADD] **Better terminal than Ghidra default**
    It would be nice to support features like colorization, and even nicer to
    simply use one that someone else has already built instead of implementing
