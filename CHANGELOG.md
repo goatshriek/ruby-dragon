@@ -5,6 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [2.0.0] - 2022-11-06
+### Changed
+ - Upgrade to JRuby 9.3.9.0 (Ruby 2.6.8)
+ - Upgrade to Kotlin 1.7.20
+ - Change of exceptions thrown by the `getScriptInstance` methods has changed
+   as a result of Ghidra 10.2 API changes
+
+
 ## [1.3.0] - 2022-07-29
 ### Added
  - JShell interactive interpreter
