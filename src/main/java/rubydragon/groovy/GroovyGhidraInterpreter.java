@@ -168,6 +168,7 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	public void runScript(GhidraScript script, String[] scriptArguments, GhidraState scriptState)
 			throws IllegalArgumentException, FileNotFoundException, IOException {
 		createScriptableShell();
+		scriptShell.setVariable("script", script);
 		loadState(scriptState);
 		scriptShell.run(script.getSourceFile().getFile(true), scriptArguments);
 		updateState(scriptState);

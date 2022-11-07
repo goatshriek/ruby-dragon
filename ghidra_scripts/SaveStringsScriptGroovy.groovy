@@ -3,7 +3,7 @@
 // command line argument. This script is based on the CountAndSaveStrings script
 // included with Ghidra.
 
-// @category: Examples.Kotlin
+// @category: Examples.Groovy
 
 import java.io.File
 
