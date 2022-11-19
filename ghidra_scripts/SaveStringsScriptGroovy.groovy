@@ -8,17 +8,17 @@
 import java.io.File
 
 // read in the filename, or default to `saved_strings.txt` if none was passed
-val filename = args.getOrElse(0) {"saved_strings.txt"} as String
+filename = args.length > 0 ? args[0] : 'saved_strings.txt'
 
 // initialize the string counter
-var stringCount = 0
+stringCount = 0
 
 // go through the data in the program
-File(filename).printWriter().use { outFile ->
-  currentProgram.listing.getDefinedData(true).forEach {
-    val typeName = it.dataType.name
-    val valueRep = it.defaultValueRepresentation
-    if ((typeName.equals("unicode") || typeName.equals("string")) && valueRep.length > 4) {
+new File(filename).withPrintWriter { outFile ->
+  currentProgram.listing.getDefinedData(true).each {
+    typeName = it.dataType.name
+    valueRep = it.defaultValueRepresentation
+    if ((typeName.equals('unicode') || typeName.equals('string')) && valueRep.length() > 4) {
       outFile.println(valueRep)
       stringCount += 1
     }

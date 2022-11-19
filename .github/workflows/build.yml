@@ -95,7 +95,7 @@ jobs:
           rm TestStringsKotlin.txt
       - name: Save Strings Groovy Script
         run: |
-          $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript SaveStringsScripGroovy.groovy TestStringsGroovy.txt -deleteProject
+          $GHIDRA_INSTALL_DIR/support/analyzeHeadless ~/projects/ RubyDragonTest -import ./src/test/resources/bin/HelloGhidra.exe -postScript SaveStringsScriptGroovy.groovy TestStringsGroovy.txt -deleteProject
           grep "Hello Ghidra!" TestStringsGroovy.txt
           rm TestStringsGroovy.txt
       - name: Save Strings Clojure Script
