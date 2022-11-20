@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package rubydragon.jshell;
+package rubydragon.groovy;
 
 import java.awt.event.KeyEvent;
 
@@ -39,32 +39,31 @@ import rubydragon.DragonPlugin;
 import rubydragon.GhidraInterpreter;
 
 /**
- * JShellDragon provides an interactive Java terminal session within Ghidra via
- * JShell.
+ * GroovyDragon provides an interactive Groovy terminal session within Ghidra.
  */
 //@formatter:off
 @PluginInfo(
 	status = PluginStatus.RELEASED,
 	packageName = CorePluginPackage.NAME,
 	category = PluginCategoryNames.INTERPRETERS,
-	shortDescription = "JShell Interpreter",
-	description = "Provides an interactive JShell interpreter integrated with loaded Ghidra programs.",
+	shortDescription = "Groovy Interpreter",
+	description = "Provides an interactive Groovy interpreter integrated with loaded Ghidra programs.",
 	servicesRequired = { InterpreterPanelService.class },
 	isSlowInstallation = true
 )
 //@formatter:on
-public class JShellDragonPlugin extends DragonPlugin implements InterpreterConnection {
+public class GroovyDragonPlugin extends DragonPlugin implements InterpreterConnection {
 
 	private InterpreterConsole console;
-	private JShellGhidraInterpreter interpreter;
+	private GroovyGhidraInterpreter interpreter;
 
 	/**
 	 * Plugin constructor.
 	 *
 	 * @param tool The plugin tool that this plugin is added to.
 	 */
-	public JShellDragonPlugin(PluginTool tool) {
-		super(tool, "JShell");
+	public GroovyDragonPlugin(PluginTool tool) {
+		super(tool, "Groovy");
 	}
 
 	/**
@@ -78,10 +77,10 @@ public class JShellDragonPlugin extends DragonPlugin implements InterpreterConne
 	}
 
 	/**
-	 * Gives the java interpreter currently in use.
+	 * Gives the Groovy interpreter currently in use.
 	 *
-	 * @return The java interpreter for this plugin. Will always be a
-	 *         JShellGhidraInterpreter instance.
+	 * @return The Groovy interpreter for this plugin. Will always be a
+	 *         GroovyGhidraInterpreter instance.
 	 */
 	@Override
 	public GhidraInterpreter getInterpreter() {
@@ -96,24 +95,11 @@ public class JShellDragonPlugin extends DragonPlugin implements InterpreterConne
 		super.init();
 
 		console = getTool().getService(InterpreterPanelService.class).createInterpreterPanel(this, false);
-		interpreter = new JShellGhidraInterpreter(console);
+		interpreter = new GroovyGhidraInterpreter(console);
 		console.setPrompt("> ");
 		console.addFirstActivationCallback(() -> {
 			interpreter.startInteractiveSession();
 		});
-
-		DockingAction interruptAction = new DockingAction("Interrupt Interpreter", getName()) {
-			@Override
-			public void actionPerformed(ActionContext context) {
-				interpreter.interrupt();
-			}
-		};
-		interruptAction.setDescription("Interrupt Interpreter");
-		interruptAction.setToolBarData(new ToolBarData(ResourceManager.loadImage("images/dialog-cancel.png"), null));
-		interruptAction.setEnabled(true);
-		interruptAction.setKeyBindingData(new KeyBindingData(KeyEvent.VK_I, DockingUtils.CONTROL_KEY_MODIFIER_MASK));
-		interruptAction.setHelpLocation(new HelpLocation(getTitle(), "Interrupt_Interpreter"));
-		console.addAction(interruptAction);
 
 		DockingAction resetAction = new DockingAction("Reset Interpreter", getName()) {
 			@Override

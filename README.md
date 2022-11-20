@@ -2,8 +2,8 @@
 [![build](https://github.com/goatshriek/ruby-dragon/actions/workflows/build.yml/badge.svg)](https://github.com/goatshriek/ruby-dragon/actions/workflows/build.yml)
 [![Apache 2.0 License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-[Ruby](#ruby-usage), [Kotlin](#kotlin-usage), [JShell](#jshell-usage), and
-[Clojure](#clojure-usage) support for Ghidra, both interactive and scripting.
+[Ruby](#ruby-usage), [Kotlin](#kotlin-usage), [Groovy](#groovy-usage),
+[Clojure](#clojure-usage), and [JShell](#jshell-usage) support for Ghidra.
 
 
 ## Installation
@@ -134,10 +134,10 @@ Kotlin scripts use a `kts` extension as they are interpreted as scripts rather
 than being compiled to java first.
 
 
-## JShell Usage
-The JShell plugin provides an interactive Java interpreter by JShell, a Java
-REPL included in Java. It provides the same built in variables that are
-available in Java scripts:
+## Groovy Usage
+Groovy follows the same patterns as the other languages, being provided in the
+`GroovyDragon` plugin and reachable from the `Window->Groovy` menu option. It
+has the same built-in variables that the others provide:
 
 ```
 currentAddress
@@ -150,14 +150,10 @@ currentSelection
 `currentAPI` is also provided as with the Kotlin interpreter, again holding an
 instance of `FlatProgramAPI` created with `currentProgram`.
 
-This interpreter is especially handy when writing Java scripts, as it allows you
-to iteratively test snippets of code from the script without needing to do any
-sort of conversion to other languages like Python or Kotlin.
-
 
 ## Clojure Usage
 Clojure follows the same patterns as the other languages, being provided in the
-`ClojureDragon` plugin and reachable from the `Window->Clojure` menu option.
+`ClojureDragon` plugin and the menu item `Window->Clojure`.
 
 The Clojure interpreter and scripts also have bindings that make the state
 information available to them, within the `ghidra` namespace. They are:
@@ -181,6 +177,27 @@ access the `TaskMonitor` for a script, you can simply reference `ghidra/monitor`
 to do things like update the progress. The Clojure Ghidra Basics script has an
 example of this type of access. Those familiar with the Python scripting
 interface may recognize this paradigm, as it is the same there.
+
+
+## JShell Usage
+The JShell plugin provides an interactive Java interpreter by JShell, a Java
+REPL included in Java. It provides the same built in variables that are
+available in Java scripts:
+
+```
+currentAddress
+currentHighlight
+currentLocation
+currentProgram
+currentSelection
+```
+
+`currentAPI` is also provided as with the Kotlin interpreter, again holding an
+instance of `FlatProgramAPI` created with `currentProgram`.
+
+This interpreter is especially handy when writing Java scripts, as it allows you
+to iteratively test snippets of code from the script without needing to do any
+sort of conversion to other languages like Python or Kotlin.
 
 
 ## Contributing

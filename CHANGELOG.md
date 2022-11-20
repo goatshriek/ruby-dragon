@@ -5,6 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [2.1.0] - 2022-11-20
+### Added
+ - Groovy script capability (uses Groovy 4.0.6)
+
+### Fixed
+ - F1 now properly resolves help page for interpreter under pointer
+
+
 ## [2.0.0] - 2022-11-06
 ### Changed
  - Upgrade to JRuby 9.3.9.0 (Ruby 2.6.8)
