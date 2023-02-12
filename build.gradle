@@ -19,12 +19,12 @@ plugins {
 }
 
 dependencies {
-	implementation('org.jruby:jruby-complete:9.3.9.0')
+	implementation('org.jruby:jruby-complete:9.4.1.0')
 	implementation('org.clojure:clojure:1.11.1')
-    implementation('org.apache.groovy:groovy:4.0.6')
-    implementation('org.apache.groovy:groovy-groovysh:4.0.6')
+    implementation('org.apache.groovy:groovy:4.0.9')
+    implementation('org.apache.groovy:groovy-groovysh:4.0.9')
 	testImplementation('junit:junit:4.13')
-	runtimeOnly('org.jetbrains.kotlin:kotlin-scripting-jsr223:1.7.20')
+	runtimeOnly('org.jetbrains.kotlin:kotlin-scripting-jsr223:1.8.10')
 }
 
 test {
