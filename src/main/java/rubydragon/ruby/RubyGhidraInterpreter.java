@@ -55,10 +55,12 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	public RubyGhidraInterpreter() {
 		container = new ScriptingContainer(LocalContextScope.SINGLETHREAD, LocalVariableBehavior.PERSISTENT);
 		irbThread = new Thread(() -> {
-			try{
+			try {
 				InputStream stream = getClass().getResourceAsStream("/scripts/ruby-init.rb");
 				container.runScriptlet(stream, "ruby-init.rb");
-			} catch(Throwable t){
+				container.runScriptlet("java_import Java::ghidra.app.decompiler.DecompileOptions");
+			} catch (Throwable t) {
+				// we don't want an exception to crash everything, just the input thread
 				throw new RuntimeException(t);
 			}
 			while (!disposed) {
@@ -99,26 +101,39 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	public List<CodeCompletion> getCompletions(String cmd) {
 		container.put("GHIDRA_LAST_PARTIAL", cmd);
 		// CodeCompletion.new(description, text_to_append, optional_nil)
-		try{
+		try {
 			// use IRB to get the completed lines, then strip off the relevant parts
-			CodeCompletion[] tmp = (CodeCompletion[])container.runScriptlet("IRB::InputCompletor::CompletionProc.call(GHIDRA_LAST_PARTIAL).reject(&:nil?).map{|y|compl = y[GHIDRA_LAST_PARTIAL.length..-1];desc = y.split(/\\s+|\\.|::/).last;Java::GhidraAppPluginCoreConsole::CodeCompletion.new(desc, compl, nil)}.to_java(Java::GhidraAppPluginCoreConsole::CodeCompletion)");
+			//@formatter:off
+			CodeCompletion[] tmp = (CodeCompletion[]) container.runScriptlet("IRB::InputCompletor::CompletionProc.call(GHIDRA_LAST_PARTIAL).reject(&:nil?).map{|y|compl = y[GHIDRA_LAST_PARTIAL.length..-1];desc = y.split(/\\s+|\\.|::/).last;Java::GhidraAppPluginCoreConsole::CodeCompletion.new(desc, compl, nil)}.to_java(Java::GhidraAppPluginCoreConsole::CodeCompletion)");
+			//@formatter:on
 			return Arrays.asList(tmp);
-		} catch (Throwable t){// often: org.jruby.embed.EvalFailedException: (ArgumentError) Java package 'ghidra.program' does not have a method `instance_methods' with 1 argument
+		} catch (Throwable t) {
+			// often: org.jruby.embed.EvalFailedException: (ArgumentError) Java package
+			// 'ghidra.program' does not have a method `instance_methods' with 1 argument
 			// test this code path with: [].length.t<TAB>
-			// ignore, see https://github.com/ruby/irb/issues/295 and https://github.com/jruby/jruby/issues/7323 for exceptions this catches
+			// ignore, see https://github.com/ruby/irb/issues/295 and
+			// https://github.com/jruby/jruby/issues/7323 for exceptions this catches
 			return new ArrayList<>();
 		}
 	}
 
 	/**
-	 * Sets up method proxies at the top level to mirror $script or $current_api methods, as jython does.
+	 * Sets up method proxies at the top level to mirror $script or $current_api
+	 * methods, as jython does.
 	 */
 	public void createProxies() {
-		// ignore base java Object, ruby Object, main, and Kernel methods. We don't want to overwrite any of them.
-		container.runScriptlet("((($current_api.methods - java.lang.Object.new.methods) - self.methods) - Kernel.methods).each { |mn| \n"+
-			" define_method(mn){|*argv|($current_api).send(mn, *argv);}\n"+ //proxy the current object (hence not method binding)
-			" private(mn)\n"+ // hide from all other objects so we don't see it in autocomplete when called with an explicit receiver
+		// ignore base java Object, ruby Object, main, and Kernel methods. We don't want
+		// to overwrite any of them.
+		//@formatter:off
+		container.runScriptlet(
+			"((($current_api.methods - java.lang.Object.new.methods) - self.methods) - Kernel.methods).each { |mn| \n" +
+			// proxy the current object (hence not method binding)
+			" define_method(mn){|*argv|($current_api).send(mn, *argv);}\n" +
+			// hide from all other objects so we don't see it in autocomplete when called
+			// with an explicit receiver
+			" private(mn)\n" +
 			" }");
+		//@formatter:on
 	}
 
 	/**
