@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.jdom.Document;
+import org.jdom.Element;
 import org.jruby.embed.LocalContextScope;
 import org.jruby.embed.LocalVariableBehavior;
 import org.jruby.embed.ScriptingContainer;
@@ -34,11 +36,13 @@ import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.app.script.GhidraScript;
 import ghidra.app.script.GhidraState;
+import ghidra.framework.Application;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
+import ghidra.util.xml.XmlUtilities;
 import rubydragon.ScriptableGhidraInterpreter;
 
 /**
@@ -56,9 +60,21 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 		container = new ScriptingContainer(LocalContextScope.SINGLETHREAD, LocalVariableBehavior.PERSISTENT);
 		irbThread = new Thread(() -> {
 			try {
+				// run the ruby setup script
 				InputStream stream = getClass().getResourceAsStream("/scripts/ruby-init.rb");
 				container.runScriptlet(stream, "ruby-init.rb");
-				container.runScriptlet("java_import Java::ghidra.app.decompiler.DecompileOptions");
+
+				Document preload = XmlUtilities.readDocFromFile(Application.findDataFileInAnyModule("preload.xml"));
+				@SuppressWarnings("unchecked")
+				List<Element> preloadClasses = preload.getRootElement().getChildren("class");
+				for (int i = 0; i < preloadClasses.size(); i++) {
+					Element preloadClass = preloadClasses.get(i);
+					String packageName = preloadClass.getChildText("package");
+					String className = preloadClass.getChildText("name");
+					String importStatement = "java_import Java::" + packageName + "." + className;
+					container.runScriptlet(importStatement);
+				}
+//				container.runScriptlet("java_import Java::ghidra.app.decompiler.DecompileOptions");
 			} catch (Throwable t) {
 				// we don't want an exception to crash everything, just the input thread
 				throw new RuntimeException(t);
