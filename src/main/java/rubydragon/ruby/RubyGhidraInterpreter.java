@@ -74,7 +74,6 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 					String importStatement = "java_import Java::" + packageName + "." + className;
 					container.runScriptlet(importStatement);
 				}
-//				container.runScriptlet("java_import Java::ghidra.app.decompiler.DecompileOptions");
 			} catch (Throwable t) {
 				// we don't want an exception to crash everything, just the input thread
 				throw new RuntimeException(t);

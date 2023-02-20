@@ -31,13 +31,19 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
+
 import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
+import ghidra.framework.Application;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
+import ghidra.util.xml.XmlUtilities;
 import jdk.jshell.JShell;
 import jdk.jshell.SnippetEvent;
 import jdk.jshell.SourceCodeAnalysis;
@@ -45,7 +51,7 @@ import jdk.jshell.execution.LocalExecutionControlProvider;
 import rubydragon.GhidraInterpreter;
 
 /**
- * A Kotlin intepreter for Ghidra.
+ * A Java intepreter for Ghidra, based on JShell.
  */
 public class JShellGhidraInterpreter extends GhidraInterpreter {
 	public static AtomicInteger counter = new AtomicInteger();
@@ -62,6 +68,10 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	private boolean disposed = false;
 
 	private Runnable inputThread = () -> {
+		if (jshell == null) {
+			createJShell();
+		}
+
 		while (!disposed) {
 			try {
 				StringBuilder completeSnippet = new StringBuilder();
@@ -108,8 +118,6 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 		setOutWriter(new PrintWriter(outStream));
 		setErrWriter(new PrintWriter(errStream));
 
-		createJShell();
-
 		replThread = new Thread(inputThread);
 	}
 
@@ -127,11 +135,29 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 * Creates a new JShell interpreter, and declares the internal variables.
 	 */
 	private void createJShell() {
+		PrintStream errPrintStream = new PrintStream(errStream);
+
 		JShell.Builder builder = JShell.builder();
 		builder.out(new PrintStream(outStream));
-		builder.err(new PrintStream(errStream));
+		builder.err(new PrintStream(errPrintStream));
 		builder.executionEngine(new LocalExecutionControlProvider(), new HashMap<String, String>());
 		jshell = builder.build();
+
+		// load the preload imports
+		try {
+			Document preload = XmlUtilities.readDocFromFile(Application.findDataFileInAnyModule("preload.xml"));
+			@SuppressWarnings("unchecked")
+			List<Element> preloadClasses = preload.getRootElement().getChildren("class");
+			for (int i = 0; i < preloadClasses.size(); i++) {
+				Element preloadClass = preloadClasses.get(i);
+				String packageName = preloadClass.getChildText("package");
+				String className = preloadClass.getChildText("name");
+				String importStatement = "import " + packageName + "." + className + ";";
+				jshell.eval(importStatement);
+			}
+		} catch (JDOMException | IOException e) {
+			errPrintStream.println("could not preload classes, " + e.getMessage());
+		}
 
 		// declare the built-in variables
 		jshell.eval(String.format("%s currentAddress = null;", Address.class.getName()));
@@ -252,6 +278,10 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 * @param value The new value of the variable.
 	 */
 	private void setVariable(String name, Class<?> type, Object value) {
+		if (jshell == null) {
+			createJShell();
+		}
+
 		Integer varId = counter.incrementAndGet();
 		variables.put(varId, value);
 		String command = String.format("%s = (%s) %s.variables.get(%d)", name, type.getName(),
