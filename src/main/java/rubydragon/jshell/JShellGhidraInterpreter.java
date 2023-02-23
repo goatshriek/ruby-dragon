@@ -38,6 +38,7 @@ import org.jdom.JDOMException;
 import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.framework.Application;
+import ghidra.framework.plugintool.PluginTool;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
@@ -48,6 +49,7 @@ import jdk.jshell.JShell;
 import jdk.jshell.SnippetEvent;
 import jdk.jshell.SourceCodeAnalysis;
 import jdk.jshell.execution.LocalExecutionControlProvider;
+import rubydragon.DragonPlugin;
 import rubydragon.GhidraInterpreter;
 
 /**
@@ -65,6 +67,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	private PrintWriter outWriter;
 	private OutputStream errStream;
 	private PrintWriter errWriter;
+	private PluginTool tool;
 	private boolean disposed = false;
 
 	private Runnable inputThread = () -> {
@@ -105,14 +108,16 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	/**
 	 * Creates a new interpreter, and ties the given streams to the new interpreter.
 	 *
-	 * @param in  The input stream to use for the interpeter.
-	 * @param out The output stream to use for the interpreter.
-	 * @param err The error stream to use for the interpreter.
+	 * @param in   The input stream to use for the interpeter.
+	 * @param out  The output stream to use for the interpreter.
+	 * @param err  The error stream to use for the interpreter.
+	 * @param tool The tool this interpreter is part of.
 	 */
-	public JShellGhidraInterpreter(InputStream in, OutputStream out, OutputStream err) {
+	public JShellGhidraInterpreter(InputStream in, OutputStream out, OutputStream err, PluginTool tool) {
 		inStream = in;
 		outStream = out;
 		errStream = err;
+		this.tool = tool;
 
 		setInput(inStream);
 		setOutWriter(new PrintWriter(outStream));
@@ -126,9 +131,10 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 * the new interpreter.
 	 *
 	 * @param console The console to bind to the interpreter streams.
+	 * @param tool    The tool this interpreter is part of.
 	 */
-	public JShellGhidraInterpreter(InterpreterConsole console) {
-		this(console.getStdin(), console.getStdOut(), console.getStdErr());
+	public JShellGhidraInterpreter(InterpreterConsole console, PluginTool tool) {
+		this(console.getStdin(), console.getStdOut(), console.getStdErr(), tool);
 	}
 
 	/**
@@ -139,24 +145,28 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 
 		JShell.Builder builder = JShell.builder();
 		builder.out(new PrintStream(outStream));
-		builder.err(new PrintStream(errPrintStream));
+		builder.err(errPrintStream);
 		builder.executionEngine(new LocalExecutionControlProvider(), new HashMap<String, String>());
 		jshell = builder.build();
 
 		// load the preload imports
-		try {
-			Document preload = XmlUtilities.readDocFromFile(Application.findDataFileInAnyModule("preload.xml"));
-			@SuppressWarnings("unchecked")
-			List<Element> preloadClasses = preload.getRootElement().getChildren("class");
-			for (int i = 0; i < preloadClasses.size(); i++) {
-				Element preloadClass = preloadClasses.get(i);
-				String packageName = preloadClass.getChildText("package");
-				String className = preloadClass.getChildText("name");
-				String importStatement = "import " + packageName + "." + className + ";";
-				jshell.eval(importStatement);
+		boolean preloadEnabled = tool != null && tool.getOptions(DragonPlugin.OPTION_CATEGORY_NAME)
+				.getBoolean("Automatically import classes in JShell", false);
+		if (preloadEnabled) {
+			try {
+				Document preload = XmlUtilities.readDocFromFile(Application.findDataFileInAnyModule("preload.xml"));
+				@SuppressWarnings("unchecked")
+				List<Element> preloadClasses = preload.getRootElement().getChildren("class");
+				for (int i = 0; i < preloadClasses.size(); i++) {
+					Element preloadClass = preloadClasses.get(i);
+					String packageName = preloadClass.getChildText("package");
+					String className = preloadClass.getChildText("name");
+					String importStatement = "import " + packageName + "." + className + ";";
+					jshell.eval(importStatement);
+				}
+			} catch (JDOMException | IOException e) {
+				errPrintStream.println("could not preload classes, " + e.getMessage());
 			}
-		} catch (JDOMException | IOException e) {
-			errPrintStream.println("could not preload classes, " + e.getMessage());
 		}
 
 		// declare the built-in variables

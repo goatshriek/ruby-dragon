@@ -25,10 +25,12 @@ import javax.swing.ImageIcon;
 import ghidra.app.plugin.ProgramPlugin;
 import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConnection;
+import ghidra.framework.options.ToolOptions;
 import ghidra.framework.plugintool.PluginTool;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
+import ghidra.util.HelpLocation;
 import resources.ResourceManager;
 
 /**
@@ -39,6 +41,12 @@ import resources.ResourceManager;
  * be common across all plugins.
  */
 public abstract class DragonPlugin extends ProgramPlugin implements InterpreterConnection {
+
+	/**
+	 * The name of the options category used by DragonPlugins.
+	 */
+	public static String OPTION_CATEGORY_NAME = "Ruby Dragon Interpreters";
+
 	/**
 	 * The name of this plugin instance.
 	 */
@@ -54,6 +62,13 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 	public DragonPlugin(PluginTool tool, String name) {
 		super(tool);
 		this.name = name;
+
+		// set up the preload option
+		ToolOptions toolOpt = tool.getOptions(OPTION_CATEGORY_NAME);
+		toolOpt.registerOption("Automatically import classes in " + name, Boolean.TRUE,
+				new HelpLocation(name, "Import_Classes_In_" + name + "_Interpreter"),
+				"If set, loads a list of common Ghidra classes into the " + name
+						+ "interpeter as soon as it is opened or reset.");
 	}
 
 	/**
