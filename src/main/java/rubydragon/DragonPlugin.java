@@ -65,10 +65,38 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 
 		// set up the preload option
 		ToolOptions toolOpt = tool.getOptions(OPTION_CATEGORY_NAME);
-		toolOpt.registerOption("Automatically import classes in " + name, Boolean.TRUE,
-				new HelpLocation(name, "Import_Classes_In_" + name + "_Interpreter"),
-				"If set, loads a list of common Ghidra classes into the " + name
-						+ "interpeter as soon as it is opened or reset.");
+		toolOpt.registerOption(getAutoImportOptionName(), Boolean.TRUE, getAutoImportOptionHelpLocation(),
+				getAutoImportOptionDescription());
+	}
+
+	/**
+	 * Gets the description of the automatic import option, customized with this
+	 * instance's name.
+	 *
+	 * @return The option description.
+	 */
+	public String getAutoImportOptionDescription() {
+		return "If set, loads a list of common Ghidra classes into the " + name
+				+ "interpeter as soon as it is opened or reset.";
+	}
+
+	/**
+	 * Gets the help location of the automatic import option for this instance.
+	 *
+	 * @return The option help location.
+	 */
+	public HelpLocation getAutoImportOptionHelpLocation() {
+		return new HelpLocation(name, "Import_Classes_In_" + name + "_Interpreter");
+	}
+
+	/**
+	 * Gets the name of the automatic import option, customized with this instance's
+	 * name.
+	 *
+	 * @return The option name.
+	 */
+	public String getAutoImportOptionName() {
+		return "Automatically import classes in " + name;
 	}
 
 	/**

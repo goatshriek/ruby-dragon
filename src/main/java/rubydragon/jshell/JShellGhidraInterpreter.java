@@ -28,6 +28,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -56,6 +57,12 @@ import rubydragon.GhidraInterpreter;
  * A Java intepreter for Ghidra, based on JShell.
  */
 public class JShellGhidraInterpreter extends GhidraInterpreter {
+	// simple structure to store both the type and value in a single map entry
+	private record Variable(Class<?> type, Object value) {
+	}
+
+	private Map<String, Variable> setVariables = new HashMap<String, Variable>();
+
 	public static AtomicInteger counter = new AtomicInteger();
 	public static ConcurrentHashMap<Integer, Object> variables = new ConcurrentHashMap<Integer, Object>();
 
@@ -71,9 +78,11 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	private boolean disposed = false;
 
 	private Runnable inputThread = () -> {
-		if (jshell == null) {
-			createJShell();
-		}
+		// set up the jshell interpreter
+		createJShell();
+		setVariables.forEach((name, var) -> {
+			setVariableInJShell(name, var.type, var.value);
+		});
 
 		while (!disposed) {
 			try {
@@ -288,10 +297,14 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 * @param value The new value of the variable.
 	 */
 	private void setVariable(String name, Class<?> type, Object value) {
-		if (jshell == null) {
-			createJShell();
-		}
+		setVariables.put(name, new Variable(type, value));
 
+		if (jshell != null) {
+			setVariableInJShell(name, type, value);
+		}
+	}
+
+	private void setVariableInJShell(String name, Class<?> type, Object value) {
 		Integer varId = counter.incrementAndGet();
 		variables.put(varId, value);
 		String command = String.format("%s = (%s) %s.variables.get(%d)", name, type.getName(),
