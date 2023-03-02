@@ -39,7 +39,6 @@ import org.jdom.JDOMException;
 import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.framework.Application;
-import ghidra.framework.plugintool.PluginTool;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
@@ -74,15 +73,12 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	private PrintWriter outWriter;
 	private OutputStream errStream;
 	private PrintWriter errWriter;
-	private PluginTool tool;
+	private DragonPlugin parentPlugin;
 	private boolean disposed = false;
 
 	private Runnable inputThread = () -> {
 		// set up the jshell interpreter
 		createJShell();
-		setVariables.forEach((name, var) -> {
-			setVariableInJShell(name, var.type, var.value);
-		});
 
 		while (!disposed) {
 			try {
@@ -100,12 +96,10 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 				for (SnippetEvent e : events) {
 					handleSnippetEvent(e);
 				}
-			} catch (IllegalStateException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (IllegalStateException | IOException e) {
+				// if these occur, we just keep going
+				// the user is expected to reset the interpreter if it gets truly stuck
+				continue;
 			}
 			outWriter.flush();
 			errWriter.flush();
@@ -117,16 +111,16 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	/**
 	 * Creates a new interpreter, and ties the given streams to the new interpreter.
 	 *
-	 * @param in   The input stream to use for the interpeter.
-	 * @param out  The output stream to use for the interpreter.
-	 * @param err  The error stream to use for the interpreter.
-	 * @param tool The tool this interpreter is part of.
+	 * @param in           The input stream to use for the interpeter.
+	 * @param out          The output stream to use for the interpreter.
+	 * @param err          The error stream to use for the interpreter.
+	 * @param parentPlugin The DragonPlugin instance owning this interpreter.
 	 */
-	public JShellGhidraInterpreter(InputStream in, OutputStream out, OutputStream err, PluginTool tool) {
+	public JShellGhidraInterpreter(InputStream in, OutputStream out, OutputStream err, DragonPlugin parentPlugin) {
 		inStream = in;
 		outStream = out;
 		errStream = err;
-		this.tool = tool;
+		this.parentPlugin = parentPlugin;
 
 		setInput(inStream);
 		setOutWriter(new PrintWriter(outStream));
@@ -139,11 +133,11 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 * Creates a new interpreter, and ties the streams for the provided console to
 	 * the new interpreter.
 	 *
-	 * @param console The console to bind to the interpreter streams.
-	 * @param tool    The tool this interpreter is part of.
+	 * @param console      The console to bind to the interpreter streams.
+	 * @param parentPlugin The DragonPlugin instance owning this interpreter.
 	 */
-	public JShellGhidraInterpreter(InterpreterConsole console, PluginTool tool) {
-		this(console.getStdin(), console.getStdOut(), console.getStdErr(), tool);
+	public JShellGhidraInterpreter(InterpreterConsole console, DragonPlugin parentPlugin) {
+		this(console.getStdin(), console.getStdOut(), console.getStdErr(), parentPlugin);
 	}
 
 	/**
@@ -158,9 +152,8 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 		builder.executionEngine(new LocalExecutionControlProvider(), new HashMap<String, String>());
 		jshell = builder.build();
 
-		// load the preload imports
-		boolean preloadEnabled = tool != null && tool.getOptions(DragonPlugin.OPTION_CATEGORY_NAME)
-				.getBoolean("Automatically import classes in JShell", false);
+		// load the preload imports if enabled
+		boolean preloadEnabled = parentPlugin.isAutoImportEnabled();
 		if (preloadEnabled) {
 			try {
 				Document preload = XmlUtilities.readDocFromFile(Application.findDataFileInAnyModule("preload.xml"));
@@ -185,6 +178,11 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 		jshell.eval(String.format("%s currentLocation = null;", ProgramLocation.class.getName()));
 		jshell.eval(String.format("%s currentProgram = null;", Program.class.getName()));
 		jshell.eval(String.format("%s currentSelection = null;", ProgramSelection.class.getName()));
+
+		// set any variables that were provided before creation
+		setVariables.forEach((name, var) -> {
+			setVariableInJShell(name, var.type, var.value);
+		});
 	}
 
 	/**

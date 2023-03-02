@@ -143,6 +143,10 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 		getInterpreter().updateHighlight(sel);
 	}
 
+	public boolean isAutoImportEnabled() {
+		return tool.getOptions(DragonPlugin.OPTION_CATEGORY_NAME).getBoolean(getAutoImportOptionName(), false);
+	}
+
 	/**
 	 * Called whenever the location is changed within the CodeBrowser tool.
 	 */

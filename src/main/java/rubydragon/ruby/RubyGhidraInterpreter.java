@@ -53,35 +53,41 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	private Thread irbThread;
 	private boolean disposed = false;
 
+	private Runnable inputThread = () -> {
+		try {
+			// run the ruby setup script
+			InputStream stream = getClass().getResourceAsStream("/scripts/ruby-init.rb");
+			container.runScriptlet(stream, "ruby-init.rb");
+
+			Document preload = XmlUtilities.readDocFromFile(Application.findDataFileInAnyModule("preload.xml"));
+			@SuppressWarnings("unchecked")
+			List<Element> preloadClasses = preload.getRootElement().getChildren("class");
+			for (int i = 0; i < preloadClasses.size(); i++) {
+				Element preloadClass = preloadClasses.get(i);
+				String className = preloadClass.getChildText("name");
+				// we don't import the class if it will stomp an existing symbol
+				// we also have to skip Data because it generates deprecation warnings
+				if (!className.equals("Data") && container.get(className) == null) {
+					String packageName = preloadClass.getChildText("package");
+					String importStatement = "java_import Java::" + packageName + "." + className;
+					container.runScriptlet(importStatement);
+				}
+			}
+		} catch (Throwable t) {
+			// we don't want an exception to crash everything, just the input thread
+			throw new RuntimeException(t);
+		}
+		while (!disposed) {
+			container.runScriptlet("IRB.start");
+		}
+	};
+
 	/**
 	 * Creates a new Ruby interpreter.
 	 */
 	public RubyGhidraInterpreter() {
 		container = new ScriptingContainer(LocalContextScope.SINGLETHREAD, LocalVariableBehavior.PERSISTENT);
-		irbThread = new Thread(() -> {
-			try {
-				// run the ruby setup script
-				InputStream stream = getClass().getResourceAsStream("/scripts/ruby-init.rb");
-				container.runScriptlet(stream, "ruby-init.rb");
-
-				Document preload = XmlUtilities.readDocFromFile(Application.findDataFileInAnyModule("preload.xml"));
-				@SuppressWarnings("unchecked")
-				List<Element> preloadClasses = preload.getRootElement().getChildren("class");
-				for (int i = 0; i < preloadClasses.size(); i++) {
-					Element preloadClass = preloadClasses.get(i);
-					String packageName = preloadClass.getChildText("package");
-					String className = preloadClass.getChildText("name");
-					String importStatement = "java_import Java::" + packageName + "." + className;
-					container.runScriptlet(importStatement);
-				}
-			} catch (Throwable t) {
-				// we don't want an exception to crash everything, just the input thread
-				throw new RuntimeException(t);
-			}
-			while (!disposed) {
-				container.runScriptlet("IRB.start");
-			}
-		});
+		irbThread = new Thread(inputThread);
 	}
 
 	/**

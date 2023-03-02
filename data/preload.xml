@@ -1508,7 +1508,6 @@
   <class><package>ghidra.app.util.opinion</package><name>LibraryPathsDialog</name></class>
   <class><package>ghidra.app.util.opinion</package><name>LoadSpec</name></class>
   <class><package>ghidra.app.util.opinion</package><name>Loader</name></class>
-  <class><package>ghidra.app.util.opinion</package><name>Loader</name></class>
   <class><package>ghidra.app.util.opinion</package><name>LoaderMap</name></class>
   <class><package>ghidra.app.util.opinion</package><name>LoaderOpinionException</name></class>
   <class><package>ghidra.app.util.opinion</package><name>LoaderService</name></class>
@@ -1588,7 +1587,6 @@
   <class><package>ghidra.formats.gfilesystem</package><name>GFileImpl</name></class>
   <class><package>ghidra.formats.gfilesystem</package><name>GFileLocal</name></class>
   <class><package>ghidra.formats.gfilesystem</package><name>GFileSystem</name></class>
-  <class><package>ghidra.formats.gfilesystem</package><name>GFileSystem</name></class>
   <class><package>ghidra.formats.gfilesystem</package><name>GFileSystemBase</name></class>
   <class><package>ghidra.formats.gfilesystem</package><name>GFileSystemProgramProvider</name></class>
   <class><package>ghidra.formats.gfilesystem</package><name>GIconProvider</name></class>
@@ -1634,7 +1632,6 @@
   <class><package>ghidra.framework</package><name>HeadlessGhidraApplicationConfiguration</name></class>
   <class><package>ghidra.framework</package><name>Log4jErrorLogger</name></class>
   <class><package>ghidra.framework</package><name>LoggingInitialization</name></class>
-  <class><package>ghidra.framework</package><name>ModuleInitializer</name></class>
   <class><package>ghidra.framework</package><name>ModuleInitializer</name></class>
   <class><package>ghidra.framework</package><name>OSFileNotFoundException</name></class>
   <class><package>ghidra.framework</package><name>OperatingSystem</name></class>
@@ -1853,7 +1850,6 @@
   <class><package>ghidra.framework.model</package><name>TransactionListener</name></class>
   <class><package>ghidra.framework.model</package><name>Undoable</name></class>
   <class><package>ghidra.framework.model</package><name>UndoableDomainObject</name></class>
-  <class><package>ghidra.framework.model</package><name>UndoableDomainObject</name></class>
   <class><package>ghidra.framework.model</package><name>UserData</name></class>
   <class><package>ghidra.framework.model</package><name>Workspace</name></class>
   <class><package>ghidra.framework.model</package><name>WorkspaceChangeListener</name></class>
@@ -1964,8 +1960,6 @@
   <class><package>ghidra.framework.remote</package><name>InetNameLookup</name></class>
   <class><package>ghidra.framework.remote</package><name>RMIServerPortFactory</name></class>
   <class><package>ghidra.framework.remote</package><name>RemoteRepositoryHandle</name></class>
-  <class><package>ghidra.framework.remote</package><name>RemoteRepositoryHandle</name></class>
-  <class><package>ghidra.framework.remote</package><name>RemoteRepositoryServerHandle</name></class>
   <class><package>ghidra.framework.remote</package><name>RemoteRepositoryServerHandle</name></class>
   <class><package>ghidra.framework.remote</package><name>RepositoryChangeEvent</name></class>
   <class><package>ghidra.framework.remote</package><name>RepositoryHandle</name></class>
@@ -2169,7 +2163,6 @@
   <class><package>ghidra.graph.viewer.layout</package><name>LayoutLocationMap</name></class>
   <class><package>ghidra.graph.viewer.layout</package><name>LayoutPositions</name></class>
   <class><package>ghidra.graph.viewer.layout</package><name>LayoutProvider</name></class>
-  <class><package>ghidra.graph.viewer.layout</package><name>LayoutProviderExtensionPoint</name></class>
   <class><package>ghidra.graph.viewer.layout</package><name>LayoutProviderExtensionPoint</name></class>
   <class><package>ghidra.graph.viewer.layout</package><name>MinMaxRowColumn</name></class>
   <class><package>ghidra.graph.viewer.layout</package><name>Row</name></class>
@@ -2481,17 +2474,14 @@
   <class><package>ghidra.program.model.address</package><name>AddressFactory</name></class>
   <class><package>ghidra.program.model.address</package><name>AddressFormatException</name></class>
   <class><package>ghidra.program.model.address</package><name>AddressIterator</name></class>
-  <class><package>ghidra.program.model.address</package><name>AddressIterator</name></class>
   <class><package>ghidra.program.model.address</package><name>AddressIteratorAdapter</name></class>
   <class><package>ghidra.program.model.address</package><name>AddressMapImpl</name></class>
   <class><package>ghidra.program.model.address</package><name>AddressObjectMap</name></class>
   <class><package>ghidra.program.model.address</package><name>AddressOutOfBoundsException</name></class>
   <class><package>ghidra.program.model.address</package><name>AddressOverflowException</name></class>
   <class><package>ghidra.program.model.address</package><name>AddressRange</name></class>
-  <class><package>ghidra.program.model.address</package><name>AddressRange</name></class>
   <class><package>ghidra.program.model.address</package><name>AddressRangeChunker</name></class>
   <class><package>ghidra.program.model.address</package><name>AddressRangeImpl</name></class>
-  <class><package>ghidra.program.model.address</package><name>AddressRangeIterator</name></class>
   <class><package>ghidra.program.model.address</package><name>AddressRangeIterator</name></class>
   <class><package>ghidra.program.model.address</package><name>AddressRangeToAddressComparator</name></class>
   <class><package>ghidra.program.model.address</package><name>AddressSet</name></class>
@@ -2582,7 +2572,6 @@
   <class><package>ghidra.program.model.data</package><name>BooleanDataType</name></class>
   <class><package>ghidra.program.model.data</package><name>BuiltIn</name></class>
   <class><package>ghidra.program.model.data</package><name>BuiltInDataType</name></class>
-  <class><package>ghidra.program.model.data</package><name>BuiltInDataType</name></class>
   <class><package>ghidra.program.model.data</package><name>BuiltInDataTypeClassExclusionFilter</name></class>
   <class><package>ghidra.program.model.data</package><name>BuiltInDataTypeManager</name></class>
   <class><package>ghidra.program.model.data</package><name>ByteDataType</name></class>
@@ -2622,8 +2611,6 @@
   <class><package>ghidra.program.model.data</package><name>DataTypeManagerChangeListenerAdapter</name></class>
   <class><package>ghidra.program.model.data</package><name>DataTypeManagerChangeListenerHandler</name></class>
   <class><package>ghidra.program.model.data</package><name>DataTypeManagerDomainObject</name></class>
-  <class><package>ghidra.program.model.data</package><name>DataTypeManagerDomainObject</name></class>
-  <class><package>ghidra.program.model.data</package><name>DataTypeManagerDomainObject</name></class>
   <class><package>ghidra.program.model.data</package><name>DataTypeMnemonicSettingsDefinition</name></class>
   <class><package>ghidra.program.model.data</package><name>DataTypePath</name></class>
   <class><package>ghidra.program.model.data</package><name>DataTypeTransferable</name></class>
@@ -2637,13 +2624,11 @@
   <class><package>ghidra.program.model.data</package><name>DoubleComplexDataType</name></class>
   <class><package>ghidra.program.model.data</package><name>DoubleDataType</name></class>
   <class><package>ghidra.program.model.data</package><name>Dynamic</name></class>
-  <class><package>ghidra.program.model.data</package><name>Dynamic</name></class>
   <class><package>ghidra.program.model.data</package><name>DynamicDataType</name></class>
   <class><package>ghidra.program.model.data</package><name>EndianSettingsDefinition</name></class>
   <class><package>ghidra.program.model.data</package><name>Enum</name></class>
   <class><package>ghidra.program.model.data</package><name>EnumDataType</name></class>
   <class><package>ghidra.program.model.data</package><name>EnumValuePartitioner</name></class>
-  <class><package>ghidra.program.model.data</package><name>FactoryDataType</name></class>
   <class><package>ghidra.program.model.data</package><name>FactoryDataType</name></class>
   <class><package>ghidra.program.model.data</package><name>FactoryStructureDataType</name></class>
   <class><package>ghidra.program.model.data</package><name>FileArchiveBasedDataTypeManager</name></class>
@@ -2657,7 +2642,6 @@
   <class><package>ghidra.program.model.data</package><name>Float8DataType</name></class>
   <class><package>ghidra.program.model.data</package><name>FloatComplexDataType</name></class>
   <class><package>ghidra.program.model.data</package><name>FloatDataType</name></class>
-  <class><package>ghidra.program.model.data</package><name>FunctionDefinition</name></class>
   <class><package>ghidra.program.model.data</package><name>FunctionDefinition</name></class>
   <class><package>ghidra.program.model.data</package><name>FunctionDefinitionDataType</name></class>
   <class><package>ghidra.program.model.data</package><name>GIFResource</name></class>
@@ -2747,7 +2731,6 @@
   <class><package>ghidra.program.model.data</package><name>StructureDataType</name></class>
   <class><package>ghidra.program.model.data</package><name>StructureFactory</name></class>
   <class><package>ghidra.program.model.data</package><name>StructureInternal</name></class>
-  <class><package>ghidra.program.model.data</package><name>StructureInternal</name></class>
   <class><package>ghidra.program.model.data</package><name>StructuredDynamicDataType</name></class>
   <class><package>ghidra.program.model.data</package><name>TerminatedSettingsDefinition</name></class>
   <class><package>ghidra.program.model.data</package><name>TerminatedStringDataType</name></class>
@@ -2770,7 +2753,6 @@
   <class><package>ghidra.program.model.data</package><name>UnicodeDataType</name></class>
   <class><package>ghidra.program.model.data</package><name>Union</name></class>
   <class><package>ghidra.program.model.data</package><name>UnionDataType</name></class>
-  <class><package>ghidra.program.model.data</package><name>UnionInternal</name></class>
   <class><package>ghidra.program.model.data</package><name>UnionInternal</name></class>
   <class><package>ghidra.program.model.data</package><name>UnsignedCharDataType</name></class>
   <class><package>ghidra.program.model.data</package><name>UnsignedInteger16DataType</name></class>
@@ -2881,24 +2863,16 @@
   <class><package>ghidra.program.model.listing</package><name>BookmarkTypeComparator</name></class>
   <class><package>ghidra.program.model.listing</package><name>CircularDependencyException</name></class>
   <class><package>ghidra.program.model.listing</package><name>CodeUnit</name></class>
-  <class><package>ghidra.program.model.listing</package><name>CodeUnit</name></class>
   <class><package>ghidra.program.model.listing</package><name>CodeUnitFormat</name></class>
   <class><package>ghidra.program.model.listing</package><name>CodeUnitFormatOptions</name></class>
-  <class><package>ghidra.program.model.listing</package><name>CodeUnitIterator</name></class>
   <class><package>ghidra.program.model.listing</package><name>CodeUnitIterator</name></class>
   <class><package>ghidra.program.model.listing</package><name>CommentHistory</name></class>
   <class><package>ghidra.program.model.listing</package><name>ContextChangeException</name></class>
   <class><package>ghidra.program.model.listing</package><name>Data</name></class>
-  <class><package>ghidra.program.model.listing</package><name>Data</name></class>
-  <class><package>ghidra.program.model.listing</package><name>Data</name></class>
   <class><package>ghidra.program.model.listing</package><name>DataBuffer</name></class>
-  <class><package>ghidra.program.model.listing</package><name>DataIterator</name></class>
   <class><package>ghidra.program.model.listing</package><name>DataIterator</name></class>
   <class><package>ghidra.program.model.listing</package><name>DataStub</name></class>
   <class><package>ghidra.program.model.listing</package><name>DataTypeArchive</name></class>
-  <class><package>ghidra.program.model.listing</package><name>DataTypeArchive</name></class>
-  <class><package>ghidra.program.model.listing</package><name>DataTypeArchive</name></class>
-  <class><package>ghidra.program.model.listing</package><name>DataTypeArchiveChangeSet</name></class>
   <class><package>ghidra.program.model.listing</package><name>DataTypeArchiveChangeSet</name></class>
   <class><package>ghidra.program.model.listing</package><name>DataTypeChangeSet</name></class>
   <class><package>ghidra.program.model.listing</package><name>DefaultProgramContext</name></class>
@@ -2906,7 +2880,6 @@
   <class><package>ghidra.program.model.listing</package><name>DuplicateGroupException</name></class>
   <class><package>ghidra.program.model.listing</package><name>FlowOverride</name></class>
   <class><package>ghidra.program.model.listing</package><name>Function</name></class>
-  <class><package>ghidra.program.model.listing</package><name>FunctionIterator</name></class>
   <class><package>ghidra.program.model.listing</package><name>FunctionIterator</name></class>
   <class><package>ghidra.program.model.listing</package><name>FunctionManager</name></class>
   <class><package>ghidra.program.model.listing</package><name>FunctionOverlapException</name></class>
@@ -2919,9 +2892,6 @@
   <class><package>ghidra.program.model.listing</package><name>Group</name></class>
   <class><package>ghidra.program.model.listing</package><name>IncompatibleLanguageException</name></class>
   <class><package>ghidra.program.model.listing</package><name>Instruction</name></class>
-  <class><package>ghidra.program.model.listing</package><name>Instruction</name></class>
-  <class><package>ghidra.program.model.listing</package><name>Instruction</name></class>
-  <class><package>ghidra.program.model.listing</package><name>InstructionIterator</name></class>
   <class><package>ghidra.program.model.listing</package><name>InstructionIterator</name></class>
   <class><package>ghidra.program.model.listing</package><name>InstructionPcodeOverride</name></class>
   <class><package>ghidra.program.model.listing</package><name>InstructionStub</name></class>
@@ -2934,17 +2904,8 @@
   <class><package>ghidra.program.model.listing</package><name>Parameter</name></class>
   <class><package>ghidra.program.model.listing</package><name>ParameterImpl</name></class>
   <class><package>ghidra.program.model.listing</package><name>Program</name></class>
-  <class><package>ghidra.program.model.listing</package><name>Program</name></class>
-  <class><package>ghidra.program.model.listing</package><name>Program</name></class>
-  <class><package>ghidra.program.model.listing</package><name>ProgramChangeSet</name></class>
-  <class><package>ghidra.program.model.listing</package><name>ProgramChangeSet</name></class>
-  <class><package>ghidra.program.model.listing</package><name>ProgramChangeSet</name></class>
-  <class><package>ghidra.program.model.listing</package><name>ProgramChangeSet</name></class>
-  <class><package>ghidra.program.model.listing</package><name>ProgramChangeSet</name></class>
-  <class><package>ghidra.program.model.listing</package><name>ProgramChangeSet</name></class>
   <class><package>ghidra.program.model.listing</package><name>ProgramChangeSet</name></class>
   <class><package>ghidra.program.model.listing</package><name>ProgramContext</name></class>
-  <class><package>ghidra.program.model.listing</package><name>ProgramFragment</name></class>
   <class><package>ghidra.program.model.listing</package><name>ProgramFragment</name></class>
   <class><package>ghidra.program.model.listing</package><name>ProgramModule</name></class>
   <class><package>ghidra.program.model.listing</package><name>ProgramTreeChangeSet</name></class>
@@ -2971,7 +2932,6 @@
   <class><package>ghidra.program.model.mem</package><name>MemBuffer</name></class>
   <class><package>ghidra.program.model.mem</package><name>Memory</name></class>
   <class><package>ghidra.program.model.mem</package><name>MemoryAccessException</name></class>
-  <class><package>ghidra.program.model.mem</package><name>MemoryBlock</name></class>
   <class><package>ghidra.program.model.mem</package><name>MemoryBlock</name></class>
   <class><package>ghidra.program.model.mem</package><name>MemoryBlockException</name></class>
   <class><package>ghidra.program.model.mem</package><name>MemoryBlockListener</name></class>
@@ -3087,7 +3047,6 @@
   <class><package>ghidra.program.model.symbol</package><name>RefTypeFactory</name></class>
   <class><package>ghidra.program.model.symbol</package><name>Reference</name></class>
   <class><package>ghidra.program.model.symbol</package><name>ReferenceIterator</name></class>
-  <class><package>ghidra.program.model.symbol</package><name>ReferenceIterator</name></class>
   <class><package>ghidra.program.model.symbol</package><name>ReferenceIteratorAdapter</name></class>
   <class><package>ghidra.program.model.symbol</package><name>ReferenceListener</name></class>
   <class><package>ghidra.program.model.symbol</package><name>ReferenceManager</name></class>
@@ -3095,7 +3054,6 @@
   <class><package>ghidra.program.model.symbol</package><name>SourceType</name></class>
   <class><package>ghidra.program.model.symbol</package><name>StackReference</name></class>
   <class><package>ghidra.program.model.symbol</package><name>Symbol</name></class>
-  <class><package>ghidra.program.model.symbol</package><name>SymbolIterator</name></class>
   <class><package>ghidra.program.model.symbol</package><name>SymbolIterator</name></class>
   <class><package>ghidra.program.model.symbol</package><name>SymbolIteratorAdapter</name></class>
   <class><package>ghidra.program.model.symbol</package><name>SymbolTable</name></class>
@@ -3155,7 +3113,6 @@
   <class><package>ghidra.program.util</package><name>DefaultLanguageService</name></class>
   <class><package>ghidra.program.util</package><name>DefinedDataIterator</name></class>
   <class><package>ghidra.program.util</package><name>DiffUtility</name></class>
-  <class><package>ghidra.program.util</package><name>DiscoverableAddressCorrelator</name></class>
   <class><package>ghidra.program.util</package><name>DiscoverableAddressCorrelator</name></class>
   <class><package>ghidra.program.util</package><name>DividerLocation</name></class>
   <class><package>ghidra.program.util</package><name>ELFExternalSymbolResolver</name></class>

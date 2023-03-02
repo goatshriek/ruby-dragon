@@ -45,6 +45,9 @@ module IRB
 end
 
 # due to differing output and specialization, have a custom irbrc name
+# we supress the constant override warning from this reassignment by
+# temporarily altering the verbosity level
+current_verbose = $VERBOSE
+$VERBOSE = nil
 IRB::IRBRC_EXT = "rc-ghidra"
-# TODO: supress constant override warning above
-
+$VERBOSE = current_verbose

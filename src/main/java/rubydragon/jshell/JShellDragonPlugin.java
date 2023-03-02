@@ -96,7 +96,7 @@ public class JShellDragonPlugin extends DragonPlugin implements InterpreterConne
 		super.init();
 
 		console = getTool().getService(InterpreterPanelService.class).createInterpreterPanel(this, false);
-		interpreter = new JShellGhidraInterpreter(console, getTool());
+		interpreter = new JShellGhidraInterpreter(console, this);
 		console.setPrompt("> ");
 		console.addFirstActivationCallback(() -> {
 			interpreter.startInteractiveSession();
