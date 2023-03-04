@@ -70,9 +70,7 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 		engine = scriptManager.getEngineByExtension("kts");
 
 		if (engine == null) {
-			String errorMessage = "A Kotlin interpreter could not be created due to missing "
-					+ "dependencies. Try running RubyDragon.DownloadAllDependenciesScript "
-					+ "(via the Script Manager), restarting Ghidra, and trying again.";
+			String errorMessage = "A Kotlin interpreter could not be created due to missing dependencies.";
 			throw new MissingDragonDependency(errorMessage);
 		}
 

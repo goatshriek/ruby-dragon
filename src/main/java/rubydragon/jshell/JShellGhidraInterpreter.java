@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2022 Joel E. Anderson
+ * Copyright 2022-2023 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,19 +32,15 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.jdom.Document;
-import org.jdom.Element;
 import org.jdom.JDOMException;
 
 import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
-import ghidra.framework.Application;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
-import ghidra.util.xml.XmlUtilities;
 import jdk.jshell.JShell;
 import jdk.jshell.SnippetEvent;
 import jdk.jshell.SourceCodeAnalysis;
@@ -156,18 +152,12 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 		boolean preloadEnabled = parentPlugin.isAutoImportEnabled();
 		if (preloadEnabled) {
 			try {
-				Document preload = XmlUtilities.readDocFromFile(Application.findDataFileInAnyModule("preload.xml"));
-				@SuppressWarnings("unchecked")
-				List<Element> preloadClasses = preload.getRootElement().getChildren("class");
-				for (int i = 0; i < preloadClasses.size(); i++) {
-					Element preloadClass = preloadClasses.get(i);
-					String packageName = preloadClass.getChildText("package");
-					String className = preloadClass.getChildText("name");
+				DragonPlugin.forEachAutoImport((packageName, className) -> {
 					String importStatement = "import " + packageName + "." + className + ";";
 					jshell.eval(importStatement);
-				}
+				});
 			} catch (JDOMException | IOException e) {
-				errPrintStream.println("could not preload classes, " + e.getMessage());
+				errPrintStream.println("could not auto-import classes, " + e.getMessage());
 			}
 		}
 

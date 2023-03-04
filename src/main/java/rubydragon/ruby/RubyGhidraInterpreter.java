@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2021 Joel E. Anderson
+ * Copyright 2021-2023 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jdom.Document;
-import org.jdom.Element;
+import org.jdom.JDOMException;
 import org.jruby.embed.LocalContextScope;
 import org.jruby.embed.LocalVariableBehavior;
 import org.jruby.embed.ScriptingContainer;
@@ -36,13 +35,12 @@ import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.app.script.GhidraScript;
 import ghidra.app.script.GhidraState;
-import ghidra.framework.Application;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
-import ghidra.util.xml.XmlUtilities;
+import rubydragon.DragonPlugin;
 import rubydragon.ScriptableGhidraInterpreter;
 
 /**
@@ -52,31 +50,38 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	private ScriptingContainer container;
 	private Thread irbThread;
 	private boolean disposed = false;
+	private DragonPlugin parentPlugin;
 
 	private Runnable inputThread = () -> {
-		try {
-			// run the ruby setup script
-			InputStream stream = getClass().getResourceAsStream("/scripts/ruby-init.rb");
-			container.runScriptlet(stream, "ruby-init.rb");
+		// run the ruby setup script
+		InputStream stream = getClass().getResourceAsStream("/scripts/ruby-init.rb");
+		container.runScriptlet(stream, "ruby-init.rb");
 
-			Document preload = XmlUtilities.readDocFromFile(Application.findDataFileInAnyModule("preload.xml"));
-			@SuppressWarnings("unchecked")
-			List<Element> preloadClasses = preload.getRootElement().getChildren("class");
-			for (int i = 0; i < preloadClasses.size(); i++) {
-				Element preloadClass = preloadClasses.get(i);
-				String className = preloadClass.getChildText("name");
-				// we don't import the class if it will stomp an existing symbol
-				// we also have to skip Data because it generates deprecation warnings
-				if (!className.equals("Data") && container.get(className) == null) {
-					String packageName = preloadClass.getChildText("package");
-					String importStatement = "java_import Java::" + packageName + "." + className;
-					container.runScriptlet(importStatement);
-				}
+		// load the preload imports if enabled
+		boolean preloadEnabled = parentPlugin != null && parentPlugin.isAutoImportEnabled();
+		if (preloadEnabled) {
+			String loadError = null;
+			container.getOutput().append("starting auto-import...\n");
+			try {
+				DragonPlugin.forEachAutoImport((packageName, className) -> {
+					// we don't import the class if it will stomp an existing symbol
+					// we also have to skip Data because it generates deprecation warnings
+					if (!className.equals("Data") && container.get(className) == null) {
+						String importStatement = "java_import Java::" + packageName + "." + className;
+						container.runScriptlet(importStatement);
+					}
+				});
+			} catch (JDOMException | IOException e) {
+				loadError = "could not auto-import classes: " + e.getMessage() + "\n";
 			}
-		} catch (Throwable t) {
-			// we don't want an exception to crash everything, just the input thread
-			throw new RuntimeException(t);
+
+			if (loadError == null) {
+				container.getOutput().append("auto-import completed.\n");
+			} else {
+				container.getError().append(loadError);
+			}
 		}
+
 		while (!disposed) {
 			container.runScriptlet("IRB.start");
 		}
@@ -88,6 +93,7 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	public RubyGhidraInterpreter() {
 		container = new ScriptingContainer(LocalContextScope.SINGLETHREAD, LocalVariableBehavior.PERSISTENT);
 		irbThread = new Thread(inputThread);
+		parentPlugin = null;
 	}
 
 	/**
@@ -96,9 +102,10 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 *
 	 * @param console The console to bind to the interpreter streams.
 	 */
-	public RubyGhidraInterpreter(InterpreterConsole console) {
+	public RubyGhidraInterpreter(InterpreterConsole console, DragonPlugin plugin) {
 		this();
 		setStreams(console);
+		parentPlugin = plugin;
 	}
 
 	/**

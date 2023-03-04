@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2021-2022 Joel E. Anderson
+ * Copyright 2021-2023 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,19 +18,27 @@
 
 package rubydragon;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 import javax.swing.ImageIcon;
+
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
 
 import ghidra.app.plugin.ProgramPlugin;
 import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConnection;
+import ghidra.framework.Application;
 import ghidra.framework.options.ToolOptions;
 import ghidra.framework.plugintool.PluginTool;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
 import ghidra.util.HelpLocation;
+import ghidra.util.xml.XmlUtilities;
 import resources.ResourceManager;
 
 /**
@@ -46,6 +54,29 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 	 * The name of the options category used by DragonPlugins.
 	 */
 	public static String OPTION_CATEGORY_NAME = "Ruby Dragon Interpreters";
+
+	/**
+	 * Runs the provided action for each import in the preload manifest.
+	 *
+	 * @param action The action called for each import listed in the preload
+	 *               manifest, with the arguments being the package name and class
+	 *               name, respectively.
+	 *
+	 * @throws IOException   if the preload manifest file couldn't be opened.
+	 * @throws JDOMException if the preload manifest xml was malformed.
+	 */
+	public static void forEachAutoImport(BiConsumer<String, String> action) throws JDOMException, IOException {
+		Document preload = XmlUtilities.readDocFromFile(Application.findDataFileInAnyModule("preload.xml"));
+
+		@SuppressWarnings("unchecked")
+		List<Element> preloadClasses = preload.getRootElement().getChildren("class");
+		for (int i = 0; i < preloadClasses.size(); i++) {
+			Element preloadClass = preloadClasses.get(i);
+			String packageName = preloadClass.getChildText("package");
+			String className = preloadClass.getChildText("name");
+			action.accept(packageName, className);
+		}
+	}
 
 	/**
 	 * The name of this plugin instance.
