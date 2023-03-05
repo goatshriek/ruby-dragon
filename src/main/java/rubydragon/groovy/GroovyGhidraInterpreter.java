@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2022 Joel E. Anderson
+ * Copyright 2022-2023 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,11 +25,17 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.groovy.groovysh.Groovysh;
+import org.apache.groovy.groovysh.util.DefaultCommandsRegistrar;
+import org.apache.groovy.groovysh.util.XmlCommandRegistrar;
+import org.codehaus.groovy.control.CompilerConfiguration;
+import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import org.codehaus.groovy.tools.shell.IO;
+import org.jdom.JDOMException;
 
 import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
@@ -41,11 +47,13 @@ import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
 import groovy.lang.Binding;
+import groovy.lang.Closure;
 import groovy.lang.GroovyShell;
+import rubydragon.DragonPlugin;
 import rubydragon.ScriptableGhidraInterpreter;
 
 /**
- * A Kotlin intepreter for Ghidra.
+ * A Groovy intepreter for Ghidra.
  */
 public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 
@@ -115,9 +123,34 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 * Creates a new Groovy interpreter for interactive sessions.
 	 */
 	private void createInteractiveShell(InputStream in, OutputStream out, OutputStream err) {
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		@SuppressWarnings({ "serial", "rawtypes" })
+		Closure registrar = new Closure(null) {
+			@SuppressWarnings("unused")
+			public void doCall(Groovysh shell) {
+				URL xmlCommandResource = getClass().getResource("commands.xml");
+				if (xmlCommandResource != null) {
+					XmlCommandRegistrar r = new XmlCommandRegistrar(shell, classLoader);
+					r.register(xmlCommandResource);
+				} else {
+					new DefaultCommandsRegistrar(shell).register();
+				}
+			}
+		};
 		IO shellIo = new IO(in, out, err);
 		interactiveBinding = new Binding();
-		interactiveShell = new Groovysh(interactiveBinding, shellIo);
+		CompilerConfiguration cc = new CompilerConfiguration();
+		ImportCustomizer ic = new ImportCustomizer();
+		try {
+			DragonPlugin.forEachAutoImport((packageName, className) -> {
+				ic.addImport(className, packageName + "." + className);
+			});
+		} catch (JDOMException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		cc.addCompilationCustomizers(ic);
+		interactiveShell = new Groovysh(classLoader, interactiveBinding, shellIo, registrar, cc);
 	}
 
 	/**
