@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2021 Joel E. Anderson
+ * Copyright 2021-2023 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,16 +61,16 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 		clojureClassLoader = new ClojureGhidraClassLoader();
 		ClassLoader previous = Thread.currentThread().getContextClassLoader();
 		Thread.currentThread().setContextClassLoader(clojureClassLoader);
-		Symbol CLOJURE_MAIN = Symbol.intern("clojure.main");
-		Var REQUIRE = RT.var("clojure.core", "require");
-		Var MAIN = RT.var("clojure.main", "main");
+		Symbol clojureMain = Symbol.intern("clojure.main");
+		Var clojureCoreRequire = RT.var("clojure.core", "require");
+		Var clojureMainFunction = RT.var("clojure.main", "main");
 		RT.init();
-		REQUIRE.invoke(CLOJURE_MAIN);
+		clojureCoreRequire.invoke(clojureMain);
 		Thread.currentThread().setContextClassLoader(previous);
 
 		replThread = new Thread(() -> {
 			while (true) {
-				MAIN.applyTo(RT.seq(new String[0]));
+				clojureMainFunction.applyTo(RT.seq(new String[0]));
 			}
 		});
 		replThread.setContextClassLoader(clojureClassLoader);
@@ -144,7 +144,7 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 			RT.var("ghidra", "script", script);
 
 			// putting the methods from this script class into the interpreter
-			// taken from the ClojureScript class in the ghidra source
+			// taken from the PythonScript class in the ghidra source
 			for (Class<?> scriptClass = script.getClass(); scriptClass != Object.class; scriptClass = scriptClass
 					.getSuperclass()) {
 

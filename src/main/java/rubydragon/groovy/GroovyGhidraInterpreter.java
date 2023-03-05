@@ -127,6 +127,8 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	private void createInteractiveShell(InputStream in, OutputStream out, OutputStream err) {
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+
+		// this is the default registrar closure from the groovy source
 		@SuppressWarnings({ "serial", "rawtypes" })
 		Closure registrar = new Closure(null) {
 			@SuppressWarnings("unused")
