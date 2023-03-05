@@ -72,7 +72,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	private DragonPlugin parentPlugin;
 	private boolean disposed = false;
 
-	private Runnable inputThread = () -> {
+	private Runnable replLoop = () -> {
 		// set up the jshell interpreter
 		createJShell();
 
@@ -122,7 +122,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 		setOutWriter(new PrintWriter(outStream));
 		setErrWriter(new PrintWriter(errStream));
 
-		replThread = new Thread(inputThread);
+		replThread = new Thread(replLoop);
 	}
 
 	/**

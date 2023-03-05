@@ -68,8 +68,9 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	private OutputStream errStream;
 	private PrintWriter errWriter;
 	private boolean disposed = false;
+	private DragonPlugin parentPlugin;
 
-	private Runnable inputThread = () -> {
+	private Runnable replLoop = () -> {
 		while (!disposed) {
 			interactiveShell.run("");
 		}
@@ -79,7 +80,8 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 * Creates a new Groovy interpreter.
 	 */
 	public GroovyGhidraInterpreter() {
-		replThread = new Thread(inputThread);
+		replThread = new Thread(replLoop);
+		parentPlugin = null;
 	}
 
 	/**
@@ -89,17 +91,18 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 * @param out The output stream to use for the interpreter.
 	 * @param err The error stream to use for the interpreter.
 	 */
-	public GroovyGhidraInterpreter(InputStream in, OutputStream out, OutputStream err) {
+	public GroovyGhidraInterpreter(InputStream in, OutputStream out, OutputStream err, DragonPlugin plugin) {
 		inStream = in;
 		outStream = out;
 		errStream = err;
+		parentPlugin = plugin;
 
 		setInput(inStream);
 		setOutWriter(new PrintWriter(outStream));
 		setErrWriter(new PrintWriter(errStream));
 
 		createInteractiveShell(in, out, err);
-		replThread = new Thread(inputThread);
+		replThread = new Thread(replLoop);
 	}
 
 	/**
@@ -108,8 +111,8 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 *
 	 * @param console The console to bind to the interpreter streams.
 	 */
-	public GroovyGhidraInterpreter(InterpreterConsole console) {
-		this(console.getStdin(), console.getStdOut(), console.getStdErr());
+	public GroovyGhidraInterpreter(InterpreterConsole console, DragonPlugin plugin) {
+		this(console.getStdin(), console.getStdOut(), console.getStdErr(), plugin);
 	}
 
 	/**
@@ -140,16 +143,21 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 		IO shellIo = new IO(in, out, err);
 		interactiveBinding = new Binding();
 		CompilerConfiguration cc = new CompilerConfiguration();
-		ImportCustomizer ic = new ImportCustomizer();
-		try {
-			DragonPlugin.forEachAutoImport((packageName, className) -> {
-				ic.addImport(className, packageName + "." + className);
-			});
-		} catch (JDOMException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+		// load the preload imports if enabled
+		boolean preloadEnabled = parentPlugin != null && parentPlugin.isAutoImportEnabled();
+		if (preloadEnabled) {
+			ImportCustomizer ic = new ImportCustomizer();
+			try {
+				DragonPlugin.forEachAutoImport((packageName, className) -> {
+					ic.addImport(className, packageName + "." + className);
+				});
+			} catch (JDOMException | IOException e) {
+				errWriter.append("could not load auto-import classes: " + e.getMessage() + "\n");
+			}
+			cc.addCompilationCustomizers(ic);
 		}
-		cc.addCompilationCustomizers(ic);
+
 		interactiveShell = new Groovysh(classLoader, interactiveBinding, shellIo, registrar, cc);
 	}
 

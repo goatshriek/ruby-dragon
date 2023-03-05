@@ -52,7 +52,7 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	private boolean disposed = false;
 	private DragonPlugin parentPlugin;
 
-	private Runnable inputThread = () -> {
+	private Runnable replLoop = () -> {
 		// run the ruby setup script
 		InputStream stream = getClass().getResourceAsStream("/scripts/ruby-init.rb");
 		container.runScriptlet(stream, "ruby-init.rb");
@@ -92,7 +92,7 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	public RubyGhidraInterpreter() {
 		container = new ScriptingContainer(LocalContextScope.SINGLETHREAD, LocalVariableBehavior.PERSISTENT);
-		irbThread = new Thread(inputThread);
+		irbThread = new Thread(replLoop);
 		parentPlugin = null;
 	}
 

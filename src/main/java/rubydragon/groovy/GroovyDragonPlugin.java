@@ -95,7 +95,7 @@ public class GroovyDragonPlugin extends DragonPlugin implements InterpreterConne
 		super.init();
 
 		console = getTool().getService(InterpreterPanelService.class).createInterpreterPanel(this, false);
-		interpreter = new GroovyGhidraInterpreter(console);
+		interpreter = new GroovyGhidraInterpreter(console, this);
 		console.setPrompt("> ");
 		console.addFirstActivationCallback(() -> {
 			interpreter.startInteractiveSession();
