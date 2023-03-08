@@ -39,6 +39,7 @@ import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.app.script.GhidraScript;
 import ghidra.app.script.GhidraState;
+import ghidra.framework.Application;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
@@ -69,8 +70,15 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 		Thread.currentThread().setContextClassLoader(previous);
 
 		replThread = new Thread(() -> {
+			try {
+				RT.var("ghidra-repl", "preload-file", Application.getModuleDataFile("preload.xml"));
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			while (true) {
-				clojureMainFunction.applyTo(RT.seq(new String[0]));
+				String[] args = { "--init", "@clojure-init.clj", "--repl" };
+				clojureMainFunction.applyTo(RT.seq(args));
 			}
 		});
 		replThread.setContextClassLoader(clojureClassLoader);

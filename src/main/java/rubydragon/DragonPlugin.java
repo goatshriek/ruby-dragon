@@ -66,7 +66,7 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 	 * @throws JDOMException if the preload manifest xml was malformed.
 	 */
 	public static void forEachAutoImport(BiConsumer<String, String> action) throws JDOMException, IOException {
-		Document preload = XmlUtilities.readDocFromFile(Application.findDataFileInAnyModule("preload.xml"));
+		Document preload = XmlUtilities.readDocFromFile(Application.getModuleDataFile("preload.xml"));
 
 		@SuppressWarnings("unchecked")
 		List<Element> preloadClasses = preload.getRootElement().getChildren("class");
