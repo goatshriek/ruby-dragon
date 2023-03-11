@@ -29,6 +29,8 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jdom.JDOMException;
+
 import clojure.lang.LineNumberingPushbackReader;
 import clojure.lang.Namespace;
 import clojure.lang.RT;
@@ -39,13 +41,13 @@ import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.app.script.GhidraScript;
 import ghidra.app.script.GhidraState;
-import ghidra.framework.Application;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
 import ghidra.util.exception.AssertException;
+import rubydragon.DragonPlugin;
 import rubydragon.ScriptableGhidraInterpreter;
 
 /**
@@ -70,14 +72,17 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 		Thread.currentThread().setContextClassLoader(previous);
 
 		replThread = new Thread(() -> {
+			Namespace ghidraNs = Namespace.findOrCreate(Symbol.intern(null, "ghidra"));
 			try {
-				RT.var("ghidra-repl", "preload-file", Application.getModuleDataFile("preload.xml"));
-			} catch (FileNotFoundException e) {
+				DragonPlugin.forEachAutoImport((packageName, className) -> {
+					ghidraNs.importClass(RT.classForName(packageName + "." + className));
+				});
+			} catch (JDOMException | IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			while (true) {
-				String[] args = { "--init", "@clojure-init.clj", "--repl" };
+				String[] args = { "--repl" };
 				clojureMainFunction.applyTo(RT.seq(args));
 			}
 		});
