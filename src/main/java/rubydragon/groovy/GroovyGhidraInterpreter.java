@@ -109,7 +109,8 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 * Creates a new interpreter, and ties the streams for the provided console to
 	 * the new interpreter.
 	 *
-	 * @param console The console to bind to the interpreter streams.
+	 * @param console      The console to bind to the interpreter streams.
+	 * @param parentPlugin The DragonPlugin instance owning this interpreter.
 	 */
 	public GroovyGhidraInterpreter(InterpreterConsole console, DragonPlugin plugin) {
 		this(console.getStdin(), console.getStdOut(), console.getStdErr(), plugin);

@@ -56,36 +56,44 @@ import rubydragon.ScriptableGhidraInterpreter;
 public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 	private Thread replThread;
 	final private ClassLoader clojureClassLoader;
+	private DragonPlugin parentPlugin;
+	private PrintWriter errWriter;
 
-	/**
-	 * Creates a new Clojure interpreter.
-	 */
-	public ClojureGhidraInterpreter() {
-		clojureClassLoader = new ClojureGhidraClassLoader();
-		ClassLoader previous = Thread.currentThread().getContextClassLoader();
-		Thread.currentThread().setContextClassLoader(clojureClassLoader);
+	private Runnable replLoop = () -> {
+		// some setup of the clojure environment
 		Symbol clojureMain = Symbol.intern("clojure.main");
 		Var clojureCoreRequire = RT.var("clojure.core", "require");
 		Var clojureMainFunction = RT.var("clojure.main", "main");
 		RT.init();
 		clojureCoreRequire.invoke(clojureMain);
-		Thread.currentThread().setContextClassLoader(previous);
 
-		replThread = new Thread(() -> {
+		// load the preload imports if enabled
+		boolean preloadEnabled = parentPlugin != null && parentPlugin.isAutoImportEnabled();
+		if (preloadEnabled) {
 			Namespace ghidraNs = Namespace.findOrCreate(Symbol.intern(null, "ghidra"));
 			try {
 				DragonPlugin.forEachAutoImport((packageName, className) -> {
 					ghidraNs.importClass(RT.classForName(packageName + "." + className));
 				});
 			} catch (JDOMException | IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				errWriter.append("could not load auto-import classes: " + e.getMessage() + "\n");
 			}
-			while (true) {
-				String[] args = { "--repl" };
-				clojureMainFunction.applyTo(RT.seq(args));
-			}
-		});
+		}
+
+		// the repl loop itself
+		while (true) {
+			String[] args = { "--repl" };
+			clojureMainFunction.applyTo(RT.seq(args));
+		}
+	};
+
+	/**
+	 * Creates a new Clojure interpreter.
+	 */
+	public ClojureGhidraInterpreter() {
+		parentPlugin = null;
+		clojureClassLoader = new ClojureGhidraClassLoader();
+		replThread = new Thread(replLoop);
 		replThread.setContextClassLoader(clojureClassLoader);
 	}
 
@@ -93,11 +101,14 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 * Creates a new interpreter, and ties the streams for the provided console to
 	 * the new interpreter.
 	 *
-	 * @param console The console to bind to the interpreter streams.
+	 * @param console      The console to bind to the interpreter streams.
+	 * @param parentPlugin The DragonPlugin instance owning this interpreter.
 	 */
-	public ClojureGhidraInterpreter(InterpreterConsole console) {
+	public ClojureGhidraInterpreter(InterpreterConsole console, DragonPlugin plugin) {
 		this();
 		setStreams(console);
+		errWriter = new PrintWriter(console.getStdErr());
+		parentPlugin = plugin;
 	}
 
 	/**

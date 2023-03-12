@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2021 Joel E. Anderson
+ * Copyright 2021-2023 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +54,27 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	private BufferedReader replReader;
 	private SimpleScriptContext context;
 
+	private Runnable replLoop = () -> {
+		while (replReader != null) {
+			try {
+				try {
+					Object result = engine.eval(replReader.readLine());
+
+					if (result != null) {
+						context.getWriter().write(result + "\n");
+						context.getWriter().flush();
+					}
+				} catch (ScriptException e) {
+					context.getErrorWriter().write(e.getMessage() + "\n");
+					context.getErrorWriter().flush();
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	};
+
 	/**
 	 * Creates a new interpreter, with no input stream.
 	 *
@@ -76,26 +97,7 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 
 		engine.setContext(context);
 
-		replThread = new Thread(() -> {
-			while (replReader != null) {
-				try {
-					try {
-						Object result = engine.eval(replReader.readLine());
-
-						if (result != null) {
-							context.getWriter().write(result + "\n");
-							context.getWriter().flush();
-						}
-					} catch (ScriptException e) {
-						context.getErrorWriter().write(e.getMessage() + "\n");
-						context.getErrorWriter().flush();
-					}
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		});
+		replThread = new Thread(replLoop);
 	}
 
 	/**
