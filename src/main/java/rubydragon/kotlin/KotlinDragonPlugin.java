@@ -89,7 +89,7 @@ public class KotlinDragonPlugin extends DragonPlugin implements InterpreterConne
 
 		console = getTool().getService(InterpreterPanelService.class).createInterpreterPanel(this, false);
 		try {
-			interpreter = new KotlinGhidraInterpreter(console);
+			interpreter = new KotlinGhidraInterpreter(console, this);
 		} catch (MissingDragonDependency e) {
 			throw new RuntimeException(e.getMessage());
 		}
