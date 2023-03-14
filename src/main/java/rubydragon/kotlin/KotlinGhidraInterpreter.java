@@ -66,7 +66,11 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 			try {
 				StringBuilder sb = new StringBuilder();
 				DragonPlugin.forEachAutoImport((packageName, className) -> {
-					sb.append("import " + packageName + "." + className + ";");
+					sb.append("import ");
+					sb.append(packageName);
+					sb.append('.');
+					sb.append(className);
+					sb.append(';');
 				});
 				engine.eval(sb.toString());
 				System.out.println("finished kotlin import!");
