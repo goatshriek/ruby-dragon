@@ -89,7 +89,7 @@
     <H2><A name="Import_Classes_In_JShell_Interpreter"></A>Import Classes Option</H2>
     <BLOCKQUOTE>
     <P>
-    When this option is set to true, then a number of Ghidra classes are
+    When this option is set to true, a number of Ghidra classes are
     imported in the JShell interactive interpreter automatically. This is
     particularly useful when using snippets copied from other sources or
     scripts, so that import statements are not needed to have access to Ghidra
@@ -100,7 +100,8 @@
     The list of classes (and their containing packages) is in a data file
     included in this extension's data folder named <I>preload.xml</I>. If you
     wish to add or remove classes from this list, edit this file and reset the
-    interpeter.
+    interpeter. Note that changes to this file will affect the classes imported
+    by <B>all</B> Ruby Dragon interpreters, not just JShell.
     </P>
     </BLOCKQUOTE>
 
