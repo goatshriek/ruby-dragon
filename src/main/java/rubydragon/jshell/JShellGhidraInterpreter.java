@@ -152,8 +152,8 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 		boolean preloadEnabled = parentPlugin.isAutoImportEnabled();
 		if (preloadEnabled) {
 			try {
-				DragonPlugin.forEachAutoImport((packageName, className) -> {
-					String importStatement = "import " + packageName + "." + className + ";";
+				DragonPlugin.forEachAutoImport(className -> {
+					String importStatement = "import " + className + ";";
 					jshell.eval(importStatement);
 				});
 			} catch (JDOMException | IOException e) {

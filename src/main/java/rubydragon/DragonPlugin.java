@@ -21,6 +21,7 @@ package rubydragon;
 import java.io.IOException;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import javax.swing.ImageIcon;
 
@@ -54,6 +55,22 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 	 * The name of the options category used by DragonPlugins.
 	 */
 	public static String OPTION_CATEGORY_NAME = "Ruby Dragon Interpreters";
+
+	/**
+	 * Runs the provided action for each import in the preload manifest.
+	 *
+	 * @param action The action called for each import listed in the preload
+	 *               manifest, with the argument being the fully qualified class
+	 *               name: the package and class name joined with a '.' character.
+	 *
+	 * @throws IOException   if the preload manifest file couldn't be opened.
+	 * @throws JDOMException if the preload manifest xml was malformed.
+	 */
+	public static void forEachAutoImport(Consumer<String> action) throws JDOMException, IOException {
+		forEachAutoImport((packageName, className) -> {
+			action.accept(packageName + "." + className);
+		});
+	}
 
 	/**
 	 * Runs the provided action for each import in the preload manifest.

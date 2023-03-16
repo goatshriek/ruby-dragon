@@ -72,8 +72,8 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 		if (preloadEnabled) {
 			Namespace ghidraNs = Namespace.findOrCreate(Symbol.intern(null, "ghidra"));
 			try {
-				DragonPlugin.forEachAutoImport((packageName, className) -> {
-					ghidraNs.importClass(RT.classForName(packageName + "." + className));
+				DragonPlugin.forEachAutoImport(className -> {
+					ghidraNs.importClass(RT.classForName(className));
 				});
 			} catch (JDOMException | IOException e) {
 				errWriter.append("could not load auto-import classes: " + e.getMessage() + "\n");

@@ -63,11 +63,11 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 			String loadError = null;
 			container.getOutput().append("starting auto-import...\n");
 			try {
-				DragonPlugin.forEachAutoImport((packageName, className) -> {
+				DragonPlugin.forEachAutoImport(className -> {
 					// we don't import the class if it will stomp an existing symbol
 					// we also have to skip Data because it generates deprecation warnings
 					if (!className.equals("Data") && container.get(className) == null) {
-						String importStatement = "java_import Java::" + packageName + "." + className;
+						String importStatement = "java_import Java::" + className;
 						container.runScriptlet(importStatement);
 					}
 				});
