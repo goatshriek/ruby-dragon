@@ -1,7 +1,7 @@
 ---
 title: Roadmap
-keywords: ruby, kotlin, jruby, ghidra, plugin, java, jshell, roadmap, future, dragon, rubydragon
-last_updated: November 6, 2022
+keywords: ruby, kotlin, jruby, groovy, ghidra, plugin, java, jshell, roadmap, future, dragon, rubydragon
+last_updated: March 15, 2023
 summary: "Planned Future Direction for Ruby Dragon."
 layout: default
 ---
@@ -10,13 +10,6 @@ layout: default
 See below for details about upcoming releases of Ruby Dragon. If you have feedback
 or want to make a suggestion, please submit an issue on the project's
 [Github page](https://github.com/goatshriek/ruby-dragon).
-
-
-## 2.1.0
- * [ADD] **Groovy Language Bindings**
-   While initially aimed at Ruby, this project is ultimately aimed at making a
-   variety of JVM-based languages available to Ghidra users. Groovy is an easy
-   target, being the most Java-friendly interpreted language.
 
 
 ## Unallocated to a release

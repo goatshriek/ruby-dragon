@@ -1,7 +1,7 @@
 ---
 title: Ruby Dragon
-keywords: ruby, kotlin, clojure, ghidra, jruby, java, jshell, plugin
-last_updated: July 29, 2022
+keywords: ruby, kotlin, clojure, ghidra, jruby, java, jshell, groovy, plugin
+last_updated: March 15, 2023
 layout: default
 ---
 
@@ -50,9 +50,17 @@ $current_selection
 ```
 
 Another variable named `$current_api` is also provided, which is an instance of
-`FlatProgramAPI` created with `currentProgram`. This has many (but not all) of
+`FlatProgramAPI` created with `$current_program`. This has many (but not all) of
 the convenience functions that would be available within a `GhidraScript`
 instance.
+
+Many classes provided by Ghidra are automatically imported into the interactive
+terminal, so you don't need to use `java_import` statements to use them. If you
+want to customize this you can modifiy the `auto-import.xml` data file in the
+installation. If you don't want this to happen at all (it does impact Ruby
+startup time) then you can disable the relevant option in the
+`Ruby Dragon Interpreters` category. This is done for all other languages as
+well, using the same data file.
 
 You can also write scripts in Ruby, much the same way as you would with Java or
 Python. Ruby will be available as a new script type, and you can see several
@@ -72,6 +80,45 @@ issues with Ruby depending on your version of Java. If you run into this, copy
 the `launch.properties` file in the `data` folder (both in this repo and in
 the extension package) into your Ghidra installation's `support` directory.
 This will add the necessary arguments to the JVM to resolve the issue.
+
+
+### Installing Gems
+If you want to install gems to be available in your interactive interpreter
+or scripts, then you'll need to take a few extra steps, depending on how
+isolated you want the gem environment to be.
+
+If you're using something like rvm to manage your Ruby environment, then you can
+simply rely on this to have already set the `GEM_PATH` environment variable to
+point to your gem installation. For maximum success however, you should switch
+to a JRuby installation, ideally of the same version as packaged in RubyDragon,
+and let rvm point to a gemset within that.
+
+If you want the Ghidra gem set to be specific to Ghidra, or if you don't have a
+Ruby environment outside of Ghidra to point to, you can choose a location on
+your own and set the `GEM_PATH` environment variable to point to that. To
+install new gems to the path, invoke the version of `gem` from the bundled JRuby
+jar like so, changing version and paths as needed. Here the gem path will be set
+to `~/ghidra_gems`
+
+```sh
+# from a shell environment
+java -jar ~/.ghidra/.ghidra_10.2_PUBLIC/Extensions/RubyDragon/lib/jruby-complete-9.3.9.0.jar -S gem install -i ~/ghidra_gems wrapture
+```
+
+```bat
+REM from a windows command line
+java -jar %USERPROFILE%\.ghidra\.ghidra_10.2_PUBLIC\Extensions\RubyDragon\lib\jruby-complete-9.3.9.0.jar -S gem install -i %USERPROFILE%\ghidra_gems wrapture
+```
+
+Once this is done, you can require the `wrapture` gem (or whatever you chose
+to install) from scripts and the interactive terminal.
+
+If you don't want to create an environment variable in your global
+configuration, you'll need to mess with the script used to launch Ghidra in
+order to set `GEM_PATH` appropriately. You can do this by adding a `set`
+command in `launch.bat` or `launch.sh` (depending on your OS). For Windows
+systems, you'll also need to remove the `/I` parameter from the `start`
+command used to launch Ghidra so that the environment variable is passed on.
 
 
 ## Kotlin Usage
@@ -95,6 +142,52 @@ Kotlin scripts use a `kts` extension as they are interpreted as scripts rather
 than being compiled to java first.
 
 
+## Groovy Usage
+Groovy follows the same patterns as the other languages, being provided in the
+`GroovyDragon` plugin and reachable from the `Window->Groovy` menu option. It
+has the same built-in variables that the others provide:
+
+```
+currentAddress
+currentHighlight
+currentLocation
+currentProgram
+currentSelection
+```
+
+`currentAPI` is also provided as with the Kotlin interpreter, again holding an
+instance of `FlatProgramAPI` created with `currentProgram`.
+
+
+## Clojure Usage
+Clojure follows the same patterns as the other languages, being provided in the
+`ClojureDragon` plugin and the menu item `Window->Clojure`.
+
+The Clojure interpreter and scripts also have bindings that make the state
+information available to them, within the `ghidra` namespace. They are:
+
+```clojure
+ghidra/current-address
+ghidra/current-highlight
+ghidra/current-location
+ghidra/current-program
+ghidra/current-selection
+```
+
+`ghidra/current-api` is provided as the instance of `FlatProgramAPI` created
+with `currentProgram`, as with the other interpreters. The automatic import of
+Ghidra classes is also done in the `ghidra` namespace.
+
+And, as with Ruby, a `ghidra/script` binding is available within scripts that
+provides access to the underlying `ClojureScript` instance. Unlike Ruby however,
+this variable does not allow access to protected fields or private methods.
+These are instead injected into the `ghidra` namespace as well. For example, to
+access the `TaskMonitor` for a script, you can simply reference `ghidra/monitor`
+to do things like update the progress. The Clojure Ghidra Basics script has an
+example of this type of access. Those familiar with the Python scripting
+interface may recognize this paradigm, as it is the same there.
+
+
 ## JShell Usage
 The JShell plugin provides an interactive Java interpreter by JShell, a Java
 REPL included in Java. It provides the same built in variables that are
@@ -114,34 +207,6 @@ instance of `FlatProgramAPI` created with `currentProgram`.
 This interpreter is especially handy when writing Java scripts, as it allows you
 to iteratively test snippets of code from the script without needing to do any
 sort of conversion to other languages like Python or Kotlin.
-
-
-## Clojure Usage
-Clojure follows the same patterns as the other languages, being provided in the
-`ClojureDragon` plugin and reachable from the `Window->Clojure` menu option.
-
-The Clojure interpreter and scripts also have bindings that make the state
-information available to them, within the `ghidra` namespace. They are:
-
-```clojure
-ghidra/current-address
-ghidra/current-highlight
-ghidra/current-location
-ghidra/current-program
-ghidra/current-selection
-```
-
-`ghidra/current-api` is provided as the instance of `FlatProgramAPI` created
-with `currentProgram`, as with the other interpreters.
-
-And, as with Ruby, a `ghidra/script` binding is available within scripts that
-provides access to the underlying `ClojureScript` instance. Unlike Ruby however,
-this variable does not allow access to protected fields or private methods.
-These are instead injected into the `ghidra` namespace as well. For example, to
-access the `TaskMonitor` for a script, you can simply reference `ghidra/monitor`
-to do things like update the progress. The Clojure Ghidra Basics script has an
-example of this type of access. Those familiar with the Python scripting
-interface may recognize this paradigm, as it is the same there.
 
 
 ## Contributing
