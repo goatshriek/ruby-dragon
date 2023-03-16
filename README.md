@@ -50,9 +50,17 @@ $current_selection
 ```
 
 Another variable named `$current_api` is also provided, which is an instance of
-`FlatProgramAPI` created with `currentProgram`. This has many (but not all) of
+`FlatProgramAPI` created with `$current_program`. This has many (but not all) of
 the convenience functions that would be available within a `GhidraScript`
 instance.
+
+Many classes provided by Ghidra are automatically imported into the interactive
+terminal, so you don't need to use `java_import` statements to use them. If you
+want to customize this you can modifiy the `preload.xml` data file in the
+installation. If you don't want this to happen at all (it does impact Ruby
+startup time) then you can disable the relevant option in the
+`Ruby Dragon Interpreters` category. This is done for all other languages as
+well, using the same data file.
 
 You can also write scripts in Ruby, much the same way as you would with Java or
 Python. Ruby will be available as a new script type, and you can see several
