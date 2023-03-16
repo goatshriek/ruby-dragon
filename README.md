@@ -175,7 +175,8 @@ ghidra/current-selection
 ```
 
 `ghidra/current-api` is provided as the instance of `FlatProgramAPI` created
-with `currentProgram`, as with the other interpreters.
+with `currentProgram`, as with the other interpreters. The automatic import of
+Ghidra classes is also done in the `ghidra` namespace.
 
 And, as with Ruby, a `ghidra/script` binding is available within scripts that
 provides access to the underlying `ClojureScript` instance. Unlike Ruby however,
