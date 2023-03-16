@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2021-2022 Joel E. Anderson
+ * Copyright 2021-2023 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,17 +18,28 @@
 
 package rubydragon;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import javax.swing.ImageIcon;
+
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.JDOMException;
 
 import ghidra.app.plugin.ProgramPlugin;
 import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConnection;
+import ghidra.framework.Application;
+import ghidra.framework.options.ToolOptions;
 import ghidra.framework.plugintool.PluginTool;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
+import ghidra.util.HelpLocation;
+import ghidra.util.xml.XmlUtilities;
 import resources.ResourceManager;
 
 /**
@@ -39,6 +50,64 @@ import resources.ResourceManager;
  * be common across all plugins.
  */
 public abstract class DragonPlugin extends ProgramPlugin implements InterpreterConnection {
+
+	/**
+	 * The name of the auto import manifest data file.
+	 *
+	 * @since 2.2.0
+	 */
+	public static String AUTO_IMPORT_FILENAME = "auto-import.xml";
+
+	/**
+	 * The name of the options category used by DragonPlugins.
+	 *
+	 * @since 2.2.0
+	 */
+	public static String OPTION_CATEGORY_NAME = "Ruby Dragon Interpreters";
+
+	/**
+	 * Runs the provided action for each import in the preload manifest.
+	 *
+	 * @param action The action called for each import listed in the preload
+	 *               manifest, with the argument being the fully qualified class
+	 *               name: the package and class name joined with a '.' character.
+	 *
+	 * @throws IOException   if the preload manifest file couldn't be opened.
+	 * @throws JDOMException if the preload manifest xml was malformed.
+	 *
+	 * @since 2.2.0
+	 */
+	public static void forEachAutoImport(Consumer<String> action) throws JDOMException, IOException {
+		forEachAutoImport((packageName, className) -> {
+			action.accept(packageName + "." + className);
+		});
+	}
+
+	/**
+	 * Runs the provided action for each import in the preload manifest.
+	 *
+	 * @param action The action called for each import listed in the preload
+	 *               manifest, with the arguments being the package name and class
+	 *               name, respectively.
+	 *
+	 * @throws IOException   if the preload manifest file couldn't be opened.
+	 * @throws JDOMException if the preload manifest xml was malformed.
+	 *
+	 * @since 2.2.0
+	 */
+	public static void forEachAutoImport(BiConsumer<String, String> action) throws JDOMException, IOException {
+		Document preload = XmlUtilities.readDocFromFile(Application.getModuleDataFile(AUTO_IMPORT_FILENAME));
+
+		@SuppressWarnings("unchecked")
+		List<Element> preloadClasses = preload.getRootElement().getChildren("class");
+		for (int i = 0; i < preloadClasses.size(); i++) {
+			Element preloadClass = preloadClasses.get(i);
+			String packageName = preloadClass.getChildText("package");
+			String className = preloadClass.getChildText("name");
+			action.accept(packageName, className);
+		}
+	}
+
 	/**
 	 * The name of this plugin instance.
 	 */
@@ -54,6 +123,47 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 	public DragonPlugin(PluginTool tool, String name) {
 		super(tool);
 		this.name = name;
+
+		// set up the preload option
+		ToolOptions toolOpt = tool.getOptions(OPTION_CATEGORY_NAME);
+		toolOpt.registerOption(getAutoImportOptionName(), Boolean.TRUE, getAutoImportOptionHelpLocation(),
+				getAutoImportOptionDescription());
+	}
+
+	/**
+	 * Gets the description of the automatic import option, customized with this
+	 * instance's name.
+	 *
+	 * @return The option description.
+	 *
+	 * @since 2.2.0
+	 */
+	public String getAutoImportOptionDescription() {
+		return "If set, loads a list of common Ghidra classes into the " + name
+				+ "interpeter as soon as it is opened or reset.";
+	}
+
+	/**
+	 * Gets the help location of the automatic import option for this instance.
+	 *
+	 * @return The option help location.
+	 *
+	 * @since 2.2.0
+	 */
+	public HelpLocation getAutoImportOptionHelpLocation() {
+		return new HelpLocation(name, "Import_Classes_In_" + name + "_Interpreter");
+	}
+
+	/**
+	 * Gets the name of the automatic import option, customized with this instance's
+	 * name.
+	 *
+	 * @return The option name.
+	 *
+	 * @since 2.2.0
+	 */
+	public String getAutoImportOptionName() {
+		return "Automatically import classes in " + name;
 	}
 
 	/**
@@ -98,6 +208,17 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 	@Override
 	public void highlightChanged(ProgramSelection sel) {
 		getInterpreter().updateHighlight(sel);
+	}
+
+	/**
+	 * Whether or not automatic imports are currently enabled in this plugin.
+	 *
+	 * @return Whether or not automatic imports are enabled in this plugin.
+	 *
+	 * @since 2.2.0
+	 */
+	public boolean isAutoImportEnabled() {
+		return tool.getOptions(DragonPlugin.OPTION_CATEGORY_NAME).getBoolean(getAutoImportOptionName(), false);
 	}
 
 	/**

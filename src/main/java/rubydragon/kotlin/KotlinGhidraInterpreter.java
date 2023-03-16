@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2021 Joel E. Anderson
+ * Copyright 2021-2023 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,8 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.script.SimpleScriptContext;
 
+import org.jdom.JDOMException;
+
 import generic.jar.ResourceFile;
 import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
@@ -42,6 +44,7 @@ import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
+import rubydragon.DragonPlugin;
 import rubydragon.MissingDragonDependency;
 import rubydragon.ScriptableGhidraInterpreter;
 
@@ -53,6 +56,45 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	private ScriptEngine engine;
 	private BufferedReader replReader;
 	private SimpleScriptContext context;
+	private DragonPlugin parentPlugin;
+	private PrintWriter errWriter;
+
+	private Runnable replLoop = () -> {
+		// load the preload imports if enabled
+		boolean preloadEnabled = parentPlugin != null && parentPlugin.isAutoImportEnabled();
+		if (preloadEnabled) {
+			try {
+				StringBuilder sb = new StringBuilder();
+				DragonPlugin.forEachAutoImport((packageName, className) -> {
+					sb.append("import ");
+					sb.append(packageName);
+					sb.append('.');
+					sb.append(className);
+					sb.append(';');
+				});
+				engine.eval(sb.toString());
+				System.out.println("finished kotlin import!");
+			} catch (JDOMException | IOException | ScriptException e) {
+				errWriter.append("could not auto-import classes, " + e.getMessage() + "\n");
+				errWriter.flush();
+			}
+		}
+
+		// the actual read loop
+		while (replReader != null) {
+			try {
+				Object result = engine.eval(replReader.readLine());
+
+				if (result != null) {
+					context.getWriter().write(result.toString() + "\n");
+					context.getWriter().flush();
+				}
+			} catch (ScriptException | IOException e) {
+				errWriter.append(e.getMessage() + "\n");
+				errWriter.flush();
+			}
+		}
+	};
 
 	/**
 	 * Creates a new interpreter, with no input stream.
@@ -70,34 +112,14 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 		engine = scriptManager.getEngineByExtension("kts");
 
 		if (engine == null) {
-			String errorMessage = "A Kotlin interpreter could not be created due to missing "
-					+ "dependencies. Try running RubyDragon.DownloadAllDependenciesScript "
-					+ "(via the Script Manager), restarting Ghidra, and trying again.";
+			String errorMessage = "A Kotlin interpreter could not be created due to missing dependencies.";
 			throw new MissingDragonDependency(errorMessage);
 		}
 
 		engine.setContext(context);
 
-		replThread = new Thread(() -> {
-			while (replReader != null) {
-				try {
-					try {
-						Object result = engine.eval(replReader.readLine());
-
-						if (result != null) {
-							context.getWriter().write(result + "\n");
-							context.getWriter().flush();
-						}
-					} catch (ScriptException e) {
-						context.getErrorWriter().write(e.getMessage() + "\n");
-						context.getErrorWriter().flush();
-					}
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		});
+		replThread = new Thread(replLoop);
+		parentPlugin = null;
 	}
 
 	/**
@@ -105,13 +127,16 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 * the new interpreter.
 	 *
 	 * @param console The console to bind to the interpreter streams.
+	 * @param plugin  The DragonPlugin instance owning this interpreter.
 	 *
 	 * @throws MissingDragonDependency If dependencies are missing for a Kotlin
 	 *                                 interpeter.
 	 */
-	public KotlinGhidraInterpreter(InterpreterConsole console) throws MissingDragonDependency {
+	public KotlinGhidraInterpreter(InterpreterConsole console, DragonPlugin plugin) throws MissingDragonDependency {
 		this();
 		setStreams(console);
+		errWriter = new PrintWriter(console.getStdErr());
+		parentPlugin = plugin;
 	}
 
 	/**

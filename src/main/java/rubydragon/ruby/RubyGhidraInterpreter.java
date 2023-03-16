@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2021 Joel E. Anderson
+ * Copyright 2021-2023 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.jdom.JDOMException;
 import org.jruby.embed.LocalContextScope;
 import org.jruby.embed.LocalVariableBehavior;
 import org.jruby.embed.ScriptingContainer;
@@ -39,6 +40,7 @@ import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
+import rubydragon.DragonPlugin;
 import rubydragon.ScriptableGhidraInterpreter;
 
 /**
@@ -48,23 +50,50 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	private ScriptingContainer container;
 	private Thread irbThread;
 	private boolean disposed = false;
+	private DragonPlugin parentPlugin;
+
+	private Runnable replLoop = () -> {
+		// run the ruby setup script
+		InputStream stream = getClass().getResourceAsStream("/scripts/ruby-init.rb");
+		container.runScriptlet(stream, "ruby-init.rb");
+
+		// load the preload imports if enabled
+		boolean preloadEnabled = parentPlugin != null && parentPlugin.isAutoImportEnabled();
+		if (preloadEnabled) {
+			String loadError = null;
+			container.getOutput().append("starting auto-import...\n");
+			try {
+				DragonPlugin.forEachAutoImport(className -> {
+					// we don't import the class if it will stomp an existing symbol
+					// we also have to skip Data because it generates deprecation warnings
+					if (!className.equals("Data") && container.get(className) == null) {
+						String importStatement = "java_import Java::" + className;
+						container.runScriptlet(importStatement);
+					}
+				});
+			} catch (JDOMException | IOException e) {
+				loadError = "could not auto-import classes: " + e.getMessage() + "\n";
+			}
+
+			if (loadError == null) {
+				container.getOutput().append("auto-import completed.\n");
+			} else {
+				container.getError().append(loadError);
+			}
+		}
+
+		while (!disposed) {
+			container.runScriptlet("IRB.start");
+		}
+	};
 
 	/**
 	 * Creates a new Ruby interpreter.
 	 */
 	public RubyGhidraInterpreter() {
 		container = new ScriptingContainer(LocalContextScope.SINGLETHREAD, LocalVariableBehavior.PERSISTENT);
-		irbThread = new Thread(() -> {
-			try{
-				InputStream stream = getClass().getResourceAsStream("/scripts/ruby-init.rb");
-				container.runScriptlet(stream, "ruby-init.rb");
-			} catch(Throwable t){
-				throw new RuntimeException(t);
-			}
-			while (!disposed) {
-				container.runScriptlet("IRB.start");
-			}
-		});
+		irbThread = new Thread(replLoop);
+		parentPlugin = null;
 	}
 
 	/**
@@ -73,9 +102,10 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 *
 	 * @param console The console to bind to the interpreter streams.
 	 */
-	public RubyGhidraInterpreter(InterpreterConsole console) {
+	public RubyGhidraInterpreter(InterpreterConsole console, DragonPlugin plugin) {
 		this();
 		setStreams(console);
+		parentPlugin = plugin;
 	}
 
 	/**
@@ -99,26 +129,39 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	public List<CodeCompletion> getCompletions(String cmd) {
 		container.put("GHIDRA_LAST_PARTIAL", cmd);
 		// CodeCompletion.new(description, text_to_append, optional_nil)
-		try{
+		try {
 			// use IRB to get the completed lines, then strip off the relevant parts
-			CodeCompletion[] tmp = (CodeCompletion[])container.runScriptlet("IRB::InputCompletor::CompletionProc.call(GHIDRA_LAST_PARTIAL).reject(&:nil?).map{|y|compl = y[GHIDRA_LAST_PARTIAL.length..-1];desc = y.split(/\\s+|\\.|::/).last;Java::GhidraAppPluginCoreConsole::CodeCompletion.new(desc, compl, nil)}.to_java(Java::GhidraAppPluginCoreConsole::CodeCompletion)");
+			//@formatter:off
+			CodeCompletion[] tmp = (CodeCompletion[]) container.runScriptlet("IRB::InputCompletor::CompletionProc.call(GHIDRA_LAST_PARTIAL).reject(&:nil?).map{|y|compl = y[GHIDRA_LAST_PARTIAL.length..-1];desc = y.split(/\\s+|\\.|::/).last;Java::GhidraAppPluginCoreConsole::CodeCompletion.new(desc, compl, nil)}.to_java(Java::GhidraAppPluginCoreConsole::CodeCompletion)");
+			//@formatter:on
 			return Arrays.asList(tmp);
-		} catch (Throwable t){// often: org.jruby.embed.EvalFailedException: (ArgumentError) Java package 'ghidra.program' does not have a method `instance_methods' with 1 argument
+		} catch (Throwable t) {
+			// often: org.jruby.embed.EvalFailedException: (ArgumentError) Java package
+			// 'ghidra.program' does not have a method `instance_methods' with 1 argument
 			// test this code path with: [].length.t<TAB>
-			// ignore, see https://github.com/ruby/irb/issues/295 and https://github.com/jruby/jruby/issues/7323 for exceptions this catches
+			// ignore, see https://github.com/ruby/irb/issues/295 and
+			// https://github.com/jruby/jruby/issues/7323 for exceptions this catches
 			return new ArrayList<>();
 		}
 	}
 
 	/**
-	 * Sets up method proxies at the top level to mirror $script or $current_api methods, as jython does.
+	 * Sets up method proxies at the top level to mirror $script or $current_api
+	 * methods, as jython does.
 	 */
 	public void createProxies() {
-		// ignore base java Object, ruby Object, main, and Kernel methods. We don't want to overwrite any of them.
-		container.runScriptlet("((($current_api.methods - java.lang.Object.new.methods) - self.methods) - Kernel.methods).each { |mn| \n"+
-			" define_method(mn){|*argv|($current_api).send(mn, *argv);}\n"+ //proxy the current object (hence not method binding)
-			" private(mn)\n"+ // hide from all other objects so we don't see it in autocomplete when called with an explicit receiver
+		// ignore base java Object, ruby Object, main, and Kernel methods. We don't want
+		// to overwrite any of them.
+		//@formatter:off
+		container.runScriptlet(
+			"((($current_api.methods - java.lang.Object.new.methods) - self.methods) - Kernel.methods).each { |mn| \n" +
+			// proxy the current object (hence not method binding)
+			" define_method(mn){|*argv|($current_api).send(mn, *argv);}\n" +
+			// hide from all other objects so we don't see it in autocomplete when called
+			// with an explicit receiver
+			" private(mn)\n" +
 			" }");
+		//@formatter:on
 	}
 
 	/**

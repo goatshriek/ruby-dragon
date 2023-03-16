@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2022 Joel E. Anderson
+ * Copyright 2022-2023 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,7 +96,7 @@ public class JShellDragonPlugin extends DragonPlugin implements InterpreterConne
 		super.init();
 
 		console = getTool().getService(InterpreterPanelService.class).createInterpreterPanel(this, false);
-		interpreter = new JShellGhidraInterpreter(console);
+		interpreter = new JShellGhidraInterpreter(console, this);
 		console.setPrompt("> ");
 		console.addFirstActivationCallback(() -> {
 			interpreter.startInteractiveSession();
@@ -118,12 +118,12 @@ public class JShellDragonPlugin extends DragonPlugin implements InterpreterConne
 		DockingAction resetAction = new DockingAction("Reset Interpreter", getName()) {
 			@Override
 			public void actionPerformed(ActionContext context) {
+				console.clear();
 				interpreter.reset();
 				interpreter.updateHighlight(getProgramHighlight());
 				interpreter.updateLocation(getProgramLocation());
 				interpreter.updateProgram(getCurrentProgram());
 				interpreter.updateSelection(getProgramSelection());
-				console.clear();
 			}
 		};
 		resetAction.setDescription("Reset Interpreter");

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2022 Joel E. Anderson
+ * Copyright 2022-2023 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,11 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.jdom.JDOMException;
 
 import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
@@ -42,12 +45,19 @@ import jdk.jshell.JShell;
 import jdk.jshell.SnippetEvent;
 import jdk.jshell.SourceCodeAnalysis;
 import jdk.jshell.execution.LocalExecutionControlProvider;
+import rubydragon.DragonPlugin;
 import rubydragon.GhidraInterpreter;
 
 /**
- * A Kotlin intepreter for Ghidra.
+ * A Java intepreter for Ghidra, based on JShell.
  */
 public class JShellGhidraInterpreter extends GhidraInterpreter {
+	// simple structure to store both the type and value in a single map entry
+	private record Variable(Class<?> type, Object value) {
+	}
+
+	private Map<String, Variable> setVariables = new HashMap<String, Variable>();
+
 	public static AtomicInteger counter = new AtomicInteger();
 	public static ConcurrentHashMap<Integer, Object> variables = new ConcurrentHashMap<Integer, Object>();
 
@@ -59,9 +69,13 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	private PrintWriter outWriter;
 	private OutputStream errStream;
 	private PrintWriter errWriter;
+	private DragonPlugin parentPlugin;
 	private boolean disposed = false;
 
-	private Runnable inputThread = () -> {
+	private Runnable replLoop = () -> {
+		// set up the jshell interpreter
+		createJShell();
+
 		while (!disposed) {
 			try {
 				StringBuilder completeSnippet = new StringBuilder();
@@ -78,12 +92,10 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 				for (SnippetEvent e : events) {
 					handleSnippetEvent(e);
 				}
-			} catch (IllegalStateException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (IllegalStateException | IOException e) {
+				// if these occur, we just keep going
+				// the user is expected to reset the interpreter if it gets truly stuck
+				continue;
 			}
 			outWriter.flush();
 			errWriter.flush();
@@ -95,43 +107,59 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	/**
 	 * Creates a new interpreter, and ties the given streams to the new interpreter.
 	 *
-	 * @param in  The input stream to use for the interpeter.
-	 * @param out The output stream to use for the interpreter.
-	 * @param err The error stream to use for the interpreter.
+	 * @param in           The input stream to use for the interpeter.
+	 * @param out          The output stream to use for the interpreter.
+	 * @param err          The error stream to use for the interpreter.
+	 * @param parentPlugin The DragonPlugin instance owning this interpreter.
 	 */
-	public JShellGhidraInterpreter(InputStream in, OutputStream out, OutputStream err) {
+	public JShellGhidraInterpreter(InputStream in, OutputStream out, OutputStream err, DragonPlugin parentPlugin) {
 		inStream = in;
 		outStream = out;
 		errStream = err;
+		this.parentPlugin = parentPlugin;
 
 		setInput(inStream);
 		setOutWriter(new PrintWriter(outStream));
 		setErrWriter(new PrintWriter(errStream));
 
-		createJShell();
-
-		replThread = new Thread(inputThread);
+		replThread = new Thread(replLoop);
 	}
 
 	/**
 	 * Creates a new interpreter, and ties the streams for the provided console to
 	 * the new interpreter.
 	 *
-	 * @param console The console to bind to the interpreter streams.
+	 * @param console      The console to bind to the interpreter streams.
+	 * @param parentPlugin The DragonPlugin instance owning this interpreter.
 	 */
-	public JShellGhidraInterpreter(InterpreterConsole console) {
-		this(console.getStdin(), console.getStdOut(), console.getStdErr());
+	public JShellGhidraInterpreter(InterpreterConsole console, DragonPlugin parentPlugin) {
+		this(console.getStdin(), console.getStdOut(), console.getStdErr(), parentPlugin);
 	}
 
 	/**
 	 * Creates a new JShell interpreter, and declares the internal variables.
 	 */
 	private void createJShell() {
+		PrintStream errPrintStream = new PrintStream(errStream);
+
 		JShell.Builder builder = JShell.builder();
 		builder.out(new PrintStream(outStream));
-		builder.err(new PrintStream(errStream));
+		builder.err(errPrintStream);
 		builder.executionEngine(new LocalExecutionControlProvider(), new HashMap<String, String>());
 		jshell = builder.build();
+
+		// load the preload imports if enabled
+		boolean preloadEnabled = parentPlugin.isAutoImportEnabled();
+		if (preloadEnabled) {
+			try {
+				DragonPlugin.forEachAutoImport(className -> {
+					String importStatement = "import " + className + ";";
+					jshell.eval(importStatement);
+				});
+			} catch (JDOMException | IOException e) {
+				errPrintStream.println("could not auto-import classes, " + e.getMessage());
+			}
+		}
 
 		// declare the built-in variables
 		jshell.eval(String.format("%s currentAddress = null;", Address.class.getName()));
@@ -140,6 +168,11 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 		jshell.eval(String.format("%s currentLocation = null;", ProgramLocation.class.getName()));
 		jshell.eval(String.format("%s currentProgram = null;", Program.class.getName()));
 		jshell.eval(String.format("%s currentSelection = null;", ProgramSelection.class.getName()));
+
+		// set any variables that were provided before creation
+		setVariables.forEach((name, var) -> {
+			setVariableInJShell(name, var.type, var.value);
+		});
 	}
 
 	/**
@@ -252,6 +285,14 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 * @param value The new value of the variable.
 	 */
 	private void setVariable(String name, Class<?> type, Object value) {
+		setVariables.put(name, new Variable(type, value));
+
+		if (jshell != null) {
+			setVariableInJShell(name, type, value);
+		}
+	}
+
+	private void setVariableInJShell(String name, Class<?> type, Object value) {
 		Integer varId = counter.incrementAndGet();
 		variables.put(varId, value);
 		String command = String.format("%s = (%s) %s.variables.get(%d)", name, type.getName(),

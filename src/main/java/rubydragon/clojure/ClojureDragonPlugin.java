@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2021 Joel E. Anderson
+ * Copyright 2021-2023 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ public class ClojureDragonPlugin extends DragonPlugin implements InterpreterConn
 
 		console = getTool().getService(InterpreterPanelService.class).createInterpreterPanel(this, false);
 		console.setPrompt(" ");
-		interpreter = new ClojureGhidraInterpreter(console);
+		interpreter = new ClojureGhidraInterpreter(console, this);
 		console.addFirstActivationCallback(() -> {
 			interpreter.startInteractiveSession();
 		});

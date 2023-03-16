@@ -54,7 +54,8 @@ public class GroovyGhidraInterpreterTest {
 		PipedInputStream scriptErrorInStream = new PipedInputStream();
 		PipedOutputStream scriptErrorOutStream = new PipedOutputStream(scriptErrorInStream);
 
-		interpreter = new GroovyGhidraInterpreter(scriptInputInStream, scriptOutputOutStream, scriptErrorOutStream);
+		interpreter = new GroovyGhidraInterpreter(scriptInputInStream, scriptOutputOutStream, scriptErrorOutStream,
+				null);
 
 		outputReader = new BufferedReader(new InputStreamReader(scriptOutputInStream));
 		errorReader = new BufferedReader(new InputStreamReader(scriptErrorInStream));

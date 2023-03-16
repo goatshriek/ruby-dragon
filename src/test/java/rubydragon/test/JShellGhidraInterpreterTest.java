@@ -54,7 +54,8 @@ public class JShellGhidraInterpreterTest {
 		PipedInputStream scriptErrorInStream = new PipedInputStream();
 		PipedOutputStream scriptErrorOutStream = new PipedOutputStream(scriptErrorInStream);
 
-		interpreter = new JShellGhidraInterpreter(scriptInputInStream, scriptOutputOutStream, scriptErrorOutStream);
+		interpreter = new JShellGhidraInterpreter(scriptInputInStream, scriptOutputOutStream, scriptErrorOutStream,
+				null);
 
 		outputReader = new BufferedReader(new InputStreamReader(scriptOutputInStream));
 		errorReader = new BufferedReader(new InputStreamReader(scriptErrorInStream));

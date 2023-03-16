@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2021 Joel E. Anderson
+ * Copyright 2021-2023 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,8 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jdom.JDOMException;
+
 import clojure.lang.LineNumberingPushbackReader;
 import clojure.lang.Namespace;
 import clojure.lang.RT;
@@ -45,6 +47,7 @@ import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
 import ghidra.util.exception.AssertException;
+import rubydragon.DragonPlugin;
 import rubydragon.ScriptableGhidraInterpreter;
 
 /**
@@ -53,26 +56,44 @@ import rubydragon.ScriptableGhidraInterpreter;
 public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 	private Thread replThread;
 	final private ClassLoader clojureClassLoader;
+	private DragonPlugin parentPlugin;
+	private PrintWriter errWriter;
+
+	private Runnable replLoop = () -> {
+		// some setup of the clojure environment
+		Symbol clojureMain = Symbol.intern("clojure.main");
+		Var clojureCoreRequire = RT.var("clojure.core", "require");
+		Var clojureMainFunction = RT.var("clojure.main", "main");
+		RT.init();
+		clojureCoreRequire.invoke(clojureMain);
+
+		// load the preload imports if enabled
+		boolean preloadEnabled = parentPlugin != null && parentPlugin.isAutoImportEnabled();
+		if (preloadEnabled) {
+			Namespace ghidraNs = Namespace.findOrCreate(Symbol.intern(null, "ghidra"));
+			try {
+				DragonPlugin.forEachAutoImport(className -> {
+					ghidraNs.importClass(RT.classForName(className));
+				});
+			} catch (JDOMException | IOException e) {
+				errWriter.append("could not load auto-import classes: " + e.getMessage() + "\n");
+			}
+		}
+
+		// the repl loop itself
+		while (true) {
+			String[] args = { "--repl" };
+			clojureMainFunction.applyTo(RT.seq(args));
+		}
+	};
 
 	/**
 	 * Creates a new Clojure interpreter.
 	 */
 	public ClojureGhidraInterpreter() {
+		parentPlugin = null;
 		clojureClassLoader = new ClojureGhidraClassLoader();
-		ClassLoader previous = Thread.currentThread().getContextClassLoader();
-		Thread.currentThread().setContextClassLoader(clojureClassLoader);
-		Symbol CLOJURE_MAIN = Symbol.intern("clojure.main");
-		Var REQUIRE = RT.var("clojure.core", "require");
-		Var MAIN = RT.var("clojure.main", "main");
-		RT.init();
-		REQUIRE.invoke(CLOJURE_MAIN);
-		Thread.currentThread().setContextClassLoader(previous);
-
-		replThread = new Thread(() -> {
-			while (true) {
-				MAIN.applyTo(RT.seq(new String[0]));
-			}
-		});
+		replThread = new Thread(replLoop);
 		replThread.setContextClassLoader(clojureClassLoader);
 	}
 
@@ -80,11 +101,14 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 * Creates a new interpreter, and ties the streams for the provided console to
 	 * the new interpreter.
 	 *
-	 * @param console The console to bind to the interpreter streams.
+	 * @param console      The console to bind to the interpreter streams.
+	 * @param parentPlugin The DragonPlugin instance owning this interpreter.
 	 */
-	public ClojureGhidraInterpreter(InterpreterConsole console) {
+	public ClojureGhidraInterpreter(InterpreterConsole console, DragonPlugin plugin) {
 		this();
 		setStreams(console);
+		errWriter = new PrintWriter(console.getStdErr());
+		parentPlugin = plugin;
 	}
 
 	/**
@@ -144,7 +168,7 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 			RT.var("ghidra", "script", script);
 
 			// putting the methods from this script class into the interpreter
-			// taken from the ClojureScript class in the ghidra source
+			// taken from the PythonScript class in the ghidra source
 			for (Class<?> scriptClass = script.getClass(); scriptClass != Object.class; scriptClass = scriptClass
 					.getSuperclass()) {
 
