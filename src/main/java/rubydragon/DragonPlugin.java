@@ -52,7 +52,16 @@ import resources.ResourceManager;
 public abstract class DragonPlugin extends ProgramPlugin implements InterpreterConnection {
 
 	/**
+	 * The name of the auto import manifest data file.
+	 *
+	 * @since 2.2.0
+	 */
+	public static String AUTO_IMPORT_FILENAME = "auto-import.xml";
+
+	/**
 	 * The name of the options category used by DragonPlugins.
+	 *
+	 * @since 2.2.0
 	 */
 	public static String OPTION_CATEGORY_NAME = "Ruby Dragon Interpreters";
 
@@ -87,7 +96,7 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 	 * @since 2.2.0
 	 */
 	public static void forEachAutoImport(BiConsumer<String, String> action) throws JDOMException, IOException {
-		Document preload = XmlUtilities.readDocFromFile(Application.getModuleDataFile("preload.xml"));
+		Document preload = XmlUtilities.readDocFromFile(Application.getModuleDataFile(AUTO_IMPORT_FILENAME));
 
 		@SuppressWarnings("unchecked")
 		List<Element> preloadClasses = preload.getRootElement().getChildren("class");
@@ -201,6 +210,13 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 		getInterpreter().updateHighlight(sel);
 	}
 
+	/**
+	 * Whether or not automatic imports are currently enabled in this plugin.
+	 *
+	 * @return Whether or not automatic imports are enabled in this plugin.
+	 *
+	 * @since 2.2.0
+	 */
 	public boolean isAutoImportEnabled() {
 		return tool.getOptions(DragonPlugin.OPTION_CATEGORY_NAME).getBoolean(getAutoImportOptionName(), false);
 	}

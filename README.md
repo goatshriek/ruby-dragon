@@ -56,7 +56,7 @@ instance.
 
 Many classes provided by Ghidra are automatically imported into the interactive
 terminal, so you don't need to use `java_import` statements to use them. If you
-want to customize this you can modifiy the `preload.xml` data file in the
+want to customize this you can modifiy the `auto-import.xml` data file in the
 installation. If you don't want this to happen at all (it does impact Ruby
 startup time) then you can disable the relevant option in the
 `Ruby Dragon Interpreters` category. This is done for all other languages as
