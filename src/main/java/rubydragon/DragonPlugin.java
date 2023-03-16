@@ -126,6 +126,8 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 	 * instance's name.
 	 *
 	 * @return The option description.
+	 *
+	 * @since 2.2.0
 	 */
 	public String getAutoImportOptionDescription() {
 		return "If set, loads a list of common Ghidra classes into the " + name
@@ -136,6 +138,8 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 	 * Gets the help location of the automatic import option for this instance.
 	 *
 	 * @return The option help location.
+	 *
+	 * @since 2.2.0
 	 */
 	public HelpLocation getAutoImportOptionHelpLocation() {
 		return new HelpLocation(name, "Import_Classes_In_" + name + "_Interpreter");
@@ -146,6 +150,8 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 	 * name.
 	 *
 	 * @return The option name.
+	 *
+	 * @since 2.2.0
 	 */
 	public String getAutoImportOptionName() {
 		return "Automatically import classes in " + name;
