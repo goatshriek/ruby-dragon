@@ -4,6 +4,13 @@ or want to make a suggestion, please submit an issue on the project's
 [Github page](https://github.com/goatshriek/ruby-dragon).
 
 
+## 2.3.0
+ * [CHANGE] **Delay interpreter creation**
+   Currently some interpreters are created when the tool is created, which
+   increases startup time, often needlessly. This will be adjusted for all
+   interactive interpreters so that they do not load until needed.
+
+
 ## Unallocated to a release
  * [ADD] **Complete Example Set**
    A full suite of example scripts is needed for users to quickly understand how
