@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.jdom.JDOMException;
+import org.jruby.embed.EvalFailedException;
 import org.jruby.embed.LocalContextScope;
 import org.jruby.embed.LocalVariableBehavior;
 import org.jruby.embed.ScriptingContainer;
@@ -68,7 +69,13 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 					// we also have to skip Data because it generates deprecation warnings
 					if (!className.equals("Data") && container.get(className) == null) {
 						String importStatement = "java_import Java::" + packageName + "." + className;
-						container.runScriptlet(importStatement);
+						try {
+							container.runScriptlet(importStatement);
+						} catch (EvalFailedException e) {
+							String evalError = "could not load class " + packageName + "." + className + ": "
+									+ e.getMessage() + "\n";
+							container.getError().append(evalError);
+						}
 					}
 				});
 			} catch (JDOMException | IOException e) {
