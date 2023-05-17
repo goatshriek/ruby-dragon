@@ -453,31 +453,6 @@
   <class><package>ghidra.app.plugin.debug.dbtable</package><name>StringColumnAdapter</name></class>
   <class><package>ghidra.app.plugin.debug.propertymanager</package><name>PropertyManagerPlugin</name></class>
   <class><package>ghidra.app.plugin.debug.propertymanager</package><name>PropertyManagerProvider</name></class>
-  <class><package>ghidra.app.plugin.exceptionhandlers.gcc</package><name>DwarfDecodeContext</name></class>
-  <class><package>ghidra.app.plugin.exceptionhandlers.gcc</package><name>DwarfDecoderFactory</name></class>
-  <class><package>ghidra.app.plugin.exceptionhandlers.gcc</package><name>DwarfEHDataApplicationMode</name></class>
-  <class><package>ghidra.app.plugin.exceptionhandlers.gcc</package><name>DwarfEHDataDecodeFormat</name></class>
-  <class><package>ghidra.app.plugin.exceptionhandlers.gcc</package><name>DwarfEHDecoder</name></class>
-  <class><package>ghidra.app.plugin.exceptionhandlers.gcc</package><name>GccAnalysisClass</name></class>
-  <class><package>ghidra.app.plugin.exceptionhandlers.gcc</package><name>GccAnalysisUtils</name></class>
-  <class><package>ghidra.app.plugin.exceptionhandlers.gcc</package><name>GccExceptionAnalyzer</name></class>
-  <class><package>ghidra.app.plugin.exceptionhandlers.gcc</package><name>RegionDescriptor</name></class>
-  <class><package>ghidra.app.plugin.exceptionhandlers.gcc.datatype</package><name>AbstractLeb128DataType</name></class>
-  <class><package>ghidra.app.plugin.exceptionhandlers.gcc.datatype</package><name>DwarfEncodingModeDataType</name></class>
-  <class><package>ghidra.app.plugin.exceptionhandlers.gcc.datatype</package><name>PcRelative31AddressDataType</name></class>
-  <class><package>ghidra.app.plugin.exceptionhandlers.gcc.datatype</package><name>SignedLeb128DataType</name></class>
-  <class><package>ghidra.app.plugin.exceptionhandlers.gcc.datatype</package><name>UnsignedLeb128DataType</name></class>
-  <class><package>ghidra.app.plugin.exceptionhandlers.gcc.sections</package><name>CieSource</name></class>
-  <class><package>ghidra.app.plugin.exceptionhandlers.gcc.sections</package><name>DebugFrameSection</name></class>
-  <class><package>ghidra.app.plugin.exceptionhandlers.gcc.sections</package><name>EhFrameHeaderSection</name></class>
-  <class><package>ghidra.app.plugin.exceptionhandlers.gcc.sections</package><name>EhFrameSection</name></class>
-  <class><package>ghidra.app.plugin.exceptionhandlers.gcc.structures.gccexcepttable</package><name>LSDAActionRecord</name></class>
-  <class><package>ghidra.app.plugin.exceptionhandlers.gcc.structures.gccexcepttable</package><name>LSDAActionTable</name></class>
-  <class><package>ghidra.app.plugin.exceptionhandlers.gcc.structures.gccexcepttable</package><name>LSDACallSiteRecord</name></class>
-  <class><package>ghidra.app.plugin.exceptionhandlers.gcc.structures.gccexcepttable</package><name>LSDACallSiteTable</name></class>
-  <class><package>ghidra.app.plugin.exceptionhandlers.gcc.structures.gccexcepttable</package><name>LSDAHeader</name></class>
-  <class><package>ghidra.app.plugin.exceptionhandlers.gcc.structures.gccexcepttable</package><name>LSDATable</name></class>
-  <class><package>ghidra.app.plugin.exceptionhandlers.gcc.structures.gccexcepttable</package><name>LSDATypeTable</name></class>
   <class><package>ghidra.app.script</package><name>AskDialog</name></class>
   <class><package>ghidra.app.script</package><name>GatherParamPanel</name></class>
   <class><package>ghidra.app.script</package><name>GhidraScript</name></class>
@@ -535,7 +510,6 @@
   <class><package>ghidra.app.services</package><name>MarkerSet</name></class>
   <class><package>ghidra.app.services</package><name>MemorySearchService</name></class>
   <class><package>ghidra.app.services</package><name>NavigationHistoryService</name></class>
-  <class><package>ghidra.app.services</package><name>ProgramCoordinator</name></class>
   <class><package>ghidra.app.services</package><name>ProgramLocationPair</name></class>
   <class><package>ghidra.app.services</package><name>ProgramManager</name></class>
   <class><package>ghidra.app.services</package><name>ProgramTreeService</name></class>
