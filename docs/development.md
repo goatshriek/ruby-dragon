@@ -4,6 +4,14 @@ features, or maybe even adding support for a new language, here is some
 information that you will likely find useful.
 
 
+## Setting Up a Development Environment
+While there is documentation included with Ghidra on how to set up a plugin
+development environment, there are a few unmentioned pitfalls that are worth
+mentioning.
+
+TODO: upgrade steps (deleted build directory, link to new Ghidra)
+
+
 ## Adding a New Language
 Support for a wide variety of languages is the primary goal of Ruby Dragon. As
 such, its design is optimized to make the addition of a new one as
