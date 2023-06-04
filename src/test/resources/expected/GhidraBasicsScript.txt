@@ -55,9 +55,9 @@ FUN_00401af5
 FUN_00401b44
 FUN_00401b9a
 FUN_00401ba2
+FUN_00401bce
 __SEH_prolog4
 __except_handler4
-FUN_00401bce
 FUN_00401c74
 ___scrt_is_ucrt_dll_in_use
 Unwind@00401e57
