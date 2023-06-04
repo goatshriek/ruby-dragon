@@ -19,8 +19,7 @@ plugins {
 }
 
 dependencies {
-	//implementation('org.jruby:jruby-complete:9.3.10.0')
-	implementation('org.jruby:jruby-complete:9.4.2.0')
+	implementation('org.jruby:jruby-complete:9.3.10.0')
 	implementation('org.clojure:clojure:1.11.1')
 	implementation('org.apache.groovy:groovy:4.0.12')
 	implementation('org.apache.groovy:groovy-groovysh:4.0.12')
