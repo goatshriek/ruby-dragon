@@ -13,7 +13,9 @@ class java::lang::Object
   end
 end
 
-# Now configure IRB
+# we disable autocomplete since it won't work in the Ghidra interpreter window
+IRB.conf[:USE_AUTOCOMPLETE] = false
+
 # this was copied from
 # https://github.com/ruby/irb/blob/ed9e435a6beba805b3a8b453369cc6117ec7e377/lib/irb/init.rb#L398
 module IRB
