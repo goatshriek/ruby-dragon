@@ -15,6 +15,7 @@ end
 
 # we disable autocomplete since it won't work in the Ghidra interpreter window
 IRB.conf[:USE_AUTOCOMPLETE] = false
+IRB.conf[:USE_MULTILINE] = false
 
 # this was copied from
 # https://github.com/ruby/irb/blob/ed9e435a6beba805b3a8b453369cc6117ec7e377/lib/irb/init.rb#L398
@@ -47,7 +48,7 @@ module IRB
 end
 
 # due to differing output and specialization, have a custom irbrc name
-# we supress the constant override warning from this reassignment by
+# we suppress the constant override warning from this reassignment by
 # temporarily altering the verbosity level
 current_verbose = $VERBOSE
 $VERBOSE = nil
