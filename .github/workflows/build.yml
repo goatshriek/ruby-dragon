@@ -19,6 +19,11 @@ jobs:
             ghidra-sha256: "4e990af9b22be562769bb6ce5d4d609fbb45455a7a2f756167b8cdcdb75887fc"
             ghidra-filename: "ghidra_10.3_PUBLIC_20230510.zip"
             ghidra-folder: "ghidra_10.3_PUBLIC"
+          - ghidra: "10.3.2"
+            ghidra-url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.3.2_build/ghidra_10.3.2_PUBLIC_20230711.zip"
+            ghidra-sha256: "a658677a87d0be12ab65bd7962f471875b81a2dd2ea35d69cc3201555ca1bd6f"
+            ghidra-filename: " ghidra_10.3.2_PUBLIC_20230711.zip"
+            ghidra-folder: "ghidra_10.3.2_PUBLIC"
 
     env:
       GHIDRA_INSTALL_DIR: /home/runner/ghidra/${{ matrix.ghidra-folder }}
