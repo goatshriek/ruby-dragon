@@ -18,6 +18,7 @@
 
 package rubydragon;
 
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -30,7 +31,9 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 
 import docking.ActionContext;
+import docking.DockingUtils;
 import docking.action.DockingAction;
+import docking.action.KeyBindingData;
 import docking.action.ToolBarData;
 import ghidra.app.plugin.ProgramPlugin;
 import ghidra.app.plugin.core.console.CodeCompletion;
@@ -142,6 +145,9 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 
 		};
 		launchAction.setToolBarData(new ToolBarData(getIcon(), null));
+		launchAction.setDescription(launchActionTitle);
+		launchAction.setEnabled(true);
+		launchAction.setHelpLocation(new HelpLocation(getTitle(), name));
 		tool.addAction(launchAction);
 	}
 
