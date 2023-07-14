@@ -93,4 +93,12 @@ public class ClojureDragonPlugin extends DragonPlugin implements InterpreterConn
 			interpreter.startInteractiveSession();
 		});
 	}
+
+	/**
+	 * Shows the interpreter console.
+	 */
+	@Override
+	public void showConsole() {
+		console.show();
+	}
 }

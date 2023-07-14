@@ -1217,10 +1217,6 @@
   <class><package>ghidra.pcode.emulate.callother</package><name>OpBehaviorOther</name></class>
   <class><package>ghidra.pcode.emulate.callother</package><name>OpBehaviorOtherNOP</name></class>
   <class><package>ghidra.pcode.error</package><name>LowlevelError</name></class>
-  <class><package>ghidra.pcode.floatformat</package><name>BigFloat</name></class>
-  <class><package>ghidra.pcode.floatformat</package><name>FloatFormat</name></class>
-  <class><package>ghidra.pcode.floatformat</package><name>FloatFormatFactory</name></class>
-  <class><package>ghidra.pcode.floatformat</package><name>UnsupportedFloatFormatException</name></class>
   <class><package>ghidra.pcode.loadimage</package><name>LoadImage</name></class>
   <class><package>ghidra.pcode.loadimage</package><name>LoadImageFunc</name></class>
   <class><package>ghidra.pcode.memstate</package><name>MemoryBank</name></class>

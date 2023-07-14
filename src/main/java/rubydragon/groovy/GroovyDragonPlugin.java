@@ -119,4 +119,12 @@ public class GroovyDragonPlugin extends DragonPlugin implements InterpreterConne
 		resetAction.setHelpLocation(new HelpLocation(getTitle(), "Reset_Interpreter"));
 		console.addAction(resetAction);
 	}
+
+	/**
+	 * Shows the interpreter console.
+	 */
+	@Override
+	public void showConsole() {
+		console.show();
+	}
 }

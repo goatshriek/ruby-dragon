@@ -18,6 +18,7 @@
 
 package rubydragon;
 
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -29,6 +30,11 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 
+import docking.ActionContext;
+import docking.DockingUtils;
+import docking.action.DockingAction;
+import docking.action.KeyBindingData;
+import docking.action.ToolBarData;
 import ghidra.app.plugin.ProgramPlugin;
 import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConnection;
@@ -128,6 +134,21 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 		ToolOptions toolOpt = tool.getOptions(OPTION_CATEGORY_NAME);
 		toolOpt.registerOption(getAutoImportOptionName(), Boolean.TRUE, getAutoImportOptionHelpLocation(),
 				getAutoImportOptionDescription());
+
+		String launchActionTitle = "Launch " + name + " Interpreter";
+		DockingAction launchAction = new DockingAction(launchActionTitle, getName()) {
+
+			@Override
+			public void actionPerformed(ActionContext context) {
+				showConsole();
+			}
+
+		};
+		launchAction.setToolBarData(new ToolBarData(getIcon(), null));
+		launchAction.setDescription(launchActionTitle);
+		launchAction.setEnabled(true);
+		launchAction.setHelpLocation(new HelpLocation(getTitle(), name));
+		tool.addAction(launchAction);
 	}
 
 	/**
@@ -245,4 +266,8 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 		getInterpreter().updateSelection(sel);
 	}
 
+	/**
+	 * Shows the interpreter console.
+	 */
+	public abstract void showConsole();
 }

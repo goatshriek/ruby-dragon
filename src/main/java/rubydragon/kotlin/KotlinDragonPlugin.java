@@ -98,4 +98,12 @@ public class KotlinDragonPlugin extends DragonPlugin implements InterpreterConne
 			interpreter.startInteractiveSession();
 		});
 	}
+
+	/**
+	 * Shows the interpreter console.
+	 */
+	@Override
+	public void showConsole() {
+		console.show();
+	}
 }
