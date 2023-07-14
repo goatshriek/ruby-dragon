@@ -12,7 +12,7 @@ jobs:
     runs-on: "ubuntu-latest"
     strategy:
       matrix:
-        ghidra: ["10.3"]
+        ghidra: ["10.3", "10.3.1", "10.3.2"]
         include:
           - ghidra: "10.3"
             ghidra-url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.3_build/ghidra_10.3_PUBLIC_20230510.zip"
