@@ -111,4 +111,12 @@ public class RubyDragonPlugin extends DragonPlugin implements InterpreterConnect
 			interpreter.startInteractiveSession();
 		});
 	}
+
+	/**
+	 * Shows the interpreter console.
+	 */
+	@Override
+	public void showConsole() {
+		console.show();
+	}
 }

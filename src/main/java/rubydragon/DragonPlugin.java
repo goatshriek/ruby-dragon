@@ -29,6 +29,9 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 
+import docking.ActionContext;
+import docking.action.DockingAction;
+import docking.action.ToolBarData;
 import ghidra.app.plugin.ProgramPlugin;
 import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConnection;
@@ -128,6 +131,18 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 		ToolOptions toolOpt = tool.getOptions(OPTION_CATEGORY_NAME);
 		toolOpt.registerOption(getAutoImportOptionName(), Boolean.TRUE, getAutoImportOptionHelpLocation(),
 				getAutoImportOptionDescription());
+
+		String launchActionTitle = "Launch " + name + " Interpreter";
+		DockingAction launchAction = new DockingAction(launchActionTitle, getName()) {
+
+			@Override
+			public void actionPerformed(ActionContext context) {
+				showConsole();
+			}
+
+		};
+		launchAction.setToolBarData(new ToolBarData(getIcon(), null));
+		tool.addAction(launchAction);
 	}
 
 	/**
@@ -245,4 +260,8 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 		getInterpreter().updateSelection(sel);
 	}
 
+	/**
+	 * Shows the interpreter console.
+	 */
+	public abstract void showConsole();
 }
