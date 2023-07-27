@@ -132,7 +132,7 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 
 		// set up the preload option
 		ToolOptions toolOpt = tool.getOptions(OPTION_CATEGORY_NAME);
-		toolOpt.registerOption(getAutoImportOptionName(), Boolean.TRUE, getAutoImportOptionHelpLocation(),
+		toolOpt.registerOption(getAutoImportOptionName(), Boolean.FALSE, getAutoImportOptionHelpLocation(),
 				getAutoImportOptionDescription());
 
 		String launchActionTitle = "Launch " + name + " Interpreter";
