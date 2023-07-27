@@ -140,10 +140,11 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 * Creates a new JShell interpreter, and declares the internal variables.
 	 */
 	private void createJShell() {
+		PrintStream outPrintStream = new PrintStream(outStream);
 		PrintStream errPrintStream = new PrintStream(errStream);
 
 		JShell.Builder builder = JShell.builder();
-		builder.out(new PrintStream(outStream));
+		builder.out(outPrintStream);
 		builder.err(errPrintStream);
 		builder.executionEngine(new LocalExecutionControlProvider(), new HashMap<String, String>());
 		jshell = builder.build();
@@ -151,13 +152,18 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 		// load the preload imports if enabled
 		boolean preloadEnabled = parentPlugin.isAutoImportEnabled();
 		if (preloadEnabled) {
+			long startTime = System.currentTimeMillis();
+			outPrintStream.append("starting auto-import...\n");
 			try {
 				DragonPlugin.forEachAutoImport(className -> {
 					String importStatement = "import " + className + ";";
 					jshell.eval(importStatement);
 				});
+				long endTime = System.currentTimeMillis();
+				double loadTime = (endTime - startTime) / 1000.0;
+				outPrintStream.append(String.format("auto-import completed. (%.3f seconds)\n", loadTime));
 			} catch (JDOMException | IOException e) {
-				errPrintStream.println("could not auto-import classes, " + e.getMessage());
+				errPrintStream.println("could not auto-import all classes, " + e.getMessage());
 			}
 		}
 
