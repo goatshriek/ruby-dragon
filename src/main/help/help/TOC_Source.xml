@@ -51,11 +51,14 @@
 <tocroot>
 	<tocref id="Ghidra Functionality">
 		<tocref id="Scripting">
-			<tocdef id="Clojure_interpreter" sortgroup="z" text="Clojure Interpreter" target="help/topics/Clojure/interpreter.html" />
-			<tocdef id="Groovy_interpreter" sortgroup="z" text="Groovy Interpreter" target="help/topics/Groovy/interpreter.html" />
-			<tocdef id="JShell_interpreter" sortgroup="z" text="JShell Interpreter" target="help/topics/JShell/interpreter.html" />
-			<tocdef id="Kotlin_interpreter" sortgroup="z" text="Kotlin Interpreter" target="help/topics/Kotlin/interpreter.html" />
-			<tocdef id="Ruby_interpreter" sortgroup="z" text="Ruby Interpreter" target="help/topics/Ruby/interpreter.html" />
+			<tocdef id="Ruby_Dragon_main" sortgroup="z" text="Ruby Dragon" target="help/topics/Ruby_Dragon/main.html" />
+			<tocref id="Ruby_Dragon_main">
+				<tocdef id="Clojure_interpreter" sortgroup="z" text="Clojure Interpreter" target="help/topics/Clojure/interpreter.html" />
+				<tocdef id="Groovy_interpreter" sortgroup="z" text="Groovy Interpreter" target="help/topics/Groovy/interpreter.html" />
+				<tocdef id="JShell_interpreter" sortgroup="z" text="JShell Interpreter" target="help/topics/JShell/interpreter.html" />
+				<tocdef id="Kotlin_interpreter" sortgroup="z" text="Kotlin Interpreter" target="help/topics/Kotlin/interpreter.html" />
+				<tocdef id="Ruby_interpreter" sortgroup="z" text="Ruby Interpreter" target="help/topics/Ruby/interpreter.html" />
+			</tocref>
 		</tocref>
 	</tocref>
 </tocroot>

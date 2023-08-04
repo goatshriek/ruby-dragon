@@ -135,9 +135,9 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 		toolOpt.registerOption(getAutoImportOptionName(), Boolean.FALSE, getAutoImportOptionHelpLocation(),
 				getAutoImportOptionDescription());
 
+		// set up the launch toolbar icon
 		String launchActionTitle = "Launch " + name + " Interpreter";
 		DockingAction launchAction = new DockingAction(launchActionTitle, getName()) {
-
 			@Override
 			public void actionPerformed(ActionContext context) {
 				showConsole();
