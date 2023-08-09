@@ -24,7 +24,9 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jdom.JDOMException;
 import org.jruby.embed.EvalFailedException;
@@ -48,12 +50,63 @@ import rubydragon.ScriptableGhidraInterpreter;
  * A Ruby interpreter for Ghidra, built using JRuby.
  */
 public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
+	private Map<String, Object> setVariables = new HashMap<String, Object>();
 	private ScriptingContainer container;
 	private Thread irbThread;
 	private boolean disposed = false;
 	private DragonPlugin parentPlugin;
+	private PrintWriter outWriter = null;
+	private PrintWriter errWriter = null;
+	private InputStream input = null;
 
 	private Runnable replLoop = () -> {
+		// create a new interpreter
+		createInterpreter();
+
+		while (!disposed) {
+			container.runScriptlet("IRB.start");
+		}
+	};
+
+	/**
+	 * Creates a new Ruby interpreter.
+	 */
+	public RubyGhidraInterpreter() {
+		container = null;
+		irbThread = new Thread(replLoop);
+		parentPlugin = null;
+	}
+
+	/**
+	 * Creates a new interpreter, and ties the streams for the provided console to
+	 * the new interpreter.
+	 *
+	 * @param console The console to bind to the interpreter streams.
+	 */
+	public RubyGhidraInterpreter(InterpreterConsole console, DragonPlugin plugin) {
+		this();
+		setStreams(console);
+		parentPlugin = plugin;
+	}
+
+	/**
+	 * Creates a new Ruby interpreter, auto loads classes if enabled, and sets up
+	 * the automatic variables.
+	 */
+	void createInterpreter() {
+		container = new ScriptingContainer(LocalContextScope.SINGLETHREAD, LocalVariableBehavior.PERSISTENT);
+
+		// set the input and output streams if they've been set
+		if (errWriter != null) {
+			container.setError(errWriter);
+		}
+		if (input != null) {
+			container.setInput(input);
+		}
+		if (outWriter != null) {
+			container.setOutput(outWriter);
+		}
+
 		// run the ruby setup script
 		InputStream stream = getClass().getResourceAsStream("/scripts/ruby-init.rb");
 		container.runScriptlet(stream, "ruby-init.rb");
@@ -89,30 +142,12 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 			}
 		}
 
-		while (!disposed) {
-			container.runScriptlet("IRB.start");
-		}
-	};
+		// set any variables that were provided before creation
+		setVariables.forEach((name, value) -> {
+			container.put(name, value);
+		});
 
-	/**
-	 * Creates a new Ruby interpreter.
-	 */
-	public RubyGhidraInterpreter() {
-		container = new ScriptingContainer(LocalContextScope.SINGLETHREAD, LocalVariableBehavior.PERSISTENT);
-		irbThread = new Thread(replLoop);
-		parentPlugin = null;
-	}
-
-	/**
-	 * Creates a new interpreter, and ties the streams for the provided console to
-	 * the new interpreter.
-	 *
-	 * @param console The console to bind to the interpreter streams.
-	 */
-	public RubyGhidraInterpreter(InterpreterConsole console, DragonPlugin plugin) {
-		this();
-		setStreams(console);
-		parentPlugin = plugin;
+		createProxies();
 	}
 
 	/**
@@ -189,13 +224,13 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void runScript(GhidraScript script, String[] scriptArguments, GhidraState scriptState)
 			throws IllegalArgumentException, FileNotFoundException, IOException {
+		createInterpreter();
 		InputStream scriptStream = script.getSourceFile().getInputStream();
 		loadState(scriptState);
 		Object savedAPI = container.get("$current_api");
 		container.put("$script", script);
 		container.put("$current_api", script);
 		container.put("ARGV", scriptArguments);
-		createProxies();
 		container.runScriptlet(scriptStream, script.getScriptName());
 		container.remove("$script");
 		container.put("$current_api", savedAPI);
@@ -207,7 +242,10 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public void setErrWriter(PrintWriter errOut) {
-		container.setError(errOut);
+		errWriter = errOut;
+		if (container != null) {
+			container.setError(errOut);
+		}
 	}
 
 	/**
@@ -215,7 +253,10 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public void setInput(InputStream input) {
-		container.setInput(input);
+		this.input = input;
+		if (container != null) {
+			container.setInput(input);
+		}
 	}
 
 	/**
@@ -223,7 +264,24 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public void setOutWriter(PrintWriter output) {
-		container.setOutput(output);
+		outWriter = output;
+		if (container != null) {
+			container.setOutput(output);
+		}
+	}
+
+	/**
+	 * Adds or updates the variable with the given name to the given value in the
+	 * scripting container.
+	 * 
+	 * @param name  The name of the variable to create or update.
+	 * @param value The value of the variable to add.
+	 */
+	private void setVariable(String name, Object value) {
+		setVariables.put(name, value);
+		if (container != null) {
+			container.put(name, value);
+		}
 	}
 
 	/**
@@ -241,7 +299,7 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public void updateAddress(Address address) {
-		container.put("$current_address", address);
+		setVariable("$current_address", address);
 	}
 
 	/**
@@ -252,7 +310,7 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public void updateHighlight(ProgramSelection sel) {
-		container.put("$current_highlight", sel);
+		setVariable("$current_highlight", sel);
 	}
 
 	/**
@@ -264,9 +322,12 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void updateLocation(ProgramLocation loc) {
 		if (loc == null) {
-			container.remove("$current_location");
+			setVariables.remove("$current_location");
+			if (container != null) {
+				container.remove("$current_location");
+			}
 		} else {
-			container.put("$current_location", loc);
+			setVariable("$current_location", loc);
 			updateAddress(loc.getAddress());
 		}
 	}
@@ -280,8 +341,11 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void updateProgram(Program program) {
 		if (program != null) {
-			container.put("$current_program", program);
-			container.put("$current_api", new FlatProgramAPI(program));
+			setVariable("$current_program", program);
+			setVariable("$current_api", new FlatProgramAPI(program));
+		}
+
+		if (container != null) {
 			createProxies();
 		}
 	}
@@ -293,7 +357,7 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public void updateSelection(ProgramSelection sel) {
-		container.put("$current_selection", sel);
+		setVariable("$current_selection", sel);
 	}
 
 	/**
@@ -303,10 +367,10 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public void updateState(GhidraState scriptState) {
-		scriptState.setCurrentProgram((Program) container.get("$current_program"));
-		scriptState.setCurrentLocation((ProgramLocation) container.get("$current_location"));
-		scriptState.setCurrentAddress((Address) container.get("$current_address"));
-		scriptState.setCurrentHighlight((ProgramSelection) container.get("$current_highlight"));
-		scriptState.setCurrentSelection((ProgramSelection) container.get("$current_selection"));
+		scriptState.setCurrentProgram((Program) setVariables.get("$current_program"));
+		scriptState.setCurrentLocation((ProgramLocation) setVariables.get("$current_location"));
+		scriptState.setCurrentAddress((Address) setVariables.get("$current_address"));
+		scriptState.setCurrentHighlight((ProgramSelection) setVariables.get("$current_highlight"));
+		scriptState.setCurrentSelection((ProgramSelection) setVariables.get("$current_selection"));
 	}
 }

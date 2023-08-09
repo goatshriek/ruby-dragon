@@ -227,7 +227,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 		if (e.causeSnippet() == null) {
 			switch (e.status()) {
 			case RECOVERABLE_DEFINED:
-				errWriter.println("jshell snipped failed: RECOVERABLE_DEFINED");
+				errWriter.println("jshell snippet failed: RECOVERABLE_DEFINED");
 				break;
 			case RECOVERABLE_NOT_DEFINED:
 				errWriter.println("jshell snippet failed: RECOVERABLE_NOT_DEFINED");
