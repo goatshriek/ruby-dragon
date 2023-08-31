@@ -55,6 +55,13 @@ public abstract class GhidraInterpreter implements Disposable {
 	 * @return A list of possible code completions.
 	 */
 	public abstract List<CodeCompletion> getCompletions(String cmd);
+	
+	/**
+	 * Get the version of this interpreter.
+	 *
+	 * @return A string with the version of the interpreter.
+	 */
+	public abstract String getVersion();
 
 	/**
 	 * Sets the error output stream for this interpreter.

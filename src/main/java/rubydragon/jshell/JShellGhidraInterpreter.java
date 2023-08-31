@@ -217,6 +217,16 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 
 		return result;
 	}
+	
+	/**
+	 * Get the version of Java this jshell supports.
+	 *
+	 * @return A string with the version of the interpreter.
+	 */
+	@Override
+	public String getVersion() {
+		return Runtime.version().toString();
+	}
 
 	/**
 	 * Prints a status message to the console for the given event.

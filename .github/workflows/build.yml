@@ -12,7 +12,7 @@ jobs:
     runs-on: "ubuntu-latest"
     strategy:
       matrix:
-        ghidra: ["10.3", "10.3.1", "10.3.2"]
+        ghidra: ["10.3", "10.3.1", "10.3.2", "10.3.3"]
         include:
           - ghidra: "10.3"
             ghidra-url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.3_build/ghidra_10.3_PUBLIC_20230510.zip"
@@ -27,8 +27,13 @@ jobs:
           - ghidra: "10.3.2"
             ghidra-url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.3.2_build/ghidra_10.3.2_PUBLIC_20230711.zip"
             ghidra-sha256: "a658677a87d0be12ab65bd7962f471875b81a2dd2ea35d69cc3201555ca1bd6f"
-            ghidra-filename: " ghidra_10.3.2_PUBLIC_20230711.zip"
+            ghidra-filename: "ghidra_10.3.2_PUBLIC_20230711.zip"
             ghidra-folder: "ghidra_10.3.2_PUBLIC"
+          - ghidra: "10.3.3"
+            ghidra-url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.3.3_build/ghidra_10.3.3_PUBLIC_20230829.zip"
+            ghidra-sha256: "63833361bea8ef5ada1bc28cd2aa2ae4ab43204d2672b595500372582152eebe"
+            ghidra-filename: "ghidra_10.3.3_PUBLIC_20230829.zip"
+            ghidra-folder: "ghidra_10.3.3_PUBLIC"
 
     env:
       GHIDRA_INSTALL_DIR: /home/runner/ghidra/${{ matrix.ghidra-folder }}

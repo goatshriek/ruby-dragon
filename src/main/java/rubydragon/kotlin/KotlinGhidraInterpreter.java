@@ -159,6 +159,16 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	public List<CodeCompletion> getCompletions(String cmd) {
 		return new ArrayList<CodeCompletion>();
 	}
+	
+	/**
+	 * Get the version of Java this jshell supports.
+	 *
+	 * @return A string with the version of the interpreter.
+	 */
+	@Override
+	public String getVersion() {
+		return "";
+	}
 
 	/**
 	 * Runs the given script with the arguments and state provided.

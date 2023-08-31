@@ -9,7 +9,34 @@ While there is documentation included with Ghidra on how to set up a plugin
 development environment, there are a few unmentioned pitfalls that are worth
 mentioning.
 
-TODO: upgrade steps (deleted build directory, link to new Ghidra)
+You might encounter strange errors when trying to launch the plugin via
+Eclipse, oftentimes related to help menu resources. If this happens, delete
+the `build` directory from the root plugin folder and try again. This may
+be caused by differences between CLI builds and Eclipse builds.
+
+## Upgrading Ghidra in a Development Environment
+Upgrading the version of Ghidra can be a bit of a chore. Of course there is the
+potential of breakage, but there are also a number of steps that need to be
+taken in the repository and your own development setup.
+
+  * Make sure that you launch the new Ghidra at least once before
+    trying to do things like link with Eclipse or run automated tests or
+    scripts against it. The EULA and some other initialization things need to
+    be in place for this to go smoothly.
+  * The CI checks need to have the newest version added. This lives in the
+    `.github/workflows/build.yml` file. Adding the new version is a matter of
+    inserting the new version as well as its link, hash, and filename into the
+    version matrix. When adding a new major version (or even minor version) and
+    a breaking change was made to maintain support, the older versions can be
+    cleared out. All patch versions for the current minor version must be
+    included in the list.
+  * Add the new version of Ghidra with your GhidraDev plugin in Eclipse, and
+    link it with the RubyDragon project. You can do both of these things from
+    the `GhidraDev->Link Ghidra...` option. If you see an error about a
+    supported JDK missing, then you probably just need to launch the new Ghidra
+    on its own before doing this as the error message suggests.
+  * Be sure to update the `GHIDRA_INSTALL_DIR` environment variable as well so
+    that extension compilation uses the new version.
 
 
 ## Adding a New Language

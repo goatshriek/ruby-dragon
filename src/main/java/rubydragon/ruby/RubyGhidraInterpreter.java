@@ -186,6 +186,16 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 			return new ArrayList<>();
 		}
 	}
+	
+	/**
+	 * Get the version of Java this jshell supports.
+	 *
+	 * @return A string with the version of the interpreter.
+	 */
+	@Override
+	public String getVersion() {
+		return "";
+	}
 
 	/**
 	 * Sets up method proxies at the top level to mirror $script or $current_api
