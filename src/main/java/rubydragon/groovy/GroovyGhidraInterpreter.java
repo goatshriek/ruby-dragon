@@ -49,6 +49,7 @@ import ghidra.program.util.ProgramSelection;
 import groovy.lang.Binding;
 import groovy.lang.Closure;
 import groovy.lang.GroovyShell;
+import groovy.lang.GroovySystem;
 import rubydragon.DragonPlugin;
 import rubydragon.ScriptableGhidraInterpreter;
 
@@ -192,7 +193,7 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public String getVersion() {
-		return "";
+		return GroovySystem.getVersion();
 	}
 
 	/**

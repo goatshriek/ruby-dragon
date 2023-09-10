@@ -145,7 +145,8 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public String getVersion() {
-		return "";
+		Var clojureVersion = RT.var("clojure.core", "clojure-version");
+		return clojureVersion.invoke().toString();
 	}
 
 	/**

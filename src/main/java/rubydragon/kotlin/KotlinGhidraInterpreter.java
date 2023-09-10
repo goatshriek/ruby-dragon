@@ -27,6 +27,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -167,7 +168,7 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public String getVersion() {
-		return "";
+		return engine.getFactory().getLanguageVersion();
 	}
 
 	/**

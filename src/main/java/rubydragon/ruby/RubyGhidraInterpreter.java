@@ -194,7 +194,7 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public String getVersion() {
-		return "";
+		return (new ScriptingContainer()).getSupportedRubyVersion();
 	}
 
 	/**
