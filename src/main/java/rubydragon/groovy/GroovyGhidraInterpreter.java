@@ -27,7 +27,9 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.groovy.groovysh.Groovysh;
 import org.apache.groovy.groovysh.util.DefaultCommandsRegistrar;
@@ -58,6 +60,7 @@ import rubydragon.ScriptableGhidraInterpreter;
  */
 public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 
+	private Map<String, Object> setVariables = new HashMap<String, Object>();
 	private Thread replThread;
 	private Groovysh interactiveShell;
 	private Binding interactiveBinding;
@@ -72,6 +75,8 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	private DragonPlugin parentPlugin;
 
 	private Runnable replLoop = () -> {
+		createInteractiveShell(inStream, outStream, errStream);
+
 		while (!disposed) {
 			interactiveShell.run("");
 		}
@@ -83,6 +88,7 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	public GroovyGhidraInterpreter() {
 		replThread = new Thread(replLoop);
 		parentPlugin = null;
+		interactiveBinding = null;
 	}
 
 	/**
@@ -102,7 +108,6 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 		setOutWriter(new PrintWriter(outStream));
 		setErrWriter(new PrintWriter(errStream));
 
-		createInteractiveShell(in, out, err);
 		replThread = new Thread(replLoop);
 	}
 
@@ -163,6 +168,11 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 		}
 
 		interactiveShell = new Groovysh(classLoader, interactiveBinding, shellIo, registrar, cc);
+
+		// set any variables that were provided before creation
+		setVariables.forEach((name, value) -> {
+			interactiveBinding.setVariable(name, value);
+		});
 	}
 
 	/**
@@ -254,6 +264,20 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	}
 
 	/**
+	 * Adds or updates the variable with the given name to the given value in the
+	 * current engine.
+	 *
+	 * @param name  The name of the variable to create or update.
+	 * @param value The value of the variable to add.
+	 */
+	private void setVariable(String name, Object value) {
+		setVariables.put(name, value);
+		if (interactiveBinding != null) {
+			interactiveBinding.setVariable(name, value);
+		}
+	}
+
+	/**
 	 * Starts an interactive session with the current input/output/error streams.
 	 */
 	@Override
@@ -270,7 +294,7 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void updateAddress(Address address) {
 		if (address != null) {
-			interactiveBinding.setVariable("currentAddress", address);
+			setVariable("currentAddress", address);
 		}
 	}
 
@@ -283,7 +307,7 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void updateHighlight(ProgramSelection sel) {
 		if (sel != null) {
-			interactiveBinding.setVariable("currentHighlight", sel);
+			setVariable("currentHighlight", sel);
 		}
 	}
 
@@ -296,7 +320,7 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void updateLocation(ProgramLocation loc) {
 		if (loc != null) {
-			interactiveBinding.setVariable("currentLocation", loc);
+			setVariable("currentLocation", loc);
 			updateAddress(loc.getAddress());
 		}
 	}
@@ -309,8 +333,8 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void updateProgram(Program program) {
 		if (program != null) {
-			interactiveBinding.setVariable("currentProgram", program);
-			interactiveBinding.setVariable("currentAPI", new FlatProgramAPI(program));
+			setVariable("currentProgram", program);
+			setVariable("currentAPI", new FlatProgramAPI(program));
 		}
 	}
 
@@ -322,7 +346,7 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void updateSelection(ProgramSelection sel) {
 		if (sel != null) {
-			interactiveBinding.setVariable("currentSelection", sel);
+			setVariable("currentSelection", sel);
 		}
 	}
 

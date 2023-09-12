@@ -92,6 +92,11 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 			}
 		}
 
+		// set any variables that were provided before creation
+		setVariables.forEach((name, value) -> {
+			engine.put(name, value);
+		});
+
 		// the actual read loop
 		while (replReader != null) {
 			try {

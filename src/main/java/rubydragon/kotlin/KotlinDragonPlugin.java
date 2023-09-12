@@ -69,10 +69,10 @@ public class KotlinDragonPlugin extends DragonPlugin implements InterpreterConne
 	}
 
 	/**
-	 * Gives the clojure interpreter currently in use.
+	 * Gives the kotlin interpreter currently in use.
 	 *
-	 * @return The clojure interpreter for this plugin. Will always be a
-	 *         ClojureGhidraInterpreter instance.
+	 * @return The kotlin interpreter for this plugin. Will always be a
+	 *         KotlinGhidraInterpreter instance.
 	 */
 	@Override
 	public GhidraInterpreter getInterpreter() {
