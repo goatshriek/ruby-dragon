@@ -28,7 +28,6 @@ import ghidra.framework.plugintool.PluginTool;
 import ghidra.framework.plugintool.util.PluginStatus;
 import rubydragon.DragonPlugin;
 import rubydragon.GhidraInterpreter;
-import rubydragon.MissingDragonDependency;
 
 /**
  * KotlinDragon provides Kotlin support within Ghidra, both in an interactive
@@ -88,11 +87,7 @@ public class KotlinDragonPlugin extends DragonPlugin implements InterpreterConne
 		super.init();
 
 		console = getTool().getService(InterpreterPanelService.class).createInterpreterPanel(this, false);
-		try {
-			interpreter = new KotlinGhidraInterpreter(console, this);
-		} catch (MissingDragonDependency e) {
-			throw new RuntimeException(e.getMessage());
-		}
+		interpreter = new KotlinGhidraInterpreter(console, this);
 		console.setPrompt("> ");
 		console.addFirstActivationCallback(() -> {
 			interpreter.startInteractiveSession();

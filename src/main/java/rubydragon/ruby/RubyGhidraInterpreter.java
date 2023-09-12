@@ -135,11 +135,10 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 				loadError = "could not auto-import classes: " + e.getMessage() + "\n";
 			}
 
-			if (loadError == null) {
-				container.getOutput().append("auto-import completed.\n");
-			} else {
+			if (loadError != null) {
 				container.getError().append(loadError);
 			}
+			container.getOutput().append("auto-import completed.\n");
 		}
 
 		// set any variables that were provided before creation
@@ -186,7 +185,7 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 			return new ArrayList<>();
 		}
 	}
-	
+
 	/**
 	 * Get the version of Java this jshell supports.
 	 *

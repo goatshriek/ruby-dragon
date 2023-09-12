@@ -25,9 +25,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -46,13 +47,13 @@ import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
 import rubydragon.DragonPlugin;
-import rubydragon.MissingDragonDependency;
 import rubydragon.ScriptableGhidraInterpreter;
 
 /**
  * A Kotlin intepreter for Ghidra.
  */
 public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
+	private Map<String, Object> setVariables = new HashMap<String, Object>();
 	private Thread replThread;
 	private ScriptEngine engine;
 	private BufferedReader replReader;
@@ -61,6 +62,16 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	private PrintWriter errWriter;
 
 	private Runnable replLoop = () -> {
+		ScriptEngineManager scriptManager = new ScriptEngineManager();
+		engine = scriptManager.getEngineByExtension("kts");
+
+		if (engine == null) {
+			String errorMessage = "A Kotlin interpreter could not be created due to missing dependencies.";
+			errWriter.append(errorMessage + "\n");
+			errWriter.flush();
+		}
+
+		engine.setContext(context);
 		// load the preload imports if enabled
 		boolean preloadEnabled = parentPlugin != null && parentPlugin.isAutoImportEnabled();
 		if (preloadEnabled) {
@@ -99,25 +110,13 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 
 	/**
 	 * Creates a new interpreter, with no input stream.
-	 *
-	 * @throws MissingDragonDependency If dependencies are missing for a Kotlin
-	 *                                 interpeter.
 	 */
-	public KotlinGhidraInterpreter() throws MissingDragonDependency {
+	public KotlinGhidraInterpreter() {
 		// needed to avoid dll loading issues on Windows
 		System.setProperty("idea.io.use.nio2", "true");
 
+		engine = null;
 		context = new SimpleScriptContext();
-
-		ScriptEngineManager scriptManager = new ScriptEngineManager();
-		engine = scriptManager.getEngineByExtension("kts");
-
-		if (engine == null) {
-			String errorMessage = "A Kotlin interpreter could not be created due to missing dependencies.";
-			throw new MissingDragonDependency(errorMessage);
-		}
-
-		engine.setContext(context);
 
 		replThread = new Thread(replLoop);
 		parentPlugin = null;
@@ -129,14 +128,10 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 *
 	 * @param console The console to bind to the interpreter streams.
 	 * @param plugin  The DragonPlugin instance owning this interpreter.
-	 *
-	 * @throws MissingDragonDependency If dependencies are missing for a Kotlin
-	 *                                 interpeter.
 	 */
-	public KotlinGhidraInterpreter(InterpreterConsole console, DragonPlugin plugin) throws MissingDragonDependency {
+	public KotlinGhidraInterpreter(InterpreterConsole console, DragonPlugin plugin) {
 		this();
 		setStreams(console);
-		errWriter = new PrintWriter(console.getStdErr());
 		parentPlugin = plugin;
 	}
 
@@ -160,14 +155,22 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	public List<CodeCompletion> getCompletions(String cmd) {
 		return new ArrayList<CodeCompletion>();
 	}
-	
+
 	/**
-	 * Get the version of Java this jshell supports.
+	 * Get the version of Kotlin this interpreter supports.
 	 *
-	 * @return A string with the version of the interpreter.
+	 * @return A string with the version of the interpreter. Returns null if a
+	 *         Kotlin script engine could not be created.
 	 */
 	@Override
 	public String getVersion() {
+		ScriptEngineManager scriptManager = new ScriptEngineManager();
+		engine = scriptManager.getEngineByExtension("kts");
+
+		if (engine == null) {
+			return null;
+		}
+
 		return engine.getFactory().getLanguageVersion();
 	}
 
@@ -211,6 +214,7 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void setErrWriter(PrintWriter errOut) {
 		context.setErrorWriter(errOut);
+		errWriter = errOut;
 	}
 
 	/**
@@ -230,6 +234,20 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	}
 
 	/**
+	 * Adds or updates the variable with the given name to the given value in the
+	 * current engine.
+	 * 
+	 * @param name  The name of the variable to create or update.
+	 * @param value The value of the variable to add.
+	 */
+	private void setVariable(String name, Object value) {
+		setVariables.put(name, value);
+		if (engine != null) {
+			engine.put(name, value);
+		}
+	}
+
+	/**
 	 * Starts an interactive session with the current input/output/error streams.
 	 */
 	@Override
@@ -246,7 +264,7 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void updateAddress(Address address) {
 		if (address != null) {
-			engine.put("currentAddress", address);
+			setVariable("currentAddress", address);
 		}
 	}
 
@@ -259,7 +277,7 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void updateHighlight(ProgramSelection sel) {
 		if (sel != null) {
-			engine.put("currentHighlight", sel);
+			setVariable("currentHighlight", sel);
 		}
 	}
 
@@ -272,7 +290,7 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void updateLocation(ProgramLocation loc) {
 		if (loc != null) {
-			engine.put("currentLocation", loc);
+			setVariable("currentLocation", loc);
 			updateAddress(loc.getAddress());
 		}
 	}
@@ -286,8 +304,8 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void updateProgram(Program program) {
 		if (program != null) {
-			engine.put("currentProgram", program);
-			engine.put("currentAPI", new FlatProgramAPI(program));
+			setVariable("currentProgram", program);
+			setVariable("currentAPI", new FlatProgramAPI(program));
 		}
 	}
 
@@ -299,7 +317,7 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void updateSelection(ProgramSelection sel) {
 		if (sel != null) {
-			engine.put("currentSelection", sel);
+			setVariable("currentSelection", sel);
 		}
 	}
 
