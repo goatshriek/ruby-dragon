@@ -201,6 +201,17 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 		InputStreamReader scriptReader = new InputStreamReader(scriptFile.getInputStream());
 		loadState(scriptState);
 
+		if (engine == null) {
+			ScriptEngineManager scriptManager = new ScriptEngineManager();
+			engine = scriptManager.getEngineByExtension("kts");
+			engine.setContext(context);
+
+			// set any variables that were provided before creation
+			setVariables.forEach((name, value) -> {
+				engine.put(name, value);
+			});
+		}
+
 		engine.put("script", script);
 		engine.put("args", scriptArguments);
 		try {
