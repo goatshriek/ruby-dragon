@@ -29,8 +29,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jdom.JDOMException;
-
 import clojure.lang.LineNumberingPushbackReader;
 import clojure.lang.Namespace;
 import clojure.lang.RT;
@@ -149,6 +147,11 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 		return "current-selection";
 	}
 
+	@Override
+	public DragonPlugin getParentPlugin() {
+		return parentPlugin;
+	}
+
 	/**
 	 * Get the version of Clojure this interpreter supports.
 	 *
@@ -160,6 +163,12 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 		return "Clojure " + clojureVersion.invoke().toString();
 	}
 
+	@Override
+	public void importClass(String packageName, String className) {
+		Namespace ghidraNs = Namespace.findOrCreate(Symbol.intern(null, "ghidra"));
+		ghidraNs.importClass(RT.classForName(className));
+	}
+
 	/**
 	 * Sets up the Clojure environment, and auto loads classes if enabled.
 	 */
@@ -169,19 +178,6 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 		Var clojureCoreRequire = RT.var("clojure.core", "require");
 		RT.init();
 		clojureCoreRequire.invoke(clojureMain);
-
-		// load the preload imports if enabled
-		boolean preloadEnabled = parentPlugin != null && parentPlugin.isAutoImportEnabled();
-		if (preloadEnabled) {
-			Namespace ghidraNs = Namespace.findOrCreate(Symbol.intern(null, "ghidra"));
-			try {
-				DragonPlugin.forEachAutoImport(className -> {
-					ghidraNs.importClass(RT.classForName(className));
-				});
-			} catch (JDOMException | IOException e) {
-				errWriter.append("could not load auto-import classes: " + e.getMessage() + "\n");
-			}
-		}
 	}
 
 	/**

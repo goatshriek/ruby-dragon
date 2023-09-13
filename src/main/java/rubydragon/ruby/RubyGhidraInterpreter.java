@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jdom.JDOMException;
 import org.jruby.embed.EvalFailedException;
 import org.jruby.embed.LocalContextScope;
 import org.jruby.embed.LocalVariableBehavior;
@@ -88,64 +87,22 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	}
 
 	/**
-	 * Creates a new Ruby interpreter, auto loads classes if enabled, and sets up
-	 * the automatic variables.
+	 * Sets up method proxies at the top level to mirror $script or $current_api
+	 * methods, as jython does.
 	 */
-	@Override
-	public void initInteractiveInterpreter() {
-		container = new ScriptingContainer(LocalContextScope.SINGLETHREAD, LocalVariableBehavior.PERSISTENT);
-
-		// set the input and output streams if they've been set
-		if (errWriter != null) {
-			container.setError(errWriter);
-		}
-		if (input != null) {
-			container.setInput(input);
-		}
-		if (outWriter != null) {
-			container.setOutput(outWriter);
-		}
-
-		// run the ruby setup script
-		InputStream stream = getClass().getResourceAsStream("/scripts/ruby-init.rb");
-		container.runScriptlet(stream, "ruby-init.rb");
-
-		// load the preload imports if enabled
-		boolean preloadEnabled = parentPlugin != null && parentPlugin.isAutoImportEnabled();
-		if (preloadEnabled) {
-			String loadError = null;
-			container.getOutput().append("starting auto-import...\n");
-			try {
-				DragonPlugin.forEachAutoImport((packageName, className) -> {
-					// we don't import the class if it will stomp an existing symbol
-					// we also have to skip Data because it generates deprecation warnings
-					if (!className.equals("Data") && container.get(className) == null) {
-						String importStatement = "java_import Java::" + packageName + "." + className;
-						try {
-							container.runScriptlet(importStatement);
-						} catch (EvalFailedException e) {
-							String evalError = "could not load class " + packageName + "." + className + ": "
-									+ e.getMessage() + "\n";
-							container.getError().append(evalError);
-						}
-					}
-				});
-			} catch (JDOMException | IOException e) {
-				loadError = "could not auto-import classes: " + e.getMessage() + "\n";
-			}
-
-			if (loadError != null) {
-				container.getError().append(loadError);
-			}
-			container.getOutput().append("auto-import completed.\n");
-		}
-
-		// set any variables that were provided before creation
-		setVariables.forEach((name, value) -> {
-			container.put(name, value);
-		});
-
-		createProxies();
+	public void createProxies() {
+		// ignore base java Object, ruby Object, main, and Kernel methods. We don't want
+		// to overwrite any of them.
+		//@formatter:off
+		container.runScriptlet(
+			"((($current_api.methods - java.lang.Object.new.methods) - self.methods) - Kernel.methods).each { |mn| \n" +
+			// proxy the current object (hence not method binding)
+			" define_method(mn){|*argv|($current_api).send(mn, *argv);}\n" +
+			// hide from all other objects so we don't see it in autocomplete when called
+			// with an explicit receiver
+			" private(mn)\n" +
+			" }");
+		//@formatter:on
 	}
 
 	/**
@@ -215,6 +172,11 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 		return "$current_selection";
 	}
 
+	@Override
+	public DragonPlugin getParentPlugin() {
+		return parentPlugin;
+	}
+
 	/**
 	 * Get the version of Ruby this interpreter supports.
 	 *
@@ -226,22 +188,50 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	}
 
 	/**
-	 * Sets up method proxies at the top level to mirror $script or $current_api
-	 * methods, as jython does.
+	 * Creates a new Ruby interpreter, auto loads classes if enabled, and sets up
+	 * the automatic variables.
 	 */
-	public void createProxies() {
-		// ignore base java Object, ruby Object, main, and Kernel methods. We don't want
-		// to overwrite any of them.
-		//@formatter:off
-		container.runScriptlet(
-			"((($current_api.methods - java.lang.Object.new.methods) - self.methods) - Kernel.methods).each { |mn| \n" +
-			// proxy the current object (hence not method binding)
-			" define_method(mn){|*argv|($current_api).send(mn, *argv);}\n" +
-			// hide from all other objects so we don't see it in autocomplete when called
-			// with an explicit receiver
-			" private(mn)\n" +
-			" }");
-		//@formatter:on
+	@Override
+	public void initInteractiveInterpreter() {
+		container = new ScriptingContainer(LocalContextScope.SINGLETHREAD, LocalVariableBehavior.PERSISTENT);
+
+		// set the input and output streams if they've been set
+		if (errWriter != null) {
+			container.setError(errWriter);
+		}
+		if (input != null) {
+			container.setInput(input);
+		}
+		if (outWriter != null) {
+			container.setOutput(outWriter);
+		}
+
+		// run the ruby setup script
+		InputStream stream = getClass().getResourceAsStream("/scripts/ruby-init.rb");
+		container.runScriptlet(stream, "ruby-init.rb");
+
+		// set any variables that were provided before creation
+		setVariables.forEach((name, value) -> {
+			container.put(name, value);
+		});
+
+		createProxies();
+	}
+
+	@Override
+	public void importClass(String packageName, String className) {
+		// we don't import the class if it will stomp an existing symbol
+		// we also have to skip Data because it generates deprecation warnings
+		if (container != null && !className.equals("Data") && container.get(className) == null) {
+			String importStatement = "java_import Java::" + packageName + "." + className;
+			try {
+				container.runScriptlet(importStatement);
+			} catch (EvalFailedException e) {
+				String evalError = "could not load class " + packageName + "." + className + ": " + e.getMessage()
+						+ "\n";
+				container.getError().append(evalError);
+			}
+		}
 	}
 
 	/**

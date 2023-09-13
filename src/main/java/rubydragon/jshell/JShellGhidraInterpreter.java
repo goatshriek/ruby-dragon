@@ -32,8 +32,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.jdom.JDOMException;
-
 import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.program.flatapi.FlatProgramAPI;
@@ -149,24 +147,6 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 		builder.executionEngine(new LocalExecutionControlProvider(), new HashMap<String, String>());
 		jshell = builder.build();
 
-		// load the preload imports if enabled
-		boolean preloadEnabled = parentPlugin.isAutoImportEnabled();
-		if (preloadEnabled) {
-			long startTime = System.currentTimeMillis();
-			outPrintStream.append("starting auto-import...\n");
-			try {
-				DragonPlugin.forEachAutoImport(className -> {
-					String importStatement = "import " + className + ";";
-					jshell.eval(importStatement);
-				});
-				long endTime = System.currentTimeMillis();
-				double loadTime = (endTime - startTime) / 1000.0;
-				outPrintStream.append(String.format("auto-import completed. (%.3f seconds)\n", loadTime));
-			} catch (JDOMException | IOException e) {
-				errPrintStream.println("could not auto-import all classes, " + e.getMessage());
-			}
-		}
-
 		// declare the built-in variables
 		jshell.eval(String.format("%s currentAddress = null;", Address.class.getName()));
 		jshell.eval(String.format("%s currentAPI = null;", FlatProgramAPI.class.getName()));
@@ -218,6 +198,11 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 		return result;
 	}
 
+	@Override
+	public DragonPlugin getParentPlugin() {
+		return parentPlugin;
+	}
+
 	/**
 	 * Get the version of Java this jshell supports.
 	 *
@@ -251,6 +236,14 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 				}
 				break;
 			}
+		}
+	}
+
+	@Override
+	public void importClass(String packageName, String className) {
+		if (jshell != null) {
+			String importStatement = "import " + className + ";";
+			jshell.eval(importStatement);
 		}
 	}
 

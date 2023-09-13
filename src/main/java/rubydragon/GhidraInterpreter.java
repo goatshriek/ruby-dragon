@@ -18,9 +18,12 @@
 
 package rubydragon;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.List;
+
+import org.jdom.JDOMException;
 
 import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
@@ -42,6 +45,37 @@ import ghidra.util.Disposable;
  * ScriptableGhidraInterpreter instead.
  */
 public abstract class GhidraInterpreter implements Disposable {
+
+	public void autoImportClasses(PrintWriter output, PrintWriter errOut) {
+		DragonPlugin parentPlugin = getParentPlugin();
+		boolean preloadEnabled = parentPlugin != null && parentPlugin.isAutoImportEnabled();
+		if (preloadEnabled) {
+			long startTime = System.currentTimeMillis();
+			output.append("starting auto-import...\n");
+			output.flush();
+
+			String loadError = null;
+			try {
+				DragonPlugin.forEachAutoImport((packageName, className) -> {
+					importClass(packageName, className);
+				});
+			} catch (JDOMException | IOException e) {
+				loadError = "could not auto-import classes: " + e.getMessage() + "\n";
+			}
+
+			if (loadError != null) {
+				errOut.append(loadError);
+				errOut.flush();
+			}
+			long endTime = System.currentTimeMillis();
+			double importTime = (endTime - startTime) / 1000.0;
+			output.append(String.format("auto-imported finished (%.3f seconds)\n", importTime));
+			output.flush();
+		} else {
+			output.append("auto-import disabled.\n");
+			output.flush();
+		}
+	}
 
 	/**
 	 * Cleans up all resources for this intepreter.
@@ -81,12 +115,16 @@ public abstract class GhidraInterpreter implements Disposable {
 		return "currentSelection";
 	}
 
+	public abstract DragonPlugin getParentPlugin();
+
 	/**
 	 * Get the version of this interpreter.
 	 *
 	 * @return A string with the version of the interpreter.
 	 */
 	public abstract String getVersion();
+
+	public abstract void importClass(String packageName, String className);
 
 	public abstract void initInteractiveInterpreter();
 
@@ -95,6 +133,7 @@ public abstract class GhidraInterpreter implements Disposable {
 		output.append("starting " + getVersion() + "\n");
 		output.flush();
 		initInteractiveInterpreter();
+		autoImportClasses(output, errOut);
 		long endTime = System.currentTimeMillis();
 		double loadTime = (endTime - startTime) / 1000.0;
 		output.append(String.format("startup finished (%.3f seconds)\n", loadTime));

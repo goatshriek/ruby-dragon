@@ -34,8 +34,6 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.script.SimpleScriptContext;
 
-import org.jdom.JDOMException;
-
 import generic.jar.ResourceFile;
 import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
@@ -128,6 +126,11 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 		return new ArrayList<CodeCompletion>();
 	}
 
+	@Override
+	public DragonPlugin getParentPlugin() {
+		return parentPlugin;
+	}
+
 	/**
 	 * Get the version of Kotlin this interpreter supports.
 	 *
@@ -146,6 +149,25 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 		return "Kotlin " + engine.getFactory().getLanguageVersion();
 	}
 
+	@Override
+	public void importClass(String packageName, String className) {
+		if (engine != null) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("import ");
+			sb.append(packageName);
+			sb.append('.');
+			sb.append(className);
+			sb.append(';');
+
+			try {
+				engine.eval(sb.toString());
+			} catch (ScriptException e) {
+				errWriter.append("could not import " + className + ", " + e.getMessage() + "\n");
+				errWriter.flush();
+			}
+		}
+	}
+
 	/**
 	 * Sets up the Kotlin environment, and auto loads classes if enabled.
 	 */
@@ -161,24 +183,6 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 		}
 
 		engine.setContext(context);
-		// load the preload imports if enabled
-		boolean preloadEnabled = parentPlugin != null && parentPlugin.isAutoImportEnabled();
-		if (preloadEnabled) {
-			try {
-				StringBuilder sb = new StringBuilder();
-				DragonPlugin.forEachAutoImport((packageName, className) -> {
-					sb.append("import ");
-					sb.append(packageName);
-					sb.append('.');
-					sb.append(className);
-					sb.append(';');
-				});
-				engine.eval(sb.toString());
-			} catch (JDOMException | IOException | ScriptException e) {
-				errWriter.append("could not auto-import classes, " + e.getMessage() + "\n");
-				errWriter.flush();
-			}
-		}
 
 		// set any variables that were provided before creation
 		setVariables.forEach((name, value) -> {

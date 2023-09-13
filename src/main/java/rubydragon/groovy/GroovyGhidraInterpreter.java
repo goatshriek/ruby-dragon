@@ -118,6 +118,11 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 		this(console.getStdin(), console.getStdOut(), console.getStdErr(), plugin);
 	}
 
+	@Override
+	public void autoImportClasses(PrintWriter output, PrintWriter errOut) {
+		return; // TODO this is handled more efficiently in initInteractiveInterpreter
+	}
+
 	/**
 	 * Creates a new Groovy shell to run scripts.
 	 */
@@ -193,6 +198,11 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 		return new ArrayList<CodeCompletion>();
 	}
 
+	@Override
+	public DragonPlugin getParentPlugin() {
+		return parentPlugin;
+	}
+
 	/**
 	 * Get the version of Groovy this interpreter supports.
 	 *
@@ -201,6 +211,11 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public String getVersion() {
 		return "Groovy " + GroovySystem.getVersion();
+	}
+
+	@Override
+	public void importClass(String packageName, String className) {
+		return; // TODO unimplemented
 	}
 
 	/**
