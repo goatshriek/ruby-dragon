@@ -88,6 +88,19 @@ public abstract class GhidraInterpreter implements Disposable {
 	 */
 	public abstract String getVersion();
 
+	public abstract void initInteractiveInterpreter();
+
+	public void initInteractiveInterpreterWithProgress(PrintWriter output, PrintWriter errOut) {
+		long startTime = System.currentTimeMillis();
+		output.append("starting " + getVersion() + "\n");
+		output.flush();
+		initInteractiveInterpreter();
+		long endTime = System.currentTimeMillis();
+		double loadTime = (endTime - startTime) / 1000.0;
+		output.append(String.format("startup finished (%.3f seconds)\n", loadTime));
+		output.flush();
+	}
+
 	/**
 	 * Sets the error output stream for this interpreter.
 	 *

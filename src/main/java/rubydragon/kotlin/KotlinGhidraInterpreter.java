@@ -58,43 +58,11 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	private BufferedReader replReader;
 	private SimpleScriptContext context;
 	private DragonPlugin parentPlugin;
+	private PrintWriter outWriter;
 	private PrintWriter errWriter;
 
 	private Runnable replLoop = () -> {
-		ScriptEngineManager scriptManager = new ScriptEngineManager();
-		engine = scriptManager.getEngineByExtension("kts");
-
-		if (engine == null) {
-			String errorMessage = "A Kotlin interpreter could not be created due to missing dependencies.";
-			errWriter.append(errorMessage + "\n");
-			errWriter.flush();
-		}
-
-		engine.setContext(context);
-		// load the preload imports if enabled
-		boolean preloadEnabled = parentPlugin != null && parentPlugin.isAutoImportEnabled();
-		if (preloadEnabled) {
-			try {
-				StringBuilder sb = new StringBuilder();
-				DragonPlugin.forEachAutoImport((packageName, className) -> {
-					sb.append("import ");
-					sb.append(packageName);
-					sb.append('.');
-					sb.append(className);
-					sb.append(';');
-				});
-				engine.eval(sb.toString());
-				System.out.println("finished kotlin import!");
-			} catch (JDOMException | IOException | ScriptException e) {
-				errWriter.append("could not auto-import classes, " + e.getMessage() + "\n");
-				errWriter.flush();
-			}
-		}
-
-		// set any variables that were provided before creation
-		setVariables.forEach((name, value) -> {
-			engine.put(name, value);
-		});
+		initInteractiveInterpreterWithProgress(outWriter, errWriter);
 
 		// the actual read loop
 		while (replReader != null) {
@@ -175,7 +143,47 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 			return null;
 		}
 
-		return engine.getFactory().getLanguageVersion();
+		return "Kotlin " + engine.getFactory().getLanguageVersion();
+	}
+
+	/**
+	 * Sets up the Kotlin environment, and auto loads classes if enabled.
+	 */
+	@Override
+	public void initInteractiveInterpreter() {
+		ScriptEngineManager scriptManager = new ScriptEngineManager();
+		engine = scriptManager.getEngineByExtension("kts");
+
+		if (engine == null) {
+			String errorMessage = "A Kotlin interpreter could not be created due to missing dependencies.";
+			errWriter.append(errorMessage + "\n");
+			errWriter.flush();
+		}
+
+		engine.setContext(context);
+		// load the preload imports if enabled
+		boolean preloadEnabled = parentPlugin != null && parentPlugin.isAutoImportEnabled();
+		if (preloadEnabled) {
+			try {
+				StringBuilder sb = new StringBuilder();
+				DragonPlugin.forEachAutoImport((packageName, className) -> {
+					sb.append("import ");
+					sb.append(packageName);
+					sb.append('.');
+					sb.append(className);
+					sb.append(';');
+				});
+				engine.eval(sb.toString());
+			} catch (JDOMException | IOException | ScriptException e) {
+				errWriter.append("could not auto-import classes, " + e.getMessage() + "\n");
+				errWriter.flush();
+			}
+		}
+
+		// set any variables that were provided before creation
+		setVariables.forEach((name, value) -> {
+			engine.put(name, value);
+		});
 	}
 
 	/**
@@ -246,6 +254,7 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void setOutWriter(PrintWriter output) {
 		context.setWriter(output);
+		outWriter = output;
 	}
 
 	/**

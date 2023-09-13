@@ -50,36 +50,19 @@ import rubydragon.DragonPlugin;
 import rubydragon.ScriptableGhidraInterpreter;
 
 /**
- * A Clojure intepreter for Ghidra.
+ * A Clojure interpreter for Ghidra.
  */
 public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 	private Thread replThread;
 	final private ClassLoader clojureClassLoader;
 	private DragonPlugin parentPlugin;
+	private PrintWriter outWriter;
 	private PrintWriter errWriter;
 
 	private Runnable replLoop = () -> {
-		// some setup of the clojure environment
-		Symbol clojureMain = Symbol.intern("clojure.main");
-		Var clojureCoreRequire = RT.var("clojure.core", "require");
+		initInteractiveInterpreterWithProgress(outWriter, errWriter);
+
 		Var clojureMainFunction = RT.var("clojure.main", "main");
-		RT.init();
-		clojureCoreRequire.invoke(clojureMain);
-
-		// load the preload imports if enabled
-		boolean preloadEnabled = parentPlugin != null && parentPlugin.isAutoImportEnabled();
-		if (preloadEnabled) {
-			Namespace ghidraNs = Namespace.findOrCreate(Symbol.intern(null, "ghidra"));
-			try {
-				DragonPlugin.forEachAutoImport(className -> {
-					ghidraNs.importClass(RT.classForName(className));
-				});
-			} catch (JDOMException | IOException e) {
-				errWriter.append("could not load auto-import classes: " + e.getMessage() + "\n");
-			}
-		}
-
-		// the repl loop itself
 		while (true) {
 			String[] args = { "--repl" };
 			clojureMainFunction.applyTo(RT.seq(args));
@@ -106,7 +89,6 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 	public ClojureGhidraInterpreter(InterpreterConsole console, DragonPlugin plugin) {
 		this();
 		setStreams(console);
-		errWriter = new PrintWriter(console.getStdErr());
 		parentPlugin = plugin;
 	}
 
@@ -175,7 +157,31 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public String getVersion() {
 		Var clojureVersion = RT.var("clojure.core", "clojure-version");
-		return clojureVersion.invoke().toString();
+		return "Clojure " + clojureVersion.invoke().toString();
+	}
+
+	/**
+	 * Sets up the Clojure environment, and auto loads classes if enabled.
+	 */
+	@Override
+	public void initInteractiveInterpreter() {
+		Symbol clojureMain = Symbol.intern("clojure.main");
+		Var clojureCoreRequire = RT.var("clojure.core", "require");
+		RT.init();
+		clojureCoreRequire.invoke(clojureMain);
+
+		// load the preload imports if enabled
+		boolean preloadEnabled = parentPlugin != null && parentPlugin.isAutoImportEnabled();
+		if (preloadEnabled) {
+			Namespace ghidraNs = Namespace.findOrCreate(Symbol.intern(null, "ghidra"));
+			try {
+				DragonPlugin.forEachAutoImport(className -> {
+					ghidraNs.importClass(RT.classForName(className));
+				});
+			} catch (JDOMException | IOException e) {
+				errWriter.append("could not load auto-import classes: " + e.getMessage() + "\n");
+			}
+		}
 	}
 
 	/**
@@ -252,6 +258,7 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public void setErrWriter(PrintWriter errOut) {
+		errWriter = errOut;
 		Var.intern(RT.CLOJURE_NS, Symbol.intern("*err*"), errOut);
 	}
 
@@ -269,6 +276,7 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public void setOutWriter(PrintWriter output) {
+		outWriter = output;
 		Var.intern(RT.CLOJURE_NS, Symbol.intern("*out*"), output);
 	}
 

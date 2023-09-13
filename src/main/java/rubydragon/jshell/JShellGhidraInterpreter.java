@@ -73,8 +73,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	private boolean disposed = false;
 
 	private Runnable replLoop = () -> {
-		// set up the jshell interpreter
-		createJShell();
+		initInteractiveInterpreterWithProgress(outWriter, errWriter);
 
 		while (!disposed) {
 			try {
@@ -139,7 +138,8 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	/**
 	 * Creates a new JShell interpreter, and declares the internal variables.
 	 */
-	private void createJShell() {
+	@Override
+	public void initInteractiveInterpreter() {
 		PrintStream outPrintStream = new PrintStream(outStream);
 		PrintStream errPrintStream = new PrintStream(errStream);
 
@@ -225,7 +225,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 */
 	@Override
 	public String getVersion() {
-		return Runtime.version().toString();
+		return "JShell " + Runtime.version().toString();
 	}
 
 	/**
@@ -266,7 +266,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 */
 	public void reset() {
 		jshell.close();
-		createJShell();
+		initInteractiveInterpreter();
 	}
 
 	/**
@@ -304,8 +304,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	}
 
 	/**
-	 * Sets an existing variable with the given name to the given value and
-	 * class.
+	 * Sets an existing variable with the given name to the given value and class.
 	 *
 	 * @param name  The name of the variable.
 	 * @param type  The type of the variable.

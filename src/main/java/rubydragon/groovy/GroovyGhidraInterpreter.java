@@ -65,12 +65,13 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	private InputStream inStream;
 	private OutputStream outStream;
 	private OutputStream errStream;
+	private PrintWriter outWriter;
 	private PrintWriter errWriter;
 	private boolean disposed = false;
 	private DragonPlugin parentPlugin;
 
 	private Runnable replLoop = () -> {
-		createInteractiveShell(inStream, outStream, errStream);
+		initInteractiveInterpreterWithProgress(outWriter, errWriter);
 
 		while (!disposed) {
 			interactiveShell.run("");
@@ -127,7 +128,8 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	/**
 	 * Creates a new Groovy interpreter for interactive sessions.
 	 */
-	private void createInteractiveShell(InputStream in, OutputStream out, OutputStream err) {
+	@Override
+	public void initInteractiveInterpreter() {
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
 		// this is the default registrar closure from the groovy source
@@ -144,7 +146,7 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 				}
 			}
 		};
-		IO shellIo = new IO(in, out, err);
+		IO shellIo = new IO(inStream, outStream, errStream);
 		interactiveBinding = new Binding();
 		CompilerConfiguration cc = new CompilerConfiguration();
 
@@ -190,7 +192,7 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	public List<CodeCompletion> getCompletions(String cmd) {
 		return new ArrayList<CodeCompletion>();
 	}
-	
+
 	/**
 	 * Get the version of Groovy this interpreter supports.
 	 *
@@ -198,7 +200,7 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public String getVersion() {
-		return GroovySystem.getVersion();
+		return "Groovy " + GroovySystem.getVersion();
 	}
 
 	/**
@@ -221,7 +223,7 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 * Resets this interpreter.
 	 */
 	public void reset() {
-		createInteractiveShell(inStream, outStream, errStream);
+		initInteractiveInterpreter();
 	}
 
 	@Override
@@ -255,7 +257,7 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public void setOutWriter(PrintWriter output) {
-		return;
+		outWriter = output;
 	}
 
 	/**

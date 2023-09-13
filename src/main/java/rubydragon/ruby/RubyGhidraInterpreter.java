@@ -59,8 +59,7 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	private InputStream input = null;
 
 	private Runnable replLoop = () -> {
-		// create a new interpreter
-		createInterpreter();
+		initInteractiveInterpreterWithProgress(outWriter, errWriter);
 
 		while (!disposed) {
 			container.runScriptlet("IRB.start");
@@ -92,7 +91,8 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 * Creates a new Ruby interpreter, auto loads classes if enabled, and sets up
 	 * the automatic variables.
 	 */
-	private void createInterpreter() {
+	@Override
+	public void initInteractiveInterpreter() {
 		container = new ScriptingContainer(LocalContextScope.SINGLETHREAD, LocalVariableBehavior.PERSISTENT);
 
 		// set the input and output streams if they've been set
@@ -262,7 +262,7 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void runScript(GhidraScript script, String[] scriptArguments, GhidraState scriptState)
 			throws IllegalArgumentException, FileNotFoundException, IOException {
-		createInterpreter();
+		initInteractiveInterpreter();
 		InputStream scriptStream = script.getSourceFile().getInputStream();
 		loadState(scriptState);
 		Object savedAPI = container.get("$current_api");
