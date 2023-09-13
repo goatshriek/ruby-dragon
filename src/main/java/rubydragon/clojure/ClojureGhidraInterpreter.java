@@ -41,7 +41,6 @@ import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.app.script.GhidraScript;
 import ghidra.app.script.GhidraState;
-import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
@@ -137,9 +136,39 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 	public List<CodeCompletion> getCompletions(String cmd) {
 		return new ArrayList<CodeCompletion>();
 	}
-	
+
+	@Override
+	public String getCurrentAddressName() {
+		return "current-address";
+	}
+
+	@Override
+	public String getCurrentAPIName() {
+		return "current-api";
+	}
+
+	@Override
+	public String getCurrentHighlightName() {
+		return "current-highlight";
+	}
+
+	@Override
+	public String getCurrentLocationName() {
+		return "current-location";
+	}
+
+	@Override
+	public String getCurrentProgramName() {
+		return "current-program";
+	}
+
+	@Override
+	public String getCurrentSelectionName() {
+		return "current-selection";
+	}
+
 	/**
-	 * Get the version of Java this jshell supports.
+	 * Get the version of Clojure this interpreter supports.
 	 *
 	 * @return A string with the version of the interpreter.
 	 */
@@ -244,69 +273,23 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 	}
 
 	/**
+	 * Adds or updates the variable with the given name to the given value in the
+	 * scripting container.
+	 *
+	 * @param name  The name of the variable to create or update.
+	 * @param value The value of the variable to add.
+	 */
+	@Override
+	public void setVariable(String name, Object value) {
+		RT.var("ghidra", name, value);
+	}
+
+	/**
 	 * Starts an interactive session with the current input/output/error streams.
 	 */
 	@Override
 	public void startInteractiveSession() {
 		replThread.start();
-	}
-
-	/**
-	 * Updates the current address pointed to by the "ghidra/current-address"
-	 * binding in the interpreter.
-	 *
-	 * @param address The new current address in the program.
-	 */
-	@Override
-	public void updateAddress(Address address) {
-		RT.var("ghidra", "current-address", address);
-	}
-
-	/**
-	 * Updates the highlighted selection pointed to by the
-	 * "ghidra/current-highlight" variable.
-	 *
-	 * @param sel The new highlighted selection.
-	 */
-	@Override
-	public void updateHighlight(ProgramSelection sel) {
-		RT.var("ghidra", "current-highlight", sel);
-	}
-
-	/**
-	 * Updates the location in the "ghidra/current-location" variable as well as the
-	 * address in the "ghidra/current-address" variable.
-	 *
-	 * @param loc The new location in the program.
-	 */
-	@Override
-	public void updateLocation(ProgramLocation loc) {
-		RT.var("ghidra", "current-location", loc);
-		if (loc != null) {
-			updateAddress(loc.getAddress());
-		}
-	}
-
-	/**
-	 * Updates the program pointed to by the "ghidra/current-program" binding, as
-	 * well as the "ghidra/current-api" flat api instance.
-	 *
-	 * @param program The new current program.
-	 */
-	@Override
-	public void updateProgram(Program program) {
-		RT.var("ghidra", "current-program", program);
-		RT.var("ghidra", "current-api", new FlatProgramAPI(program));
-	}
-
-	/**
-	 * Updates the selection pointed to by the "ghidra/current-selection" binding.
-	 *
-	 * @param sel The new selection.
-	 */
-	@Override
-	public void updateSelection(ProgramSelection sel) {
-		RT.var("ghidra", "current-selection", sel);
 	}
 
 	/**

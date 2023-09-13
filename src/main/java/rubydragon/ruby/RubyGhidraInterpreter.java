@@ -38,7 +38,6 @@ import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.app.script.GhidraScript;
 import ghidra.app.script.GhidraState;
-import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
@@ -93,7 +92,7 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 * Creates a new Ruby interpreter, auto loads classes if enabled, and sets up
 	 * the automatic variables.
 	 */
-	void createInterpreter() {
+	private void createInterpreter() {
 		container = new ScriptingContainer(LocalContextScope.SINGLETHREAD, LocalVariableBehavior.PERSISTENT);
 
 		// set the input and output streams if they've been set
@@ -186,8 +185,38 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 		}
 	}
 
+	@Override
+	public String getCurrentAddressName() {
+		return "$current_address";
+	}
+
+	@Override
+	public String getCurrentAPIName() {
+		return "$current_api";
+	}
+
+	@Override
+	public String getCurrentHighlightName() {
+		return "$current_highlight";
+	}
+
+	@Override
+	public String getCurrentLocationName() {
+		return "$current_location";
+	}
+
+	@Override
+	public String getCurrentProgramName() {
+		return "$current_program";
+	}
+
+	@Override
+	public String getCurrentSelectionName() {
+		return "$current_selection";
+	}
+
 	/**
-	 * Get the version of Java this jshell supports.
+	 * Get the version of Ruby this interpreter supports.
 	 *
 	 * @return A string with the version of the interpreter.
 	 */
@@ -286,7 +315,8 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 * @param name  The name of the variable to create or update.
 	 * @param value The value of the variable to add.
 	 */
-	private void setVariable(String name, Object value) {
+	@Override
+	public void setVariable(String name, Object value) {
 		setVariables.put(name, value);
 		if (container != null) {
 			container.put(name, value);
@@ -302,46 +332,6 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	}
 
 	/**
-	 * Updates the current address pointed to by the "$current_address" variable.
-	 *
-	 * @param address The new current address in the program.
-	 */
-	@Override
-	public void updateAddress(Address address) {
-		setVariable("$current_address", address);
-	}
-
-	/**
-	 * Updates the highlighted selection pointed to by the "$current_highlight"
-	 * variable.
-	 *
-	 * @param sel The new highlighted selection.
-	 */
-	@Override
-	public void updateHighlight(ProgramSelection sel) {
-		setVariable("$current_highlight", sel);
-	}
-
-	/**
-	 * Updates the location in the "$current_location" variable as well as the
-	 * address in the "$current_address" variable.
-	 *
-	 * @param loc The new location in the program.
-	 */
-	@Override
-	public void updateLocation(ProgramLocation loc) {
-		if (loc == null) {
-			setVariables.remove("$current_location");
-			if (container != null) {
-				container.remove("$current_location");
-			}
-		} else {
-			setVariable("$current_location", loc);
-			updateAddress(loc.getAddress());
-		}
-	}
-
-	/**
 	 * Updates the current program in "$current_program" to the one provided, as
 	 * well as the "$current_api" variable holding a flat api instance.
 	 *
@@ -349,24 +339,11 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public void updateProgram(Program program) {
-		if (program != null) {
-			setVariable("$current_program", program);
-			setVariable("$current_api", new FlatProgramAPI(program));
-		}
+		super.updateProgram(program);
 
 		if (container != null) {
 			createProxies();
 		}
-	}
-
-	/**
-	 * Updates the selection pointed to by the "$current_selection" variable.
-	 *
-	 * @param sel The new selection.
-	 */
-	@Override
-	public void updateSelection(ProgramSelection sel) {
-		setVariable("$current_selection", sel);
 	}
 
 	/**

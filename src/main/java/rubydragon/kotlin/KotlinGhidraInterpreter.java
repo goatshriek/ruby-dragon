@@ -41,7 +41,6 @@ import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.app.script.GhidraScript;
 import ghidra.app.script.GhidraState;
-import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
@@ -256,7 +255,8 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 * @param name  The name of the variable to create or update.
 	 * @param value The value of the variable to add.
 	 */
-	private void setVariable(String name, Object value) {
+	@Override
+	public void setVariable(String name, Object value) {
 		setVariables.put(name, value);
 		if (engine != null) {
 			engine.put(name, value);
@@ -269,72 +269,6 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void startInteractiveSession() {
 		replThread.start();
-	}
-
-	/**
-	 * Updates the current address pointed to by the "currentAddress" binding in the
-	 * interpreter.
-	 *
-	 * @param address The new current address in the program.
-	 */
-	@Override
-	public void updateAddress(Address address) {
-		if (address != null) {
-			setVariable("currentAddress", address);
-		}
-	}
-
-	/**
-	 * Updates the highlighted selection pointed to by the "currentHighlight"
-	 * variable.
-	 *
-	 * @param sel The new highlighted selection.
-	 */
-	@Override
-	public void updateHighlight(ProgramSelection sel) {
-		if (sel != null) {
-			setVariable("currentHighlight", sel);
-		}
-	}
-
-	/**
-	 * Updates the location in the "currentLocation" variable as well as the address
-	 * in the "ghidra/current-address" variable.
-	 *
-	 * @param loc The new location in the program.
-	 */
-	@Override
-	public void updateLocation(ProgramLocation loc) {
-		if (loc != null) {
-			setVariable("currentLocation", loc);
-			updateAddress(loc.getAddress());
-		}
-	}
-
-	/**
-	 * Updates the program pointed to by the "currentProgram" binding, as well as
-	 * the "currentAPI" binding to a FlatProgramAPI instance.
-	 *
-	 * @param program The new current program.
-	 */
-	@Override
-	public void updateProgram(Program program) {
-		if (program != null) {
-			setVariable("currentProgram", program);
-			setVariable("currentAPI", new FlatProgramAPI(program));
-		}
-	}
-
-	/**
-	 * Updates the selection pointed to by the "currentSelection" binding.
-	 *
-	 * @param sel The new selection.
-	 */
-	@Override
-	public void updateSelection(ProgramSelection sel) {
-		if (sel != null) {
-			setVariable("currentSelection", sel);
-		}
 	}
 
 	/**

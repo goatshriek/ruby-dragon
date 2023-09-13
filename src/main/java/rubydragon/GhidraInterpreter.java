@@ -24,6 +24,7 @@ import java.util.List;
 
 import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
+import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
@@ -55,7 +56,31 @@ public abstract class GhidraInterpreter implements Disposable {
 	 * @return A list of possible code completions.
 	 */
 	public abstract List<CodeCompletion> getCompletions(String cmd);
-	
+
+	public String getCurrentAddressName() {
+		return "currentAddress";
+	}
+
+	public String getCurrentAPIName() {
+		return "currentAPI";
+	}
+
+	public String getCurrentHighlightName() {
+		return "currentHighlight";
+	}
+
+	public String getCurrentLocationName() {
+		return "currentLocation";
+	}
+
+	public String getCurrentProgramName() {
+		return "currentProgram";
+	}
+
+	public String getCurrentSelectionName() {
+		return "currentSelection";
+	}
+
 	/**
 	 * Get the version of this interpreter.
 	 *
@@ -97,6 +122,15 @@ public abstract class GhidraInterpreter implements Disposable {
 	}
 
 	/**
+	 * Adds or updates the variable with the given name to the given value in the
+	 * interpreter.
+	 *
+	 * @param name  The name of the variable to create or update.
+	 * @param value The value of the variable to add.
+	 */
+	public abstract void setVariable(String name, Object value);
+
+	/**
 	 * Starts an interactive session with the current input/output/error streams.
 	 */
 	public abstract void startInteractiveSession();
@@ -106,7 +140,9 @@ public abstract class GhidraInterpreter implements Disposable {
 	 *
 	 * @param address The new current address in the program.
 	 */
-	public abstract void updateAddress(Address address);
+	public void updateAddress(Address address) {
+		setVariable(getCurrentAddressName(), address);
+	}
 
 	/**
 	 * Updates the highlighted selection pointed to by the current_highlight
@@ -114,7 +150,11 @@ public abstract class GhidraInterpreter implements Disposable {
 	 *
 	 * @param sel The new highlighted selection.
 	 */
-	public abstract void updateHighlight(ProgramSelection sel);
+	public void updateHighlight(ProgramSelection sel) {
+		if (sel != null) {
+			setVariable(getCurrentHighlightName(), sel);
+		}
+	}
 
 	/**
 	 * Updates the location in the current location variable as well as the address
@@ -122,19 +162,31 @@ public abstract class GhidraInterpreter implements Disposable {
 	 *
 	 * @param loc The new location in the program.
 	 */
-	public abstract void updateLocation(ProgramLocation loc);
+	public void updateLocation(ProgramLocation loc) {
+		if (loc != null) {
+			setVariable(getCurrentLocationName(), loc);
+			updateAddress(loc.getAddress());
+		}
+	}
 
 	/**
 	 * Updates the current program in current program to the one provided.
 	 *
 	 * @param program The new current program.
 	 */
-	public abstract void updateProgram(Program program);
+	public void updateProgram(Program program) {
+		if (program != null) {
+			setVariable(getCurrentProgramName(), program);
+			setVariable(getCurrentAPIName(), new FlatProgramAPI(program));
+		}
+	}
 
 	/**
 	 * Updates the selection pointed to by the current selection variable.
 	 *
 	 * @param sel The new selection.
 	 */
-	public abstract void updateSelection(ProgramSelection sel);
+	public void updateSelection(ProgramSelection sel) {
+		setVariable(getCurrentSelectionName(), sel);
+	}
 }

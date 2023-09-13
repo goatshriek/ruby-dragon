@@ -217,7 +217,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 
 		return result;
 	}
-	
+
 	/**
 	 * Get the version of Java this jshell supports.
 	 *
@@ -294,7 +294,18 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	}
 
 	/**
-	 * Sets an existing variable with the given name to the given value.
+	 * Sets
+	 *
+	 * @param name
+	 * @param value
+	 */
+	public void setVariable(String name, Object value) {
+		setVariable(name, value.getClass(), value);
+	}
+
+	/**
+	 * Sets an existing variable with the given name to the given value and
+	 * class.
 	 *
 	 * @param name  The name of the variable.
 	 * @param type  The type of the variable.
