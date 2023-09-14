@@ -20,11 +20,11 @@
 
   <h2>Performance</h2>
   <p>
-    Ruby Dragon comes embeds the languges it provides into the Ghidra
-    environment, which of course comes with a performance cost. In some cases
-    this cost can be significant, leading to a slow (and therefore bad) user
-    experience. Here are a few ways that you can reduce the impact of using
-    Ruby Dragon in your daily workflow.
+    Ruby Dragon embeds the languges it provides into the Ghidra environment,
+    which of course comes with a performance cost. In some cases this cost can
+    be significant, leading to a slow (and therefore bad) user experience.
+    Here are a few ways that you can reduce the impact of using Ruby Dragon in
+    your workflow.
   </p>
 
   <h3>Disable Unused Languages</h3>
@@ -34,6 +34,13 @@
     languages you want Ruby Dragon for, instead of <i>all</i> of them. Disabling
     the languages you have no use for will keep them from causing performance
     impacts by running, and also reduce clutter in your tool UI.
+  </p>
+
+  <p>
+    You can disable the plugin for a given language by going to the File menu
+    and selecting Configure in the CodeBrowser tool, and unchecking the plugin
+    in the plugin list. Ruby Dragon plugins are installed to the Ghidra Core
+    category so that they appear alongside the Python plugin.
   </p>
 
   <h3>Tune or Disable Auto-Imports</h3>

@@ -14,6 +14,7 @@ Eclipse, oftentimes related to help menu resources. If this happens, delete
 the `build` directory from the root plugin folder and try again. This may
 be caused by differences between CLI builds and Eclipse builds.
 
+
 ## Upgrading Ghidra in a Development Environment
 Upgrading the version of Ghidra can be a bit of a chore. Of course there is the
 potential of breakage, but there are also a number of steps that need to be
