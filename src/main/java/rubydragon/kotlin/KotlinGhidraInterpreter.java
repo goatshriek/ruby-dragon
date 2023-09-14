@@ -283,9 +283,11 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	/**
 	 * Adds or updates the variable with the given name to the given value in the
 	 * current engine.
-	 * 
+	 *
 	 * @param name  The name of the variable to create or update.
 	 * @param value The value of the variable to add.
+	 *
+	 * @since 3.1.0
 	 */
 	@Override
 	public void setVariable(String name, Object value) {
