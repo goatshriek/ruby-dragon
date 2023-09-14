@@ -118,9 +118,16 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 		this(console.getStdin(), console.getStdOut(), console.getStdErr(), plugin);
 	}
 
+	/**
+	 * Does nothing, as automatic imports are handled in initInteractiveInterpreter
+	 * more efficiently. This function is overridden so that the default
+	 * implementation is not used.
+	 *
+	 * @since 3.1.0
+	 */
 	@Override
 	public void autoImportClasses(PrintWriter output, PrintWriter errOut) {
-		return; // TODO this is handled more efficiently in initInteractiveInterpreter
+		return;
 	}
 
 	/**
@@ -132,6 +139,8 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 
 	/**
 	 * Creates a new Groovy interpreter for interactive sessions.
+	 *
+	 * @since 3.1.0
 	 */
 	@Override
 	public void initInteractiveInterpreter() {
@@ -158,6 +167,10 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 		// load the preload imports if enabled
 		boolean preloadEnabled = parentPlugin != null && parentPlugin.isAutoImportEnabled();
 		if (preloadEnabled) {
+			long startTime = System.currentTimeMillis();
+			outWriter.append("starting auto-import...\n");
+			outWriter.flush();
+
 			ImportCustomizer ic = new ImportCustomizer();
 			try {
 				DragonPlugin.forEachAutoImport((packageName, className) -> {
@@ -165,8 +178,16 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 				});
 			} catch (JDOMException | IOException e) {
 				errWriter.append("could not load auto-import classes: " + e.getMessage() + "\n");
+				errWriter.flush();
 			}
 			cc.addCompilationCustomizers(ic);
+			long endTime = System.currentTimeMillis();
+			double importTime = (endTime - startTime) / 1000.0;
+			outWriter.append(String.format("auto-imported finished (%.3f seconds)\n", importTime));
+			outWriter.flush();
+		} else {
+			outWriter.append("auto-import disabled.\n");
+			outWriter.flush();
 		}
 
 		interactiveShell = new Groovysh(classLoader, interactiveBinding, shellIo, registrar, cc);
@@ -198,6 +219,13 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 		return new ArrayList<CodeCompletion>();
 	}
 
+	/**
+	 * The DragonPlugin that this interpreter is attached to.
+	 *
+	 * @return The owning plugin of this interpreter.
+	 *
+	 * @since 3.1.0
+	 */
 	@Override
 	public DragonPlugin getParentPlugin() {
 		return parentPlugin;
@@ -207,15 +235,24 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 * Get the version of Groovy this interpreter supports.
 	 *
 	 * @return A string with the version of the interpreter.
+	 *
+	 * @since 3.1.0
 	 */
 	@Override
 	public String getVersion() {
 		return "Groovy " + GroovySystem.getVersion();
 	}
 
+	/**
+	 * Does nothing, as automatic imports are handled in initInteractiveInterpreter
+	 * more efficiently. This function is overridden so that the default
+	 * implementation is not used.
+	 *
+	 * @since 3.1.0
+	 */
 	@Override
 	public void importClass(String packageName, String className) {
-		return; // TODO unimplemented
+		return;
 	}
 
 	/**
@@ -241,6 +278,21 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 		initInteractiveInterpreter();
 	}
 
+	/**
+	 * Runs the given script with the arguments and state provided.
+	 *
+	 * The provided state is loaded into the interpreter at the beginning of
+	 * execution, and the values of the globals are then exported back into the
+	 * state after it completes.
+	 *
+	 * If the script cannot be found but the script is not running in headless mode,
+	 * the user will be prompted to ignore the error, which will cause the function
+	 * to simply continue instead of throwing an IllegalArgumentException.
+	 *
+	 * @throws IllegalArgumentException if the script does not exist
+	 * @throws IOException              if the script could not be read
+	 * @throws FileNotFoundException    if the script file wasn't found
+	 */
 	@Override
 	public void runScript(GhidraScript script, String[] scriptArguments, GhidraState scriptState)
 			throws IllegalArgumentException, FileNotFoundException, IOException {
@@ -306,19 +358,19 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public void updateState(GhidraState scriptState) {
-		Program currentProgram = (Program) scriptShell.getVariable("currentProgram");
+		Program currentProgram = (Program) scriptShell.getVariable(getCurrentProgramName());
 		scriptState.setCurrentProgram(currentProgram);
 
-		ProgramLocation programLoc = (ProgramLocation) scriptShell.getVariable("currentLocation");
+		ProgramLocation programLoc = (ProgramLocation) scriptShell.getVariable(getCurrentLocationName());
 		scriptState.setCurrentLocation(programLoc);
 
-		Address addr = (Address) scriptShell.getVariable("currentAddress");
+		Address addr = (Address) scriptShell.getVariable(getCurrentAddressName());
 		scriptState.setCurrentAddress(addr);
 
-		ProgramSelection highlight = (ProgramSelection) scriptShell.getVariable("currentHighlight");
+		ProgramSelection highlight = (ProgramSelection) scriptShell.getVariable(getCurrentHighlightName());
 		scriptState.setCurrentHighlight(highlight);
 
-		ProgramSelection sel = (ProgramSelection) scriptShell.getVariable("currentSelection");
+		ProgramSelection sel = (ProgramSelection) scriptShell.getVariable(getCurrentSelectionName());
 		scriptState.setCurrentSelection(sel);
 	}
 

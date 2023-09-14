@@ -126,6 +126,13 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 		return new ArrayList<CodeCompletion>();
 	}
 
+	/**
+	 * The DragonPlugin that this interpreter is attached to.
+	 *
+	 * @return The owning plugin of this interpreter.
+	 *
+	 * @since 3.1.0
+	 */
 	@Override
 	public DragonPlugin getParentPlugin() {
 		return parentPlugin;
@@ -136,6 +143,8 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 *
 	 * @return A string with the version of the interpreter. Returns null if a
 	 *         Kotlin script engine could not be created.
+	 *
+	 * @since 3.1.0
 	 */
 	@Override
 	public String getVersion() {
@@ -149,6 +158,14 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 		return "Kotlin " + engine.getFactory().getLanguageVersion();
 	}
 
+	/**
+	 * Imports a given class into the interpreter.
+	 *
+	 * @param packageName The name of the package the class is in.
+	 * @param className   The name of the class to import.
+	 *
+	 * @since 3.1.0
+	 */
 	@Override
 	public void importClass(String packageName, String className) {
 		if (engine != null) {
@@ -169,7 +186,9 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	}
 
 	/**
-	 * Sets up the Kotlin environment, and auto loads classes if enabled.
+	 * Sets up the Kotlin environment and automatic variables.
+	 *
+	 * @since 3.1.0
 	 */
 	@Override
 	public void initInteractiveInterpreter() {
@@ -292,19 +311,19 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public void updateState(GhidraState scriptState) {
-		Program currentProgram = (Program) engine.get("currentProgram");
+		Program currentProgram = (Program) engine.get(getCurrentProgramName());
 		scriptState.setCurrentProgram(currentProgram);
 
-		ProgramLocation currentLocation = (ProgramLocation) engine.get("currentLocation");
+		ProgramLocation currentLocation = (ProgramLocation) engine.get(getCurrentLocationName());
 		scriptState.setCurrentLocation(currentLocation);
 
-		Address addr = (Address) engine.get("currentAddress");
+		Address addr = (Address) engine.get(getCurrentAddressName());
 		scriptState.setCurrentAddress(addr);
 
-		ProgramSelection highlight = (ProgramSelection) engine.get("currentHighlight");
+		ProgramSelection highlight = (ProgramSelection) engine.get(getCurrentHighlightName());
 		scriptState.setCurrentHighlight(highlight);
 
-		ProgramSelection sel = (ProgramSelection) engine.get("currentSelection");
+		ProgramSelection sel = (ProgramSelection) engine.get(getCurrentSelectionName());
 		scriptState.setCurrentSelection(sel);
 	}
 

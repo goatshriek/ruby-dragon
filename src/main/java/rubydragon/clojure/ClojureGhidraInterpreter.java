@@ -117,36 +117,85 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 		return new ArrayList<CodeCompletion>();
 	}
 
+	/**
+	 * The name for the current address variable.
+	 *
+	 * @return The name for the current address variable.
+	 *
+	 * @since 3.1.0
+	 */
 	@Override
 	public String getCurrentAddressName() {
 		return "current-address";
 	}
 
+	/**
+	 * The name for the current FlatProgramAPI variable.
+	 *
+	 * @return The name for the current API variable.
+	 *
+	 * @since 3.1.0
+	 */
 	@Override
 	public String getCurrentAPIName() {
 		return "current-api";
 	}
 
+	/**
+	 * The name for the current highlight variable.
+	 *
+	 * @return The name for the current highlight variable.
+	 *
+	 * @since 3.1.0
+	 */
 	@Override
 	public String getCurrentHighlightName() {
 		return "current-highlight";
 	}
 
+	/**
+	 * The name for the current location variable.
+	 *
+	 * @return The name for the current location variable.
+	 *
+	 * @since 3.1.0
+	 */
 	@Override
 	public String getCurrentLocationName() {
 		return "current-location";
 	}
 
+	/**
+	 * The name for the current program variable.
+	 *
+	 * @return The name for the current program variable.
+	 *
+	 * @since 3.1.0
+	 */
 	@Override
 	public String getCurrentProgramName() {
 		return "current-program";
 	}
 
+	/**
+	 * The name for the current selection variable.
+	 *
+	 * @return The name for the current selection variable.
+	 *
+	 * @since 3.1.0
+	 */
 	@Override
 	public String getCurrentSelectionName() {
 		return "current-selection";
 	}
 
+	/**
+	 * The DragonPlugin that this interpreter is attached to.
+	 *
+	 * @return The owning plugin of this interpreter.
+	 *
+	 * @since 3.1.0
+	 */
 	@Override
 	public DragonPlugin getParentPlugin() {
 		return parentPlugin;
@@ -156,6 +205,8 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 * Get the version of Clojure this interpreter supports.
 	 *
 	 * @return A string with the version of the interpreter.
+	 *
+	 * @since 3.1.0
 	 */
 	@Override
 	public String getVersion() {
@@ -163,6 +214,14 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 		return "Clojure " + clojureVersion.invoke().toString();
 	}
 
+	/**
+	 * Imports a given class into the interpreter.
+	 *
+	 * @param packageName The name of the package the class is in.
+	 * @param className   The name of the class to import.
+	 *
+	 * @since 3.1.0
+	 */
 	@Override
 	public void importClass(String packageName, String className) {
 		Namespace ghidraNs = Namespace.findOrCreate(Symbol.intern(null, "ghidra"));
@@ -171,6 +230,8 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 
 	/**
 	 * Sets up the Clojure environment, and auto loads classes if enabled.
+	 *
+	 * @since 3.1.0
 	 */
 	@Override
 	public void initInteractiveInterpreter() {
@@ -282,6 +343,8 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 *
 	 * @param name  The name of the variable to create or update.
 	 * @param value The value of the variable to add.
+	 *
+	 * @since 3.1.0
 	 */
 	@Override
 	public void setVariable(String name, Object value) {
@@ -305,19 +368,21 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void updateState(GhidraState scriptState) {
 		Namespace ghidraNS = Namespace.findOrCreate(Symbol.intern("ghidra"));
-		Program currentProgram = (Program) Var.intern(ghidraNS, Symbol.intern("current-program")).get();
+		Program currentProgram = (Program) Var.intern(ghidraNS, Symbol.intern(getCurrentProgramName())).get();
 		scriptState.setCurrentProgram(currentProgram);
 
-		ProgramLocation programLoc = (ProgramLocation) Var.intern(ghidraNS, Symbol.intern("current-location")).get();
+		ProgramLocation programLoc = (ProgramLocation) Var.intern(ghidraNS, Symbol.intern(getCurrentLocationName()))
+				.get();
 		scriptState.setCurrentLocation(programLoc);
 
-		Address addr = (Address) Var.intern(ghidraNS, Symbol.intern("current-address")).get();
+		Address addr = (Address) Var.intern(ghidraNS, Symbol.intern(getCurrentAddressName())).get();
 		scriptState.setCurrentAddress(addr);
 
-		ProgramSelection highlight = (ProgramSelection) Var.intern(ghidraNS, Symbol.intern("current-highlight")).get();
+		ProgramSelection highlight = (ProgramSelection) Var.intern(ghidraNS, Symbol.intern(getCurrentHighlightName()))
+				.get();
 		scriptState.setCurrentHighlight(highlight);
 
-		ProgramSelection sel = (ProgramSelection) Var.intern(ghidraNS, Symbol.intern("current-selection")).get();
+		ProgramSelection sel = (ProgramSelection) Var.intern(ghidraNS, Symbol.intern(getCurrentSelectionName())).get();
 		scriptState.setCurrentSelection(sel);
 	}
 

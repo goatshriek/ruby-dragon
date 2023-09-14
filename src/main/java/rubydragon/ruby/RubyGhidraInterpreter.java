@@ -142,36 +142,85 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 		}
 	}
 
+	/**
+	 * The name for the current address variable.
+	 *
+	 * @return The name for the current address variable.
+	 *
+	 * @since 3.1.0
+	 */
 	@Override
 	public String getCurrentAddressName() {
 		return "$current_address";
 	}
 
+	/**
+	 * The name for the current FlatProgramAPI variable.
+	 *
+	 * @return The name for the current API variable.
+	 *
+	 * @since 3.1.0
+	 */
 	@Override
 	public String getCurrentAPIName() {
 		return "$current_api";
 	}
 
+	/**
+	 * The name for the current highlight variable.
+	 *
+	 * @return The name for the current highlight variable.
+	 *
+	 * @since 3.1.0
+	 */
 	@Override
 	public String getCurrentHighlightName() {
 		return "$current_highlight";
 	}
 
+	/**
+	 * The name for the current location variable.
+	 *
+	 * @return The name for the current location variable.
+	 *
+	 * @since 3.1.0
+	 */
 	@Override
 	public String getCurrentLocationName() {
 		return "$current_location";
 	}
 
+	/**
+	 * The name for the current program variable.
+	 *
+	 * @return The name for the current program variable.
+	 *
+	 * @since 3.1.0
+	 */
 	@Override
 	public String getCurrentProgramName() {
 		return "$current_program";
 	}
 
+	/**
+	 * The name for the current selection variable.
+	 *
+	 * @return The name for the current selection variable.
+	 *
+	 * @since 3.1.0
+	 */
 	@Override
 	public String getCurrentSelectionName() {
 		return "$current_selection";
 	}
 
+	/**
+	 * The DragonPlugin that this interpreter is attached to.
+	 *
+	 * @return The owning plugin of this interpreter.
+	 *
+	 * @since 3.1.0
+	 */
 	@Override
 	public DragonPlugin getParentPlugin() {
 		return parentPlugin;
@@ -181,6 +230,8 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 * Get the version of Ruby this interpreter supports.
 	 *
 	 * @return A string with the version of the interpreter.
+	 *
+	 * @since 3.1.0
 	 */
 	@Override
 	public String getVersion() {
@@ -188,8 +239,10 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	}
 
 	/**
-	 * Creates a new Ruby interpreter, auto loads classes if enabled, and sets up
-	 * the automatic variables.
+	 * Creates a new Ruby interpreter, sets up the automatic variables, and adds
+	 * proxies into the namespace for the current Program methods.
+	 *
+	 * @since 3.1.0
 	 */
 	@Override
 	public void initInteractiveInterpreter() {
@@ -218,6 +271,14 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 		createProxies();
 	}
 
+	/**
+	 * Imports a given class into the Ruby environment.
+	 *
+	 * @param packageName The name of the package the class is in.
+	 * @param className   The name of the class to import.
+	 *
+	 * @since 3.1.0
+	 */
 	@Override
 	public void importClass(String packageName, String className) {
 		// we don't import the class if it will stomp an existing symbol
@@ -255,13 +316,13 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 		initInteractiveInterpreter();
 		InputStream scriptStream = script.getSourceFile().getInputStream();
 		loadState(scriptState);
-		Object savedAPI = container.get("$current_api");
+		Object savedAPI = container.get(getCurrentAPIName());
 		container.put("$script", script);
-		container.put("$current_api", script);
+		container.put(getCurrentAPIName(), script);
 		container.put("ARGV", scriptArguments);
 		container.runScriptlet(scriptStream, script.getScriptName());
 		container.remove("$script");
-		container.put("$current_api", savedAPI);
+		container.put(getCurrentAPIName(), savedAPI);
 		updateState(scriptState);
 	}
 
@@ -343,10 +404,10 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public void updateState(GhidraState scriptState) {
-		scriptState.setCurrentProgram((Program) setVariables.get("$current_program"));
-		scriptState.setCurrentLocation((ProgramLocation) setVariables.get("$current_location"));
-		scriptState.setCurrentAddress((Address) setVariables.get("$current_address"));
-		scriptState.setCurrentHighlight((ProgramSelection) setVariables.get("$current_highlight"));
-		scriptState.setCurrentSelection((ProgramSelection) setVariables.get("$current_selection"));
+		scriptState.setCurrentProgram((Program) setVariables.get(getCurrentProgramName()));
+		scriptState.setCurrentLocation((ProgramLocation) setVariables.get(getCurrentLocationName()));
+		scriptState.setCurrentAddress((Address) setVariables.get(getCurrentAddressName()));
+		scriptState.setCurrentHighlight((ProgramSelection) setVariables.get(getCurrentHighlightName()));
+		scriptState.setCurrentSelection((ProgramSelection) setVariables.get(getCurrentSelectionName()));
 	}
 }
