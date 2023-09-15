@@ -53,7 +53,7 @@ import rubydragon.DragonPlugin;
 import rubydragon.ScriptableGhidraInterpreter;
 
 /**
- * A Groovy intepreter for Ghidra.
+ * A Groovy interpreter for Ghidra.
  */
 public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 
