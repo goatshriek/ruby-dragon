@@ -47,7 +47,7 @@ import rubydragon.DragonPlugin;
 import rubydragon.ScriptableGhidraInterpreter;
 
 /**
- * A Kotlin intepreter for Ghidra.
+ * A Kotlin interpreter for Ghidra.
  */
 public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	private Map<String, Object> setVariables = new HashMap<String, Object>();

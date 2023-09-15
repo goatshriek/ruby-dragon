@@ -47,7 +47,7 @@ import rubydragon.DragonPlugin;
 import rubydragon.GhidraInterpreter;
 
 /**
- * A Java intepreter for Ghidra, based on JShell.
+ * A Java interpreter for Ghidra, based on JShell.
  */
 public class JShellGhidraInterpreter extends GhidraInterpreter {
 	// simple structure to store both the type and value in a single map entry

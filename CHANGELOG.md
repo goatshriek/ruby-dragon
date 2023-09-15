@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
  - Automatic class import now defaults to off instead of on.
  - All interactive interpreters are now lazily created.
+ - Upgrade to Groovy 4.0.14
+ - Upgrade to Kotlin 1.9.10
 
 
 ## [3.0.0] - 2023-07-13
