@@ -1,7 +1,7 @@
 ---
 title: Ruby Dragon
 keywords: ruby, kotlin, clojure, ghidra, jruby, java, jshell, groovy, plugin
-last_updated: March 15, 2023
+last_updated: September 14, 2023
 layout: default
 ---
 
