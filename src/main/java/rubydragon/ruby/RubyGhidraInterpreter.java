@@ -24,9 +24,10 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.jdom.JDOMException;
 import org.jruby.embed.EvalFailedException;
 import org.jruby.embed.LocalContextScope;
 import org.jruby.embed.LocalVariableBehavior;
@@ -36,7 +37,6 @@ import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.app.script.GhidraScript;
 import ghidra.app.script.GhidraState;
-import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
@@ -48,46 +48,17 @@ import rubydragon.ScriptableGhidraInterpreter;
  * A Ruby interpreter for Ghidra, built using JRuby.
  */
 public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
+	private Map<String, Object> setVariables = new HashMap<String, Object>();
 	private ScriptingContainer container;
 	private Thread irbThread;
 	private boolean disposed = false;
 	private DragonPlugin parentPlugin;
+	private PrintWriter outWriter = null;
+	private PrintWriter errWriter = null;
+	private InputStream input = null;
 
 	private Runnable replLoop = () -> {
-		// run the ruby setup script
-		InputStream stream = getClass().getResourceAsStream("/scripts/ruby-init.rb");
-		container.runScriptlet(stream, "ruby-init.rb");
-
-		// load the preload imports if enabled
-		boolean preloadEnabled = parentPlugin != null && parentPlugin.isAutoImportEnabled();
-		if (preloadEnabled) {
-			String loadError = null;
-			container.getOutput().append("starting auto-import...\n");
-			try {
-				DragonPlugin.forEachAutoImport((packageName, className) -> {
-					// we don't import the class if it will stomp an existing symbol
-					// we also have to skip Data because it generates deprecation warnings
-					if (!className.equals("Data") && container.get(className) == null) {
-						String importStatement = "java_import Java::" + packageName + "." + className;
-						try {
-							container.runScriptlet(importStatement);
-						} catch (EvalFailedException e) {
-							String evalError = "could not load class " + packageName + "." + className + ": "
-									+ e.getMessage() + "\n";
-							container.getError().append(evalError);
-						}
-					}
-				});
-			} catch (JDOMException | IOException e) {
-				loadError = "could not auto-import classes: " + e.getMessage() + "\n";
-			}
-
-			if (loadError == null) {
-				container.getOutput().append("auto-import completed.\n");
-			} else {
-				container.getError().append(loadError);
-			}
-		}
+		initInteractiveInterpreterWithProgress(outWriter, errWriter);
 
 		while (!disposed) {
 			container.runScriptlet("IRB.start");
@@ -98,7 +69,7 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 * Creates a new Ruby interpreter.
 	 */
 	public RubyGhidraInterpreter() {
-		container = new ScriptingContainer(LocalContextScope.SINGLETHREAD, LocalVariableBehavior.PERSISTENT);
+		container = null;
 		irbThread = new Thread(replLoop);
 		parentPlugin = null;
 	}
@@ -113,6 +84,25 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 		this();
 		setStreams(console);
 		parentPlugin = plugin;
+	}
+
+	/**
+	 * Sets up method proxies at the top level to mirror $script or $current_api
+	 * methods, as jython does.
+	 */
+	public void createProxies() {
+		// ignore base java Object, ruby Object, main, and Kernel methods. We don't want
+		// to overwrite any of them.
+		//@formatter:off
+		container.runScriptlet(
+			"((($current_api.methods - java.lang.Object.new.methods) - self.methods) - Kernel.methods).each { |mn| \n" +
+			// proxy the current object (hence not method binding)
+			" define_method(mn){|*argv|($current_api).send(mn, *argv);}\n" +
+			// hide from all other objects so we don't see it in autocomplete when called
+			// with an explicit receiver
+			" private(mn)\n" +
+			" }");
+		//@formatter:on
 	}
 
 	/**
@@ -153,22 +143,156 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	}
 
 	/**
-	 * Sets up method proxies at the top level to mirror $script or $current_api
-	 * methods, as jython does.
+	 * The name for the current address variable.
+	 *
+	 * @return The name for the current address variable.
+	 *
+	 * @since 3.1.0
 	 */
-	public void createProxies() {
-		// ignore base java Object, ruby Object, main, and Kernel methods. We don't want
-		// to overwrite any of them.
-		//@formatter:off
-		container.runScriptlet(
-			"((($current_api.methods - java.lang.Object.new.methods) - self.methods) - Kernel.methods).each { |mn| \n" +
-			// proxy the current object (hence not method binding)
-			" define_method(mn){|*argv|($current_api).send(mn, *argv);}\n" +
-			// hide from all other objects so we don't see it in autocomplete when called
-			// with an explicit receiver
-			" private(mn)\n" +
-			" }");
-		//@formatter:on
+	@Override
+	public String getCurrentAddressName() {
+		return "$current_address";
+	}
+
+	/**
+	 * The name for the current FlatProgramAPI variable.
+	 *
+	 * @return The name for the current API variable.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public String getCurrentAPIName() {
+		return "$current_api";
+	}
+
+	/**
+	 * The name for the current highlight variable.
+	 *
+	 * @return The name for the current highlight variable.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public String getCurrentHighlightName() {
+		return "$current_highlight";
+	}
+
+	/**
+	 * The name for the current location variable.
+	 *
+	 * @return The name for the current location variable.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public String getCurrentLocationName() {
+		return "$current_location";
+	}
+
+	/**
+	 * The name for the current program variable.
+	 *
+	 * @return The name for the current program variable.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public String getCurrentProgramName() {
+		return "$current_program";
+	}
+
+	/**
+	 * The name for the current selection variable.
+	 *
+	 * @return The name for the current selection variable.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public String getCurrentSelectionName() {
+		return "$current_selection";
+	}
+
+	/**
+	 * The DragonPlugin that this interpreter is attached to.
+	 *
+	 * @return The owning plugin of this interpreter.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public DragonPlugin getParentPlugin() {
+		return parentPlugin;
+	}
+
+	/**
+	 * Get the version of Ruby this interpreter supports.
+	 *
+	 * @return A string with the version of the interpreter.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public String getVersion() {
+		return (new ScriptingContainer()).getSupportedRubyVersion();
+	}
+
+	/**
+	 * Creates a new Ruby interpreter, sets up the automatic variables, and adds
+	 * proxies into the namespace for the current Program methods.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public void initInteractiveInterpreter() {
+		container = new ScriptingContainer(LocalContextScope.SINGLETHREAD, LocalVariableBehavior.PERSISTENT);
+
+		// set the input and output streams if they've been set
+		if (errWriter != null) {
+			container.setError(errWriter);
+		}
+		if (input != null) {
+			container.setInput(input);
+		}
+		if (outWriter != null) {
+			container.setOutput(outWriter);
+		}
+
+		// run the ruby setup script
+		InputStream stream = getClass().getResourceAsStream("/scripts/ruby-init.rb");
+		container.runScriptlet(stream, "ruby-init.rb");
+
+		// set any variables that were provided before creation
+		setVariables.forEach((name, value) -> {
+			container.put(name, value);
+		});
+
+		createProxies();
+	}
+
+	/**
+	 * Imports a given class into the Ruby environment.
+	 *
+	 * @param packageName The name of the package the class is in.
+	 * @param className   The name of the class to import.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public void importClass(String packageName, String className) {
+		// we don't import the class if it will stomp an existing symbol
+		// we also have to skip Data because it generates deprecation warnings
+		if (container != null && !className.equals("Data") && container.get(className) == null) {
+			String importStatement = "java_import Java::" + packageName + "." + className;
+			try {
+				container.runScriptlet(importStatement);
+			} catch (EvalFailedException e) {
+				String evalError = "could not load class " + packageName + "." + className + ": " + e.getMessage()
+						+ "\n";
+				container.getError().append(evalError);
+			}
+		}
 	}
 
 	/**
@@ -189,16 +313,16 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void runScript(GhidraScript script, String[] scriptArguments, GhidraState scriptState)
 			throws IllegalArgumentException, FileNotFoundException, IOException {
+		initInteractiveInterpreter();
 		InputStream scriptStream = script.getSourceFile().getInputStream();
 		loadState(scriptState);
-		Object savedAPI = container.get("$current_api");
+		Object savedAPI = container.get(getCurrentAPIName());
 		container.put("$script", script);
-		container.put("$current_api", script);
+		container.put(getCurrentAPIName(), script);
 		container.put("ARGV", scriptArguments);
-		createProxies();
 		container.runScriptlet(scriptStream, script.getScriptName());
 		container.remove("$script");
-		container.put("$current_api", savedAPI);
+		container.put(getCurrentAPIName(), savedAPI);
 		updateState(scriptState);
 	}
 
@@ -207,7 +331,10 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public void setErrWriter(PrintWriter errOut) {
-		container.setError(errOut);
+		errWriter = errOut;
+		if (container != null) {
+			container.setError(errOut);
+		}
 	}
 
 	/**
@@ -215,7 +342,10 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public void setInput(InputStream input) {
-		container.setInput(input);
+		this.input = input;
+		if (container != null) {
+			container.setInput(input);
+		}
 	}
 
 	/**
@@ -223,7 +353,25 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public void setOutWriter(PrintWriter output) {
-		container.setOutput(output);
+		outWriter = output;
+		if (container != null) {
+			container.setOutput(output);
+		}
+	}
+
+	/**
+	 * Adds or updates the variable with the given name to the given value in the
+	 * scripting container.
+	 *
+	 * @param name  The name of the variable to create or update.
+	 * @param value The value of the variable to add.
+	 */
+	@Override
+	public void setVariable(String name, Object value) {
+		setVariables.put(name, value);
+		if (container != null) {
+			container.put(name, value);
+		}
 	}
 
 	/**
@@ -235,43 +383,6 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	}
 
 	/**
-	 * Updates the current address pointed to by the "$current_address" variable.
-	 *
-	 * @param address The new current address in the program.
-	 */
-	@Override
-	public void updateAddress(Address address) {
-		container.put("$current_address", address);
-	}
-
-	/**
-	 * Updates the highlighted selection pointed to by the "$current_highlight"
-	 * variable.
-	 *
-	 * @param sel The new highlighted selection.
-	 */
-	@Override
-	public void updateHighlight(ProgramSelection sel) {
-		container.put("$current_highlight", sel);
-	}
-
-	/**
-	 * Updates the location in the "$current_location" variable as well as the
-	 * address in the "$current_address" variable.
-	 *
-	 * @param loc The new location in the program.
-	 */
-	@Override
-	public void updateLocation(ProgramLocation loc) {
-		if (loc == null) {
-			container.remove("$current_location");
-		} else {
-			container.put("$current_location", loc);
-			updateAddress(loc.getAddress());
-		}
-	}
-
-	/**
 	 * Updates the current program in "$current_program" to the one provided, as
 	 * well as the "$current_api" variable holding a flat api instance.
 	 *
@@ -279,21 +390,11 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public void updateProgram(Program program) {
-		if (program != null) {
-			container.put("$current_program", program);
-			container.put("$current_api", new FlatProgramAPI(program));
+		super.updateProgram(program);
+
+		if (container != null) {
 			createProxies();
 		}
-	}
-
-	/**
-	 * Updates the selection pointed to by the "$current_selection" variable.
-	 *
-	 * @param sel The new selection.
-	 */
-	@Override
-	public void updateSelection(ProgramSelection sel) {
-		container.put("$current_selection", sel);
 	}
 
 	/**
@@ -303,10 +404,10 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public void updateState(GhidraState scriptState) {
-		scriptState.setCurrentProgram((Program) container.get("$current_program"));
-		scriptState.setCurrentLocation((ProgramLocation) container.get("$current_location"));
-		scriptState.setCurrentAddress((Address) container.get("$current_address"));
-		scriptState.setCurrentHighlight((ProgramSelection) container.get("$current_highlight"));
-		scriptState.setCurrentSelection((ProgramSelection) container.get("$current_selection"));
+		scriptState.setCurrentProgram((Program) setVariables.get(getCurrentProgramName()));
+		scriptState.setCurrentLocation((ProgramLocation) setVariables.get(getCurrentLocationName()));
+		scriptState.setCurrentAddress((Address) setVariables.get(getCurrentAddressName()));
+		scriptState.setCurrentHighlight((ProgramSelection) setVariables.get(getCurrentHighlightName()));
+		scriptState.setCurrentSelection((ProgramSelection) setVariables.get(getCurrentSelectionName()));
 	}
 }

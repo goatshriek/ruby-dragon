@@ -29,8 +29,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jdom.JDOMException;
-
 import clojure.lang.LineNumberingPushbackReader;
 import clojure.lang.Namespace;
 import clojure.lang.RT;
@@ -41,7 +39,6 @@ import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.app.script.GhidraScript;
 import ghidra.app.script.GhidraState;
-import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
@@ -51,36 +48,19 @@ import rubydragon.DragonPlugin;
 import rubydragon.ScriptableGhidraInterpreter;
 
 /**
- * A Clojure intepreter for Ghidra.
+ * A Clojure interpreter for Ghidra.
  */
 public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 	private Thread replThread;
 	final private ClassLoader clojureClassLoader;
 	private DragonPlugin parentPlugin;
+	private PrintWriter outWriter;
 	private PrintWriter errWriter;
 
 	private Runnable replLoop = () -> {
-		// some setup of the clojure environment
-		Symbol clojureMain = Symbol.intern("clojure.main");
-		Var clojureCoreRequire = RT.var("clojure.core", "require");
+		initInteractiveInterpreterWithProgress(outWriter, errWriter);
+
 		Var clojureMainFunction = RT.var("clojure.main", "main");
-		RT.init();
-		clojureCoreRequire.invoke(clojureMain);
-
-		// load the preload imports if enabled
-		boolean preloadEnabled = parentPlugin != null && parentPlugin.isAutoImportEnabled();
-		if (preloadEnabled) {
-			Namespace ghidraNs = Namespace.findOrCreate(Symbol.intern(null, "ghidra"));
-			try {
-				DragonPlugin.forEachAutoImport(className -> {
-					ghidraNs.importClass(RT.classForName(className));
-				});
-			} catch (JDOMException | IOException e) {
-				errWriter.append("could not load auto-import classes: " + e.getMessage() + "\n");
-			}
-		}
-
-		// the repl loop itself
 		while (true) {
 			String[] args = { "--repl" };
 			clojureMainFunction.applyTo(RT.seq(args));
@@ -107,7 +87,6 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 	public ClojureGhidraInterpreter(InterpreterConsole console, DragonPlugin plugin) {
 		this();
 		setStreams(console);
-		errWriter = new PrintWriter(console.getStdErr());
 		parentPlugin = plugin;
 	}
 
@@ -136,6 +115,130 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	public List<CodeCompletion> getCompletions(String cmd) {
 		return new ArrayList<CodeCompletion>();
+	}
+
+	/**
+	 * The name for the current address variable.
+	 *
+	 * @return The name for the current address variable.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public String getCurrentAddressName() {
+		return "current-address";
+	}
+
+	/**
+	 * The name for the current FlatProgramAPI variable.
+	 *
+	 * @return The name for the current API variable.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public String getCurrentAPIName() {
+		return "current-api";
+	}
+
+	/**
+	 * The name for the current highlight variable.
+	 *
+	 * @return The name for the current highlight variable.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public String getCurrentHighlightName() {
+		return "current-highlight";
+	}
+
+	/**
+	 * The name for the current location variable.
+	 *
+	 * @return The name for the current location variable.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public String getCurrentLocationName() {
+		return "current-location";
+	}
+
+	/**
+	 * The name for the current program variable.
+	 *
+	 * @return The name for the current program variable.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public String getCurrentProgramName() {
+		return "current-program";
+	}
+
+	/**
+	 * The name for the current selection variable.
+	 *
+	 * @return The name for the current selection variable.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public String getCurrentSelectionName() {
+		return "current-selection";
+	}
+
+	/**
+	 * The DragonPlugin that this interpreter is attached to.
+	 *
+	 * @return The owning plugin of this interpreter.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public DragonPlugin getParentPlugin() {
+		return parentPlugin;
+	}
+
+	/**
+	 * Get the version of Clojure this interpreter supports.
+	 *
+	 * @return A string with the version of the interpreter.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public String getVersion() {
+		Var clojureVersion = RT.var("clojure.core", "clojure-version");
+		return "Clojure " + clojureVersion.invoke().toString();
+	}
+
+	/**
+	 * Imports a given class into the interpreter.
+	 *
+	 * @param packageName The name of the package the class is in.
+	 * @param className   The name of the class to import.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public void importClass(String packageName, String className) {
+		Namespace ghidraNs = Namespace.findOrCreate(Symbol.intern(null, "ghidra"));
+		ghidraNs.importClass(RT.classForName(className));
+	}
+
+	/**
+	 * Sets up the Clojure environment, and auto loads classes if enabled.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public void initInteractiveInterpreter() {
+		Symbol clojureMain = Symbol.intern("clojure.main");
+		Var clojureCoreRequire = RT.var("clojure.core", "require");
+		RT.init();
+		clojureCoreRequire.invoke(clojureMain);
 	}
 
 	/**
@@ -212,6 +315,7 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public void setErrWriter(PrintWriter errOut) {
+		errWriter = errOut;
 		Var.intern(RT.CLOJURE_NS, Symbol.intern("*err*"), errOut);
 	}
 
@@ -229,7 +333,22 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public void setOutWriter(PrintWriter output) {
+		outWriter = output;
 		Var.intern(RT.CLOJURE_NS, Symbol.intern("*out*"), output);
+	}
+
+	/**
+	 * Adds or updates the variable with the given name to the given value in the
+	 * scripting container.
+	 *
+	 * @param name  The name of the variable to create or update.
+	 * @param value The value of the variable to add.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public void setVariable(String name, Object value) {
+		RT.var("ghidra", name, value);
 	}
 
 	/**
@@ -241,64 +360,6 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 	}
 
 	/**
-	 * Updates the current address pointed to by the "ghidra/current-address"
-	 * binding in the interpreter.
-	 *
-	 * @param address The new current address in the program.
-	 */
-	@Override
-	public void updateAddress(Address address) {
-		RT.var("ghidra", "current-address", address);
-	}
-
-	/**
-	 * Updates the highlighted selection pointed to by the
-	 * "ghidra/current-highlight" variable.
-	 *
-	 * @param sel The new highlighted selection.
-	 */
-	@Override
-	public void updateHighlight(ProgramSelection sel) {
-		RT.var("ghidra", "current-highlight", sel);
-	}
-
-	/**
-	 * Updates the location in the "ghidra/current-location" variable as well as the
-	 * address in the "ghidra/current-address" variable.
-	 *
-	 * @param loc The new location in the program.
-	 */
-	@Override
-	public void updateLocation(ProgramLocation loc) {
-		RT.var("ghidra", "current-location", loc);
-		if (loc != null) {
-			updateAddress(loc.getAddress());
-		}
-	}
-
-	/**
-	 * Updates the program pointed to by the "ghidra/current-program" binding, as
-	 * well as the "ghidra/current-api" flat api instance.
-	 *
-	 * @param program The new current program.
-	 */
-	@Override
-	public void updateProgram(Program program) {
-		RT.var("ghidra", "current-program", program);
-		RT.var("ghidra", "current-api", new FlatProgramAPI(program));
-	}
-
-	/**
-	 * Updates the selection pointed to by the "ghidra/current-selection" binding.
-	 *
-	 * @param sel The new selection.
-	 */
-	@Override
-	public void updateSelection(ProgramSelection sel) {
-		RT.var("ghidra", "current-selection", sel);
-	}
-
-	/**
 	 * Updates a state with the current selection/location/etc. variables from the
 	 * interpreter.
 	 *
@@ -307,19 +368,21 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void updateState(GhidraState scriptState) {
 		Namespace ghidraNS = Namespace.findOrCreate(Symbol.intern("ghidra"));
-		Program currentProgram = (Program) Var.intern(ghidraNS, Symbol.intern("current-program")).get();
+		Program currentProgram = (Program) Var.intern(ghidraNS, Symbol.intern(getCurrentProgramName())).get();
 		scriptState.setCurrentProgram(currentProgram);
 
-		ProgramLocation programLoc = (ProgramLocation) Var.intern(ghidraNS, Symbol.intern("current-location")).get();
+		ProgramLocation programLoc = (ProgramLocation) Var.intern(ghidraNS, Symbol.intern(getCurrentLocationName()))
+				.get();
 		scriptState.setCurrentLocation(programLoc);
 
-		Address addr = (Address) Var.intern(ghidraNS, Symbol.intern("current-address")).get();
+		Address addr = (Address) Var.intern(ghidraNS, Symbol.intern(getCurrentAddressName())).get();
 		scriptState.setCurrentAddress(addr);
 
-		ProgramSelection highlight = (ProgramSelection) Var.intern(ghidraNS, Symbol.intern("current-highlight")).get();
+		ProgramSelection highlight = (ProgramSelection) Var.intern(ghidraNS, Symbol.intern(getCurrentHighlightName()))
+				.get();
 		scriptState.setCurrentHighlight(highlight);
 
-		ProgramSelection sel = (ProgramSelection) Var.intern(ghidraNS, Symbol.intern("current-selection")).get();
+		ProgramSelection sel = (ProgramSelection) Var.intern(ghidraNS, Symbol.intern(getCurrentSelectionName())).get();
 		scriptState.setCurrentSelection(sel);
 	}
 

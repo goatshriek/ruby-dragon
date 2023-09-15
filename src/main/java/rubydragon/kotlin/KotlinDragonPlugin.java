@@ -28,7 +28,6 @@ import ghidra.framework.plugintool.PluginTool;
 import ghidra.framework.plugintool.util.PluginStatus;
 import rubydragon.DragonPlugin;
 import rubydragon.GhidraInterpreter;
-import rubydragon.MissingDragonDependency;
 
 /**
  * KotlinDragon provides Kotlin support within Ghidra, both in an interactive
@@ -70,10 +69,10 @@ public class KotlinDragonPlugin extends DragonPlugin implements InterpreterConne
 	}
 
 	/**
-	 * Gives the clojure interpreter currently in use.
+	 * Gives the kotlin interpreter currently in use.
 	 *
-	 * @return The clojure interpreter for this plugin. Will always be a
-	 *         ClojureGhidraInterpreter instance.
+	 * @return The kotlin interpreter for this plugin. Will always be a
+	 *         KotlinGhidraInterpreter instance.
 	 */
 	@Override
 	public GhidraInterpreter getInterpreter() {
@@ -88,11 +87,7 @@ public class KotlinDragonPlugin extends DragonPlugin implements InterpreterConne
 		super.init();
 
 		console = getTool().getService(InterpreterPanelService.class).createInterpreterPanel(this, false);
-		try {
-			interpreter = new KotlinGhidraInterpreter(console, this);
-		} catch (MissingDragonDependency e) {
-			throw new RuntimeException(e.getMessage());
-		}
+		interpreter = new KotlinGhidraInterpreter(console, this);
 		console.setPrompt("> ");
 		console.addFirstActivationCallback(() -> {
 			interpreter.startInteractiveSession();

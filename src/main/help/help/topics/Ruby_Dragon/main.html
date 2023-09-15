@@ -1,0 +1,69 @@
+<!doctype HTML public "-//W3C//DTD HTML 4.0 Frameset//EN">
+<html>
+  <head>
+    <title>Ruby Dragon</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+    <link rel="stylesheet" type="text/css" href="help/shared/DefaultStyle.css">
+  </head>
+
+  <body lang="EN-US">
+  <h1><a name="Ruby_Dragon"></a>Ruby Dragon</h1>
+  <p>
+    Ruby Dragon extends Ghidra with support for several programming languages
+    beyond the base Java and Python 2 (Jython) options. Each language is
+    implemented in its own plugin, and includes both an interactive interpreter
+    similar to that of the Python interpreter (REPL) as well as support for
+    writing scripts in the supported language. The only exception to this is
+    JShell, which only provides a Java interpreter (since Java scripts are, of
+    course, already a core feature of Ghidra).
+  </p>
+
+  <h2>Performance</h2>
+  <p>
+    Ruby Dragon embeds the languges it provides into the Ghidra environment,
+    which of course comes with a performance cost. In some cases this cost can
+    be significant, leading to a slow (and therefore bad) user experience.
+    Here are a few ways that you can reduce the impact of using Ruby Dragon in
+    your workflow.
+  </p>
+
+  <h3>Disable Unused Languages</h3>
+  <p>
+    Each language supported comes with its own set of performance impacts, and
+    these vary per-language. It's likely that you have one or two particular
+    languages you want Ruby Dragon for, instead of <i>all</i> of them. Disabling
+    the languages you have no use for will keep them from causing performance
+    impacts by running, and also reduce clutter in your tool UI.
+  </p>
+
+  <p>
+    You can disable the plugin for a given language by going to the File menu
+    and selecting Configure in the CodeBrowser tool, and unchecking the plugin
+    in the plugin list. Ruby Dragon plugins are installed to the Ghidra Core
+    category so that they appear alongside the Python plugin.
+  </p>
+
+  <h3>Tune or Disable Auto-Imports</h3>
+  <p>
+    Ruby Dragon supports a set of classes being automatically available in each
+    interpreter session, to reduce/remove the need to manually type import
+    statements (or the equivalent) in your REPL. However, this will cause a
+    delay in the startup of the interpreter, often on the order of several
+    seconds. This feature is disabled by default, and can be adjusted on a
+    per-interpreter basis in the tool options menu. If you've turned it on, you
+    can probably save yourself some time by tuning the auto-import list to only
+    pull in classes you need. The auto-import list is in an XML file in the
+    data folder of the extension installation named auto-import.xml.
+  </p>
+
+  <p class="relatedtopic">Provided interpreters:</p>
+  <ul>
+    <li><a href="help/topics/Clojure/interpreter.html">Clojure</a></li>
+    <li><a href="help/topics/Groovy/interpreter.html">Groovy</a></li>
+    <li><a href="help/topics/JShell/interpreter.html">JShell</a></li>
+    <li><a href="help/topics/Kotlin/interpreter.html">Kotlin</a></li>
+    <li><a href="help/topics/Ruby/interpreter.html">Ruby</a></li>
+  </ul>
+  <p>&nbsp;</p>
+  </body>
+</html>

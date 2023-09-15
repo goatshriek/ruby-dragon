@@ -25,60 +25,42 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.script.SimpleScriptContext;
 
-import org.jdom.JDOMException;
-
 import generic.jar.ResourceFile;
 import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.app.script.GhidraScript;
 import ghidra.app.script.GhidraState;
-import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
 import rubydragon.DragonPlugin;
-import rubydragon.MissingDragonDependency;
 import rubydragon.ScriptableGhidraInterpreter;
 
 /**
  * A Kotlin intepreter for Ghidra.
  */
 public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
+	private Map<String, Object> setVariables = new HashMap<String, Object>();
 	private Thread replThread;
 	private ScriptEngine engine;
 	private BufferedReader replReader;
 	private SimpleScriptContext context;
 	private DragonPlugin parentPlugin;
+	private PrintWriter outWriter;
 	private PrintWriter errWriter;
 
 	private Runnable replLoop = () -> {
-		// load the preload imports if enabled
-		boolean preloadEnabled = parentPlugin != null && parentPlugin.isAutoImportEnabled();
-		if (preloadEnabled) {
-			try {
-				StringBuilder sb = new StringBuilder();
-				DragonPlugin.forEachAutoImport((packageName, className) -> {
-					sb.append("import ");
-					sb.append(packageName);
-					sb.append('.');
-					sb.append(className);
-					sb.append(';');
-				});
-				engine.eval(sb.toString());
-				System.out.println("finished kotlin import!");
-			} catch (JDOMException | IOException | ScriptException e) {
-				errWriter.append("could not auto-import classes, " + e.getMessage() + "\n");
-				errWriter.flush();
-			}
-		}
+		initInteractiveInterpreterWithProgress(outWriter, errWriter);
 
 		// the actual read loop
 		while (replReader != null) {
@@ -98,25 +80,13 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 
 	/**
 	 * Creates a new interpreter, with no input stream.
-	 *
-	 * @throws MissingDragonDependency If dependencies are missing for a Kotlin
-	 *                                 interpeter.
 	 */
-	public KotlinGhidraInterpreter() throws MissingDragonDependency {
+	public KotlinGhidraInterpreter() {
 		// needed to avoid dll loading issues on Windows
 		System.setProperty("idea.io.use.nio2", "true");
 
+		engine = null;
 		context = new SimpleScriptContext();
-
-		ScriptEngineManager scriptManager = new ScriptEngineManager();
-		engine = scriptManager.getEngineByExtension("kts");
-
-		if (engine == null) {
-			String errorMessage = "A Kotlin interpreter could not be created due to missing dependencies.";
-			throw new MissingDragonDependency(errorMessage);
-		}
-
-		engine.setContext(context);
 
 		replThread = new Thread(replLoop);
 		parentPlugin = null;
@@ -128,14 +98,10 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 *
 	 * @param console The console to bind to the interpreter streams.
 	 * @param plugin  The DragonPlugin instance owning this interpreter.
-	 *
-	 * @throws MissingDragonDependency If dependencies are missing for a Kotlin
-	 *                                 interpeter.
 	 */
-	public KotlinGhidraInterpreter(InterpreterConsole console, DragonPlugin plugin) throws MissingDragonDependency {
+	public KotlinGhidraInterpreter(InterpreterConsole console, DragonPlugin plugin) {
 		this();
 		setStreams(console);
-		errWriter = new PrintWriter(console.getStdErr());
 		parentPlugin = plugin;
 	}
 
@@ -161,6 +127,89 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	}
 
 	/**
+	 * The DragonPlugin that this interpreter is attached to.
+	 *
+	 * @return The owning plugin of this interpreter.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public DragonPlugin getParentPlugin() {
+		return parentPlugin;
+	}
+
+	/**
+	 * Get the version of Kotlin this interpreter supports.
+	 *
+	 * @return A string with the version of the interpreter. Returns null if a
+	 *         Kotlin script engine could not be created.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public String getVersion() {
+		ScriptEngineManager scriptManager = new ScriptEngineManager();
+		engine = scriptManager.getEngineByExtension("kts");
+
+		if (engine == null) {
+			return null;
+		}
+
+		return "Kotlin " + engine.getFactory().getLanguageVersion();
+	}
+
+	/**
+	 * Imports a given class into the interpreter.
+	 *
+	 * @param packageName The name of the package the class is in.
+	 * @param className   The name of the class to import.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public void importClass(String packageName, String className) {
+		if (engine != null) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("import ");
+			sb.append(packageName);
+			sb.append('.');
+			sb.append(className);
+			sb.append(';');
+
+			try {
+				engine.eval(sb.toString());
+			} catch (ScriptException e) {
+				errWriter.append("could not import " + className + ", " + e.getMessage() + "\n");
+				errWriter.flush();
+			}
+		}
+	}
+
+	/**
+	 * Sets up the Kotlin environment and automatic variables.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public void initInteractiveInterpreter() {
+		ScriptEngineManager scriptManager = new ScriptEngineManager();
+		engine = scriptManager.getEngineByExtension("kts");
+
+		if (engine == null) {
+			String errorMessage = "A Kotlin interpreter could not be created due to missing dependencies.";
+			errWriter.append(errorMessage + "\n");
+			errWriter.flush();
+		}
+
+		engine.setContext(context);
+
+		// set any variables that were provided before creation
+		setVariables.forEach((name, value) -> {
+			engine.put(name, value);
+		});
+	}
+
+	/**
 	 * Runs the given script with the arguments and state provided.
 	 *
 	 * The provided state is loaded into the interpreter at the beginning of
@@ -182,6 +231,17 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 		InputStreamReader scriptReader = new InputStreamReader(scriptFile.getInputStream());
 		loadState(scriptState);
 
+		if (engine == null) {
+			ScriptEngineManager scriptManager = new ScriptEngineManager();
+			engine = scriptManager.getEngineByExtension("kts");
+			engine.setContext(context);
+
+			// set any variables that were provided before creation
+			setVariables.forEach((name, value) -> {
+				engine.put(name, value);
+			});
+		}
+
 		engine.put("script", script);
 		engine.put("args", scriptArguments);
 		try {
@@ -200,6 +260,7 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void setErrWriter(PrintWriter errOut) {
 		context.setErrorWriter(errOut);
+		errWriter = errOut;
 	}
 
 	/**
@@ -216,6 +277,24 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void setOutWriter(PrintWriter output) {
 		context.setWriter(output);
+		outWriter = output;
+	}
+
+	/**
+	 * Adds or updates the variable with the given name to the given value in the
+	 * current engine.
+	 *
+	 * @param name  The name of the variable to create or update.
+	 * @param value The value of the variable to add.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public void setVariable(String name, Object value) {
+		setVariables.put(name, value);
+		if (engine != null) {
+			engine.put(name, value);
+		}
 	}
 
 	/**
@@ -227,72 +306,6 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	}
 
 	/**
-	 * Updates the current address pointed to by the "currentAddress" binding in the
-	 * interpreter.
-	 *
-	 * @param address The new current address in the program.
-	 */
-	@Override
-	public void updateAddress(Address address) {
-		if (address != null) {
-			engine.put("currentAddress", address);
-		}
-	}
-
-	/**
-	 * Updates the highlighted selection pointed to by the "currentHighlight"
-	 * variable.
-	 *
-	 * @param sel The new highlighted selection.
-	 */
-	@Override
-	public void updateHighlight(ProgramSelection sel) {
-		if (sel != null) {
-			engine.put("currentHighlight", sel);
-		}
-	}
-
-	/**
-	 * Updates the location in the "currentLocation" variable as well as the address
-	 * in the "ghidra/current-address" variable.
-	 *
-	 * @param loc The new location in the program.
-	 */
-	@Override
-	public void updateLocation(ProgramLocation loc) {
-		if (loc != null) {
-			engine.put("currentLocation", loc);
-			updateAddress(loc.getAddress());
-		}
-	}
-
-	/**
-	 * Updates the program pointed to by the "currentProgram" binding, as well as
-	 * the "currentAPI" binding to a FlatProgramAPI instance.
-	 *
-	 * @param program The new current program.
-	 */
-	@Override
-	public void updateProgram(Program program) {
-		if (program != null) {
-			engine.put("currentProgram", program);
-			engine.put("currentAPI", new FlatProgramAPI(program));
-		}
-	}
-
-	/**
-	 * Updates the selection pointed to by the "currentSelection" binding.
-	 *
-	 * @param sel The new selection.
-	 */
-	@Override
-	public void updateSelection(ProgramSelection sel) {
-		if (sel != null) {
-			engine.put("currentSelection", sel);
-		}
-	}
-
-	/**
 	 * Updates a state with the current selection/location/etc. variables from the
 	 * interpreter.
 	 *
@@ -300,19 +313,19 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public void updateState(GhidraState scriptState) {
-		Program currentProgram = (Program) engine.get("currentProgram");
+		Program currentProgram = (Program) engine.get(getCurrentProgramName());
 		scriptState.setCurrentProgram(currentProgram);
 
-		ProgramLocation currentLocation = (ProgramLocation) engine.get("currentLocation");
+		ProgramLocation currentLocation = (ProgramLocation) engine.get(getCurrentLocationName());
 		scriptState.setCurrentLocation(currentLocation);
 
-		Address addr = (Address) engine.get("currentAddress");
+		Address addr = (Address) engine.get(getCurrentAddressName());
 		scriptState.setCurrentAddress(addr);
 
-		ProgramSelection highlight = (ProgramSelection) engine.get("currentHighlight");
+		ProgramSelection highlight = (ProgramSelection) engine.get(getCurrentHighlightName());
 		scriptState.setCurrentHighlight(highlight);
 
-		ProgramSelection sel = (ProgramSelection) engine.get("currentSelection");
+		ProgramSelection sel = (ProgramSelection) engine.get(getCurrentSelectionName());
 		scriptState.setCurrentSelection(sel);
 	}
 

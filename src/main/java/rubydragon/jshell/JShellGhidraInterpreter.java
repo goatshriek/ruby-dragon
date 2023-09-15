@@ -32,8 +32,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.jdom.JDOMException;
-
 import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.program.flatapi.FlatProgramAPI;
@@ -73,8 +71,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	private boolean disposed = false;
 
 	private Runnable replLoop = () -> {
-		// set up the jshell interpreter
-		createJShell();
+		initInteractiveInterpreterWithProgress(outWriter, errWriter);
 
 		while (!disposed) {
 			try {
@@ -138,28 +135,19 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 
 	/**
 	 * Creates a new JShell interpreter, and declares the internal variables.
+	 *
+	 * @since 3.1.0
 	 */
-	private void createJShell() {
+	@Override
+	public void initInteractiveInterpreter() {
+		PrintStream outPrintStream = new PrintStream(outStream);
 		PrintStream errPrintStream = new PrintStream(errStream);
 
 		JShell.Builder builder = JShell.builder();
-		builder.out(new PrintStream(outStream));
+		builder.out(outPrintStream);
 		builder.err(errPrintStream);
 		builder.executionEngine(new LocalExecutionControlProvider(), new HashMap<String, String>());
 		jshell = builder.build();
-
-		// load the preload imports if enabled
-		boolean preloadEnabled = parentPlugin.isAutoImportEnabled();
-		if (preloadEnabled) {
-			try {
-				DragonPlugin.forEachAutoImport(className -> {
-					String importStatement = "import " + className + ";";
-					jshell.eval(importStatement);
-				});
-			} catch (JDOMException | IOException e) {
-				errPrintStream.println("could not auto-import classes, " + e.getMessage());
-			}
-		}
 
 		// declare the built-in variables
 		jshell.eval(String.format("%s currentAddress = null;", Address.class.getName()));
@@ -213,6 +201,30 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	}
 
 	/**
+	 * The DragonPlugin that this interpreter is attached to.
+	 *
+	 * @return The owning plugin of this interpreter.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public DragonPlugin getParentPlugin() {
+		return parentPlugin;
+	}
+
+	/**
+	 * Get the version of Java this JShell supports.
+	 *
+	 * @return A string with the version of the interpreter.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public String getVersion() {
+		return "JShell " + Runtime.version().toString();
+	}
+
+	/**
 	 * Prints a status message to the console for the given event.
 	 *
 	 * @param e The SnippetEvent to report a status for.
@@ -221,7 +233,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 		if (e.causeSnippet() == null) {
 			switch (e.status()) {
 			case RECOVERABLE_DEFINED:
-				errWriter.println("jshell snipped failed: RECOVERABLE_DEFINED");
+				errWriter.println("jshell snippet failed: RECOVERABLE_DEFINED");
 				break;
 			case RECOVERABLE_NOT_DEFINED:
 				errWriter.println("jshell snippet failed: RECOVERABLE_NOT_DEFINED");
@@ -239,6 +251,22 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	}
 
 	/**
+	 * Imports a given class into the interpreter.
+	 *
+	 * @param packageName The name of the package the class is in.
+	 * @param className   The name of the class to import.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public void importClass(String packageName, String className) {
+		if (jshell != null) {
+			String importStatement = "import " + className + ";";
+			jshell.eval(importStatement);
+		}
+	}
+
+	/**
 	 * Interrupts this interpreter.
 	 */
 	public void interrupt() {
@@ -250,7 +278,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 */
 	public void reset() {
 		jshell.close();
-		createJShell();
+		initInteractiveInterpreter();
 	}
 
 	/**
@@ -278,7 +306,20 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	}
 
 	/**
-	 * Sets an existing variable with the given name to the given value.
+	 * Adds or updates the variable with the given name to the given value in the
+	 * interpreter.
+	 *
+	 * @param name  The name of the variable to create or update.
+	 * @param value The value of the variable to add.
+	 *
+	 * @since 3.1.0
+	 */
+	public void setVariable(String name, Object value) {
+		setVariable(name, value.getClass(), value);
+	}
+
+	/**
+	 * Sets an existing variable with the given name to the given value and class.
 	 *
 	 * @param name  The name of the variable.
 	 * @param type  The type of the variable.
@@ -292,6 +333,14 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 		}
 	}
 
+	/**
+	 * Sets an existing variable with the given name to the given value and class.
+	 * This method assumes that the interpreter has already been created.
+	 *
+	 * @param name  The name of the variable.
+	 * @param type  The type of the variable.
+	 * @param value The new value of the variable.
+	 */
 	private void setVariableInJShell(String name, Class<?> type, Object value) {
 		Integer varId = counter.incrementAndGet();
 		variables.put(varId, value);
@@ -318,7 +367,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	@Override
 	public void updateAddress(Address address) {
 		if (address != null) {
-			setVariable("currentAddress", Address.class, address);
+			setVariable(getCurrentAddressName(), Address.class, address);
 		}
 	}
 
@@ -331,7 +380,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	@Override
 	public void updateHighlight(ProgramSelection sel) {
 		if (sel != null) {
-			setVariable("currentHighlight", ProgramSelection.class, sel);
+			setVariable(getCurrentHighlightName(), ProgramSelection.class, sel);
 		}
 	}
 
@@ -344,7 +393,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	@Override
 	public void updateLocation(ProgramLocation loc) {
 		if (loc != null) {
-			setVariable("currentLocation", ProgramLocation.class, loc);
+			setVariable(getCurrentLocationName(), ProgramLocation.class, loc);
 			updateAddress(loc.getAddress());
 		}
 	}
@@ -357,8 +406,8 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	@Override
 	public void updateProgram(Program program) {
 		if (program != null) {
-			setVariable("currentProgram", Program.class, program);
-			setVariable("currentAPI", FlatProgramAPI.class, new FlatProgramAPI(program));
+			setVariable(getCurrentProgramName(), Program.class, program);
+			setVariable(getCurrentAPIName(), FlatProgramAPI.class, new FlatProgramAPI(program));
 		}
 	}
 
@@ -370,7 +419,7 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	@Override
 	public void updateSelection(ProgramSelection sel) {
 		if (sel != null) {
-			setVariable("currentSelection", ProgramSelection.class, sel);
+			setVariable(getCurrentSelectionName(), ProgramSelection.class, sel);
 		}
 	}
 

@@ -18,7 +18,6 @@
 
 package rubydragon;
 
-import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -31,9 +30,7 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 
 import docking.ActionContext;
-import docking.DockingUtils;
 import docking.action.DockingAction;
-import docking.action.KeyBindingData;
 import docking.action.ToolBarData;
 import ghidra.app.plugin.ProgramPlugin;
 import ghidra.app.plugin.core.console.CodeCompletion;
@@ -132,12 +129,12 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 
 		// set up the preload option
 		ToolOptions toolOpt = tool.getOptions(OPTION_CATEGORY_NAME);
-		toolOpt.registerOption(getAutoImportOptionName(), Boolean.TRUE, getAutoImportOptionHelpLocation(),
+		toolOpt.registerOption(getAutoImportOptionName(), Boolean.FALSE, getAutoImportOptionHelpLocation(),
 				getAutoImportOptionDescription());
 
+		// set up the launch toolbar icon
 		String launchActionTitle = "Launch " + name + " Interpreter";
 		DockingAction launchAction = new DockingAction(launchActionTitle, getName()) {
-
 			@Override
 			public void actionPerformed(ActionContext context) {
 				showConsole();
