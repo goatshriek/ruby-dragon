@@ -19,6 +19,7 @@
 package rubydragon;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -193,7 +194,11 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 	 */
 	@Override
 	public List<CodeCompletion> getCompletions(String cmd) {
-		return getInterpreter().getCompletions(cmd);
+		GhidraInterpreter interpreter = getInterpreter();
+		if (interpreter == null) {
+			return new ArrayList<>();
+		}
+		return interpreter.getCompletions(cmd);
 	}
 
 	/**
@@ -225,7 +230,11 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 	 */
 	@Override
 	public void highlightChanged(ProgramSelection sel) {
-		getInterpreter().updateHighlight(sel);
+
+		GhidraInterpreter interpreter = getInterpreter();
+		if (interpreter != null) {
+			interpreter.updateHighlight(sel);
+		}
 	}
 
 	/**
@@ -244,7 +253,10 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 	 */
 	@Override
 	public void locationChanged(ProgramLocation loc) {
-		getInterpreter().updateLocation(loc);
+		GhidraInterpreter interpreter = getInterpreter();
+		if (interpreter != null) {
+			interpreter.updateLocation(loc);
+		}
 	}
 
 	/**
@@ -252,7 +264,10 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 	 */
 	@Override
 	public void programActivated(Program program) {
-		getInterpreter().updateProgram(program);
+		GhidraInterpreter interpreter = getInterpreter();
+		if (interpreter != null) {
+			interpreter.updateProgram(program);
+		}
 	}
 
 	/**
@@ -260,7 +275,10 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 	 */
 	@Override
 	public void selectionChanged(ProgramSelection sel) {
-		getInterpreter().updateSelection(sel);
+		GhidraInterpreter interpreter = getInterpreter();
+		if (interpreter != null) {
+			interpreter.updateSelection(sel);
+		}
 	}
 
 	/**
