@@ -19,13 +19,13 @@ plugins {
 }
 
 dependencies {
-	implementation('org.jruby:jruby-complete:9.4.3.0')
+	implementation('org.jruby:jruby-complete:9.4.5.0')
 	implementation('org.clojure:clojure:1.11.1')
-	implementation('org.apache.groovy:groovy:4.0.13')
-	implementation('org.apache.groovy:groovy-groovysh:4.0.14')
+	implementation('org.apache.groovy:groovy:4.0.17')
+	implementation('org.apache.groovy:groovy-groovysh:4.0.17')
 	implementation('com.github.JetBrains:jediterm:e5e2039b31640ac433b3ff1ce36cec7aad611eb6')
 	testImplementation('junit:junit:4.13.2')
-	runtimeOnly('org.jetbrains.kotlin:kotlin-scripting-jsr223:1.9.10')
+	runtimeOnly('org.jetbrains.kotlin:kotlin-scripting-jsr223:1.9.22')
 }
 
 test {
