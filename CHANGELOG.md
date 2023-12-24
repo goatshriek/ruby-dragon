@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [3.2.0] - 2023-12-24
+### Changed
+ - Upgrade to JRuby 9.4.5.0 (Ruby 3.1.4)
+ - Upgrade to Groovy 4.0.17
+ - Upgrade to Kotlin 1.9.22
+
+
 ## [3.1.0] - 2023-09-14
 ### Added
  - Loading banners with load time and language version to all interactive
