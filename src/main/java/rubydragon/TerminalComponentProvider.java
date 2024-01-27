@@ -249,9 +249,14 @@ public class TerminalComponentProvider extends ComponentProviderAdapter implemen
 		public int read(char[] buf, int offset, int length) throws IOException {
 			int result = stdoutReader.read(buf, offset, length);
 			System.out.println("read bytes: " + new String(buf, offset, result));
-			if(result == 1 ) {
-				System.out.println(String.format("char value: %d", (int) buf[offset]));
+			for (int i = 0; i < result; i++) {
+				System.out.print(String.format("%3d ", (int) buf[offset + i]));
 			}
+			System.out.println();
+			for (int i = 0; i < result; i++) {
+				System.out.print(String.format("%3x ", (int) buf[offset + i]));
+			}
+			System.out.println();
 			return result;
 		}
 
