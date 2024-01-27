@@ -21,7 +21,6 @@ import javax.swing.JPanel;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.jediterm.core.util.TermSize;
 import com.jediterm.terminal.TtyConnector;
 import com.jediterm.terminal.ui.JediTermWidget;
 import com.jediterm.terminal.ui.settings.DefaultSettingsProvider;
