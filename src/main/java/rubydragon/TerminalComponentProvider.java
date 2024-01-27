@@ -15,27 +15,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.swing.Action;
-import javax.swing.ActionMap;
 import javax.swing.Icon;
-import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
 
 import org.jetbrains.annotations.NotNull;
 
+import com.jediterm.core.util.TermSize;
 import com.jediterm.terminal.TtyConnector;
 import com.jediterm.terminal.ui.JediTermWidget;
 import com.jediterm.terminal.ui.settings.DefaultSettingsProvider;
 
 import docking.ActionContext;
-import docking.DockingUtils;
 import docking.action.DockingAction;
 import docking.action.ToolBarData;
-import docking.actions.KeyBindingUtils;
 import docking.widgets.OptionDialog;
 import generic.theme.GIcon;
 import ghidra.app.plugin.core.interpreter.InterpreterConnection;
@@ -48,7 +41,7 @@ public class TerminalComponentProvider extends ComponentProviderAdapter implemen
 
 	private List<Callback> firstActivationCallbacks;
 	private JediTermWidget widget;
-	private JTextArea panel;
+	private JPanel panel;
 	PipedInputStream stdin;
 	PipedOutputStream stdout;
 	PrintWriter stdoutWriter;
@@ -67,58 +60,35 @@ public class TerminalComponentProvider extends ComponentProviderAdapter implemen
 		stdout = new PipedOutputStream();
 		stdoutWriter = new PrintWriter(stdout);
 		widget.setTtyConnector(new StdTtyConnector(stdin, stdout));
-		widget.start();
-		widget.addKeyListener(new KeyListener() {
-			private void handleEvent(KeyEvent e) {
-				System.out.println("widget key event handled: " + e.toString());
-			}
 
-			@Override
-			public void keyTyped(KeyEvent e) {
-				handleEvent(e);
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-				handleEvent(e);
-			}
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-				handleEvent(e);
-			}
-		});
-
-//		panel = new TerminalJPanel();
-		panel = new JTextArea();
+		panel = new JPanel();
 		panel.add(widget);
 		panel.setFocusable(true);
 
-		addToTool();
-
-		panel.addKeyListener(new KeyListener() {
-			private void handleEvent(KeyEvent e) {
-				System.out.println("panel key event handled: " + e.toString());
-
-				// Send everything else down to the widget.
-				KeyBindingUtils.retargetEvent(widget, e);
-			}
-
+		// this listener catches key events that are already bound in Ghidra,
+		// and sends them to the terminal instead of invoking Ghidra's action
+		widget.getTerminalPanel().addKeyListener(new KeyListener() {
 			@Override
 			public void keyTyped(KeyEvent e) {
-				handleEvent(e);
+				System.out.println("panel key typed event: " + e.toString());
+				e.consume();
 			}
 
 			@Override
 			public void keyReleased(KeyEvent e) {
-				handleEvent(e);
+				System.out.println("panel key released event: " + e.toString());
+				e.consume();
 			}
 
 			@Override
 			public void keyPressed(KeyEvent e) {
-				handleEvent(e);
+				System.out.println("panel key pressed event: " + e.toString());
+				e.consume();
 			}
 		});
+
+		widget.start();
+		addToTool();
 
 		// in create actions elsewhere
 		DockingAction clearAction = new DockingAction("Clear Interpreter", getName()) {
@@ -207,13 +177,11 @@ public class TerminalComponentProvider extends ComponentProviderAdapter implemen
 
 	@Override
 	public boolean isInputPermitted() {
-		System.out.println("input permitted: " + widget.isEnabled());
 		return widget.isEnabled();
 	}
 
 	@Override
 	public void setInputPermitted(boolean permitted) {
-		System.out.println("setting input permitted to: " + permitted);
 		widget.setEnabled(permitted);
 	}
 
@@ -261,7 +229,7 @@ public class TerminalComponentProvider extends ComponentProviderAdapter implemen
 		public StdTtyConnector(@NotNull PipedInputStream stdin, @NotNull PipedOutputStream stdout) {
 			try {
 				stdinOutputStream = new PipedOutputStream(stdin);
-				stdoutReader = new InputStreamReader(new PipedInputStream(stdout));
+				stdoutReader = new InputStreamReader(new PipedInputStream(stdout), StandardCharsets.UTF_8);
 			} catch (IOException e) {
 				// TODO deal with this better
 				throw new RuntimeException(e);
@@ -279,7 +247,12 @@ public class TerminalComponentProvider extends ComponentProviderAdapter implemen
 
 		@Override
 		public int read(char[] buf, int offset, int length) throws IOException {
-			return stdoutReader.read(buf, offset, length);
+			int result = stdoutReader.read(buf, offset, length);
+			System.out.println("read bytes: " + new String(buf, offset, result));
+			if(result == 1 ) {
+				System.out.println(String.format("char value: %d", (int) buf[offset]));
+			}
+			return result;
 		}
 
 		@Override
@@ -314,38 +287,6 @@ public class TerminalComponentProvider extends ComponentProviderAdapter implemen
 			return stdoutReader.ready();
 		}
 
-	}
-
-	private class TerminalJPanel extends JPanel {
-		@Override
-		protected void processKeyEvent(KeyEvent e) {
-			System.out.println("got a key event!");
-			System.out.println(e.toString());
-		}
-		
-		@Override
-        protected boolean processKeyBinding(KeyStroke ks, KeyEvent e, int condition,
-                boolean pressed) {
-			System.out.println("keybinding called");
-
-            InputMap map = getInputMap(condition);
-            ActionMap am = getActionMap();
-            if (map != null && am != null && isEnabled()) {
-                Object binding = map.get(ks);
-                Action action = (binding == null) ? null : am.get(binding);
-                if (action != null) {
-                    if (!action.isEnabled()) {
-                        // we want to consume the event here, so Ghidra doesn't get to
-                        // process it when the actions are disabled
-                        e.consume();
-                        return true;
-                    }
-
-                    return SwingUtilities.notifyAction(action, ks, e, this, e.getModifiersEx());
-                }
-            }
-            return false;
-        }
 	}
 
 }

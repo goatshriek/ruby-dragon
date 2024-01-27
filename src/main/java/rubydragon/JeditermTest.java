@@ -7,8 +7,13 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.io.PipedReader;
 import java.io.PipedWriter;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 public class JeditermTest {
@@ -19,7 +24,7 @@ public class JeditermTest {
     writer.write(ESC + "[31m");
     writer.write("Hello\r\n");
     writer.write(ESC + "[32;43m");
-    writer.write("World\r\n");
+    writer.write("Wor\bld\r\n");
   }
 
   private static @NotNull JediTermWidget createTerminalWidget() {
@@ -99,6 +104,71 @@ public class JeditermTest {
     public boolean ready() throws IOException {
       return myReader.ready();
     }
+
+	private static class StdTtyConnector implements TtyConnector {
+
+		private final Reader stdoutReader;
+		private final PipedOutputStream stdinOutputStream;
+
+		public StdTtyConnector(@NotNull PipedInputStream stdin, @NotNull PipedOutputStream stdout) {
+			try {
+				stdinOutputStream = new PipedOutputStream(stdin);
+				stdoutReader = new InputStreamReader(new PipedInputStream(stdout), StandardCharsets.UTF_8);
+			} catch (IOException e) {
+				// TODO deal with this better
+				throw new RuntimeException(e);
+			}
+		}
+
+		@Override
+		public void close() {
+		}
+
+		@Override
+		public String getName() {
+			return null;
+		}
+
+		@Override
+		public int read(char[] buf, int offset, int length) throws IOException {
+			int result = stdoutReader.read(buf, offset, length);
+			System.out.println("read bytes: " + Arrays.toString(buf));
+			return result;
+		}
+
+		@Override
+		public void write(byte[] bytes) {
+			try {
+				System.out.println("writing bytes: " + Arrays.toString(bytes));
+				stdinOutputStream.write(bytes);
+				stdinOutputStream.flush();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		@Override
+		public boolean isConnected() {
+			return true;
+		}
+
+		@Override
+		public void write(String string) {
+			write(string.getBytes(StandardCharsets.UTF_8));
+		}
+
+		@Override
+		public int waitFor() {
+			return 0;
+		}
+
+		@Override
+		public boolean ready() throws IOException {
+			return stdoutReader.ready();
+		}
+
+	}
 
 
   }

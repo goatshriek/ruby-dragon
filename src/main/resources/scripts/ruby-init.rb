@@ -14,7 +14,7 @@ class java::lang::Object
 end
 
 # we disable autocomplete since it won't work in the Ghidra interpreter window
-IRB.conf[:USE_AUTOCOMPLETE] = false
+IRB.conf[:USE_AUTOCOMPLETE] = true
 IRB.conf[:USE_MULTILINE] = false
 
 # this was copied from

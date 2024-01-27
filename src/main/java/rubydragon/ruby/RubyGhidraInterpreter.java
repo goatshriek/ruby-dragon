@@ -21,6 +21,8 @@ package rubydragon.ruby;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,6 +58,8 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	private PrintWriter outWriter = null;
 	private PrintWriter errWriter = null;
 	private InputStream input = null;
+	private OutputStream output = null;
+	private OutputStream errOut = null;
 
 	private Runnable replLoop = () -> {
 		initInteractiveInterpreterWithProgress(outWriter, errWriter);
@@ -82,7 +86,12 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	public RubyGhidraInterpreter(InterpreterConsole console, DragonPlugin plugin) {
 		this();
-		setStreams(console);
+//		setStreams(console);
+		setInput(console.getStdin());
+		this.output = console.getStdOut();
+		outWriter = new PrintWriter(this.output);
+		this.errOut = console.getStdErr();
+		errWriter = new PrintWriter(errOut);
 		parentPlugin = plugin;
 	}
 
@@ -250,13 +259,15 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 
 		// set the input and output streams if they've been set
 		if (errWriter != null) {
-			container.setError(errWriter);
+//			container.setError(errWriter);
+			container.setError(new PrintStream(errOut));
 		}
 		if (input != null) {
 			container.setInput(input);
 		}
-		if (outWriter != null) {
-			container.setOutput(outWriter);
+		if (output != null) {
+//			container.setOutput(outWriter);
+			container.setOutput(new PrintStream(output));
 		}
 
 		// run the ruby setup script
@@ -355,7 +366,7 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	public void setOutWriter(PrintWriter output) {
 		outWriter = output;
 		if (container != null) {
-			container.setOutput(output);
+//			container.setOutput(output);
 		}
 	}
 

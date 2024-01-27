@@ -225,7 +225,7 @@ public abstract class GhidraInterpreter implements Disposable {
 	 */
 	public void initInteractiveInterpreterWithProgress(PrintWriter output, PrintWriter errOut) {
 		long startTime = System.currentTimeMillis();
-		output.append("starting " + getVersion() + "\n");
+		output.append(getVersion() + "\nstarting...\n");
 		output.flush();
 
 		initInteractiveInterpreter();
