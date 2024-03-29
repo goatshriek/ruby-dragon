@@ -5,6 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [3.3.0] - 2024-03-28
+### Changed
+ - Upgrade to JRuby 9.4.6.0 (Ruby 3.1.4)
+ - Upgrade to Clojure 1.11.2
+ - Upgrade to Groovy 4.0.20
+ - Upgrade to Kotlin 1.9.23
+
+
 ## [3.2.0] - 2023-12-24
 ### Changed
  - Upgrade to JRuby 9.4.5.0 (Ruby 3.1.4)
