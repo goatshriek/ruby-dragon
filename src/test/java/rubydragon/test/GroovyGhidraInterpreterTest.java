@@ -34,7 +34,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import rubydragon.groovy.GroovyGhidraInterpreter;
+import com.goatshriek.rubydragon.groovy.GroovyGhidraInterpreter;
 
 public class GroovyGhidraInterpreterTest {
 

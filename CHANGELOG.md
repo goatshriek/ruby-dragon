@@ -5,6 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [4.0.0] - 2024-06-08
+### Changed
+ - Upgrade to JRuby 9.4.7.0 (Ruby 3.1.4)
+ - Upgrade to Groovy 4.0.21
+ - Upgrade to Kotlin 2.0.0
+ 
+### Removed
+ - Warnings and `launch.properties` files for broken JRuby support in older
+   versions of Ghidra.
+
 ## [3.3.0] - 2024-03-28
 ### Changed
  - Upgrade to JRuby 9.4.6.0 (Ruby 3.1.4)
