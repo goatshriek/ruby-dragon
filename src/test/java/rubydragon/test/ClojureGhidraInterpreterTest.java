@@ -33,7 +33,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import rubydragon.clojure.ClojureGhidraInterpreter;
+import com.goatshriek.rubydragon.clojure.ClojureGhidraInterpreter;
 
 public class ClojureGhidraInterpreterTest {
 

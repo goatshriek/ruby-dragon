@@ -32,7 +32,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import rubydragon.ruby.RubyGhidraInterpreter;
+import com.goatshriek.rubydragon.ruby.RubyGhidraInterpreter;
 
 public class RubyGhidraInterpreterTest {
 

@@ -12,13 +12,13 @@ jobs:
     runs-on: "ubuntu-latest"
     strategy:
       matrix:
-        ghidra: ["11.0.2"]
+        ghidra: ["11.1"]
         include:
-          - ghidra: "11.0.2"
-            ghidra-url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_11.0.2_build/ghidra_11.0.2_PUBLIC_20240326.zip"
-            ghidra-sha256: "4f16ae3f288f8c01fd1872e8e55b25c79744e7b1e8a9383c5e576668ca7d1906"
-            ghidra-filename: "ghidra_11.0.2_PUBLIC_20240326.zip"
-            ghidra-folder: "ghidra_11.0.2_PUBLIC"
+          - ghidra: "11.1"
+            ghidra-url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_11.1_build/ghidra_11.1_PUBLIC_20240607.zip"
+            ghidra-sha256: "293f60e04fa480315d2c467f4b2b4b10b3b6b5c8a8416bf7167fe082406e3be8"
+            ghidra-filename: "ghidra_11.1_PUBLIC_20240607.zip"
+            ghidra-folder: "ghidra_11.1_PUBLIC"
 
     env:
       GHIDRA_INSTALL_DIR: /home/runner/ghidra/${{ matrix.ghidra-folder }}
@@ -44,9 +44,9 @@ jobs:
         run: |
           curl -s "https://get.sdkman.io?rcupdate=false" | bash
           source "/home/runner/.sdkman/bin/sdkman-init.sh"
-          sdk install gradle 7.4
-          sdk use gradle 7.4
-          sdk default gradle 7.4
+          sdk install gradle 8.8
+          sdk use gradle 8.8
+          sdk default gradle 8.8
       - name: Run Unit Tests
         run: |
           echo "skipping gradle test due to inconsistencies in reliability"

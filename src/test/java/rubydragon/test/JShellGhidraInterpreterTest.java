@@ -34,7 +34,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import rubydragon.jshell.JShellGhidraInterpreter;
+import com.goatshriek.rubydragon.jshell.JShellGhidraInterpreter;
 
 public class JShellGhidraInterpreterTest {
 
