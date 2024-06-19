@@ -18,16 +18,26 @@
 
 package com.goatshriek.rubydragon.ruby;
 
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
 import com.goatshriek.rubydragon.DragonPlugin;
 import com.goatshriek.rubydragon.GhidraInterpreter;
 
 import ghidra.app.CorePluginPackage;
 import ghidra.app.plugin.core.interpreter.InterpreterConnection;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
-import ghidra.app.plugin.core.interpreter.InterpreterPanelService;
+import ghidra.app.services.Terminal;
+import ghidra.app.services.TerminalService;
 import ghidra.framework.plugintool.PluginInfo;
 import ghidra.framework.plugintool.PluginTool;
 import ghidra.framework.plugintool.util.PluginStatus;
+import ghidra.pty.Pty;
+import ghidra.pty.PtyFactory;
+import ghidra.pty.PtySession;
 
 /**
  * RubyDragon provides Ruby support within Ghidra, both in an interactive
@@ -40,14 +50,24 @@ import ghidra.framework.plugintool.util.PluginStatus;
 	category = DragonPlugin.PLUGIN_CATEGORY_NAME,
 	shortDescription = "Ruby Interpreter",
 	description = "Provides an interactive Ruby Interpreter that is tightly integrated with a loaded Ghidra program.",
-	servicesRequired = { InterpreterPanelService.class },
+	servicesRequired = { TerminalService.class },
 	isSlowInstallation = true
 )
 //@formatter:on
 public class RubyDragonPlugin extends DragonPlugin implements InterpreterConnection {
 
-	private InterpreterConsole console;
-	private GhidraInterpreter interpreter;
+//	private InterpreterConsole console;
+	private Terminal terminal;
+	private RubyGhidraInterpreter interpreter;
+
+	private PipedInputStream errIn;
+	private PipedOutputStream errOut;
+
+	private PipedInputStream stdOutIn;
+	private PipedOutputStream stdOutOut;
+
+	private PipedInputStream stdInIn;
+	private PipedOutputStream stdInOut;
 
 	/**
 	 * Plugin constructor.
@@ -56,6 +76,19 @@ public class RubyDragonPlugin extends DragonPlugin implements InterpreterConnect
 	 */
 	public RubyDragonPlugin(PluginTool tool) {
 		super(tool, "Ruby");
+
+		errIn = new PipedInputStream();
+		stdOutIn = new PipedInputStream();
+		stdInIn = new PipedInputStream();
+
+		try {
+			errOut = new PipedOutputStream(errIn);
+			stdOutOut = new PipedOutputStream(stdOutIn);
+			stdInOut = new PipedOutputStream(stdInIn);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -64,7 +97,7 @@ public class RubyDragonPlugin extends DragonPlugin implements InterpreterConnect
 	@Override
 	protected void dispose() {
 		interpreter.dispose();
-		console.dispose();
+//		console.dispose();
 		super.dispose();
 	}
 
@@ -86,11 +119,16 @@ public class RubyDragonPlugin extends DragonPlugin implements InterpreterConnect
 	public void init() {
 		super.init();
 
-		console = getTool().getService(InterpreterPanelService.class).createInterpreterPanel(this, false);
-		interpreter = new RubyGhidraInterpreter(console, this);
-		console.addFirstActivationCallback(() -> {
-			interpreter.startInteractiveSession();
-		});
+//		console = getTool().getService(InterpreterPanelService.class).createInterpreterPanel(this, false);
+		terminal = getTool().getService(TerminalService.class).createWithStreams(StandardCharsets.UTF_8, stdOutIn,
+				stdInOut);
+		interpreter = new RubyGhidraInterpreter(stdInIn, stdOutOut, stdOutOut, this);
+//		interpreter.setInput(stdInIn);
+//		interpreter.setOutput(stdOutOut);
+//		console.addFirstActivationCallback(() -> {
+//			interpreter.startInteractiveSession();
+//		});
+		interpreter.startInteractiveSession();
 	}
 
 	/**
@@ -98,6 +136,6 @@ public class RubyDragonPlugin extends DragonPlugin implements InterpreterConnect
 	 */
 	@Override
 	public void showConsole() {
-		console.show();
+//		console.show();
 	}
 }

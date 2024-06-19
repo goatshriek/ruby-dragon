@@ -21,6 +21,8 @@ package com.goatshriek.rubydragon.ruby;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,6 +56,7 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	private Thread irbThread;
 	private boolean disposed = false;
 	private DragonPlugin parentPlugin;
+	private OutputStream output = null;
 	private PrintWriter outWriter = null;
 	private PrintWriter errWriter = null;
 	private InputStream input = null;
@@ -73,6 +76,20 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 		container = null;
 		irbThread = new Thread(replLoop);
 		parentPlugin = null;
+	}
+
+	/**
+	 * Creates a new interpreter, and ties the streams for the provided console to
+	 * the new interpreter.
+	 *
+	 * @param console The console to bind to the interpreter streams.
+	 */
+	public RubyGhidraInterpreter(InputStream stdin, OutputStream stdout, OutputStream stderr, DragonPlugin plugin) {
+		this();
+		setInput(stdin);
+		setOutput(stdout);
+		setErrWriter(new PrintWriter(stderr));
+		parentPlugin = plugin;
 	}
 
 	/**
@@ -213,6 +230,16 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public String getCurrentSelectionName() {
 		return "$current_selection";
+	}
+	
+	@Override
+	public InputStream getInputStream() {
+		return input;
+	}
+	
+	@Override
+	public OutputStream getOutputStream() {
+		return output;
 	}
 
 	/**
@@ -357,6 +384,14 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 		outWriter = output;
 		if (container != null) {
 			container.setOutput(output);
+		}
+	}
+
+	public void setOutput(OutputStream output) {
+		this.output = output;
+		this.outWriter = new PrintWriter(output);
+		if (container != null) {
+			container.setOutput(new PrintStream(output));
 		}
 	}
 

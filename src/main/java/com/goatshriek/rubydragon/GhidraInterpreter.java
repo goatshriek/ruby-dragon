@@ -20,6 +20,7 @@ package com.goatshriek.rubydragon;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.List;
 
@@ -164,6 +165,14 @@ public abstract class GhidraInterpreter implements Disposable {
 	 */
 	public String getCurrentSelectionName() {
 		return "currentSelection";
+	}
+	
+	public InputStream getInputStream() {
+		return null;
+	}
+	
+	public OutputStream getOutputStream() {
+		return null;
 	}
 
 	/**
