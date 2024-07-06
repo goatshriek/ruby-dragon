@@ -33,51 +33,24 @@ public class GhidraInterpreterPtySession implements PtySession {
 		this.interpreter = interpreter;
 	}
 
-	protected int doWaitExited(Long millis) throws InterruptedException, TimeoutException {
-		long startMs = System.currentTimeMillis();
-		// Doesn't look like there's a clever way to wait. So do the spin sleep :(
-		while (!channel.isEOF()) {
-			Thread.sleep(100);
-			long elapsed = System.currentTimeMillis() - startMs;
-			if (millis != null && elapsed > millis) {
-				throw new TimeoutException();
-			}
-		}
-		// NB. May not be available
-		return channel.getExitStatus();
-	}
-
 	@Override
 	public int waitExited() throws InterruptedException {
-		try {
-			return doWaitExited(null);
-		}
-		catch (TimeoutException e) {
-			throw new AssertionError(e);
-		}
+		return 0;
 	}
 
 	@Override
-	public int waitExited(long timeout, TimeUnit unit)
-			throws InterruptedException, TimeoutException {
-		long millis = TimeUnit.MILLISECONDS.convert(timeout, unit);
-		return doWaitExited(millis);
+	public int waitExited(long timeout, TimeUnit unit) throws InterruptedException, TimeoutException {
+	 return 0;
 	}
 
 	@Override
 	public void destroyForcibly() {
-		channel.disconnect();
+		return;
 	}
 
 	@Override
 	public String description() {
-		Session session;
-		try {
-			session = channel.getSession();
-		}
-		catch (JSchException e) {
-			return "ssh";
-		}
-		return "ssh " + session.getUserName() + "@" + session.getHost() + ":" + session.getPort();
+		// TODO make this meaningful
+		return "Ruby Dragon interpreter terminal session";
 	}
 }

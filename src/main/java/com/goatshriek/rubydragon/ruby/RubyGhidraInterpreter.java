@@ -86,8 +86,8 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	public RubyGhidraInterpreter(InputStream stdin, OutputStream stdout, OutputStream stderr, DragonPlugin plugin) {
 		this();
-		setInput(stdin);
-		setOutput(stdout);
+		setInputStream(stdin);
+		setOutputStream(stdout);
 		setErrWriter(new PrintWriter(stderr));
 		parentPlugin = plugin;
 	}
@@ -275,6 +275,9 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public void initInteractiveInterpreter() {
 		container = new ScriptingContainer(LocalContextScope.SINGLETHREAD, LocalVariableBehavior.PERSISTENT);
+		Map<String, String> env = new HashMap<>(System.getenv());
+        env.put("TERM", "xterm-256color");
+        container.setEnvironment(env);
 
 		// set the input and output streams if they've been set
 		if (errWriter != null) {
@@ -283,8 +286,8 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 		if (input != null) {
 			container.setInput(input);
 		}
-		if (outWriter != null) {
-			container.setOutput(outWriter);
+		if (output != null) {
+			container.setOutput(new PrintStream(output));
 		}
 
 		// run the ruby setup script
@@ -369,7 +372,7 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 * Sets the input stream for this interpreter.
 	 */
 	@Override
-	public void setInput(InputStream input) {
+	public void setInputStream(InputStream input) {
 		this.input = input;
 		if (container != null) {
 			container.setInput(input);
@@ -387,7 +390,8 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 		}
 	}
 
-	public void setOutput(OutputStream output) {
+	@Override
+	public void setOutputStream(OutputStream output) {
 		this.output = output;
 		this.outWriter = new PrintWriter(output);
 		if (container != null) {

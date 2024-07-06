@@ -20,13 +20,12 @@ package com.goatshriek.rubydragon.pty;
 
 import java.io.IOException;
 
-import com.goatshriek.rubydragon.GhidraInterpreter;
 import com.goatshriek.rubydragon.ruby.RubyGhidraInterpreter;
 
 import ghidra.pty.PtyFactory;
 public class GhidraInterpreterPtyFactory implements PtyFactory {
-	private static final String TITLE = "Ruby Dragon Interpreter title";
-	private static final int WRAP_LEN = 80;
+	//private static final String TITLE = "Ruby Dragon Interpreter title";
+	//private static final int WRAP_LEN = 80;
 
 	@Override
 	public GhidraInterpreterPty openpty(short cols, short rows) throws IOException {

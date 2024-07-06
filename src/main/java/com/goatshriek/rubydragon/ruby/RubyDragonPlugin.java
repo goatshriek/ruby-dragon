@@ -26,6 +26,8 @@ import java.nio.charset.StandardCharsets;
 
 import com.goatshriek.rubydragon.DragonPlugin;
 import com.goatshriek.rubydragon.GhidraInterpreter;
+import com.goatshriek.rubydragon.pty.GhidraInterpreterPty;
+import com.goatshriek.rubydragon.pty.GhidraInterpreterPtyFactory;
 
 import ghidra.app.CorePluginPackage;
 import ghidra.app.plugin.core.interpreter.InterpreterConnection;
@@ -37,6 +39,7 @@ import ghidra.framework.plugintool.PluginTool;
 import ghidra.framework.plugintool.util.PluginStatus;
 import ghidra.pty.Pty;
 import ghidra.pty.PtyFactory;
+import ghidra.pty.PtyParent;
 import ghidra.pty.PtySession;
 
 /**
@@ -76,6 +79,8 @@ public class RubyDragonPlugin extends DragonPlugin implements InterpreterConnect
 	 */
 	public RubyDragonPlugin(PluginTool tool) {
 		super(tool, "Ruby");
+		
+		terminal = null;
 
 		errIn = new PipedInputStream();
 		stdOutIn = new PipedInputStream();
@@ -120,9 +125,24 @@ public class RubyDragonPlugin extends DragonPlugin implements InterpreterConnect
 		super.init();
 
 //		console = getTool().getService(InterpreterPanelService.class).createInterpreterPanel(this, false);
-		terminal = getTool().getService(TerminalService.class).createWithStreams(StandardCharsets.UTF_8, stdOutIn,
-				stdInOut);
-		interpreter = new RubyGhidraInterpreter(stdInIn, stdOutOut, stdOutOut, this);
+		TerminalService terminalService = getTool().getService(TerminalService.class);
+		// .createWithStreams(StandardCharsets.UTF_8, stdOutIn,stdInOut);
+		GhidraInterpreterPtyFactory f = new GhidraInterpreterPtyFactory();
+		GhidraInterpreterPty pty;
+		PtySession session;
+		PtyParent parent;
+		try {
+			pty = (GhidraInterpreterPty) f.openpty();
+			interpreter = (RubyGhidraInterpreter) pty.getInterpreter();
+			session = pty.getChild().session(new String[] { "not-a-real-cmd" }, null);
+			parent = pty.getParent();
+			terminal = terminalService.createWithStreams(this, StandardCharsets.UTF_8, parent.getInputStream(),
+					parent.getOutputStream());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+//		interpreter = new RubyGhidraInterpreter(stdInIn, stdOutOut, stdOutOut, this);
 //		interpreter.setInput(stdInIn);
 //		interpreter.setOutput(stdOutOut);
 //		console.addFirstActivationCallback(() -> {
@@ -137,5 +157,6 @@ public class RubyDragonPlugin extends DragonPlugin implements InterpreterConnect
 	@Override
 	public void showConsole() {
 //		console.show();
+		terminal.toFront();
 	}
 }

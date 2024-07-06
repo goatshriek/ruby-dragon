@@ -43,87 +43,20 @@ public class GhidraInterpreterPtyChild extends GhidraInterpreterPtyEndpoint impl
 		super(interpreter, outputStream, inputStream);
 	}
 
-	private String sttyString(Collection<TermMode> mode) {
-		StringBuilder sb = new StringBuilder();
-		if (mode.contains(Echo.OFF)) {
-			sb.append("-echo ");
-		} else if (mode.contains(Echo.ON)) {
-			sb.append("echo ");
-		}
-		if (sb.isEmpty()) {
-			return "";
-		}
-		return "stty " + sb + "&& ";
-	}
-
 	@Override
 	public GhidraInterpreterPtySession session(String[] args, Map<String, String> env, File workingDirectory,
 			Collection<TermMode> mode) throws IOException {
-		if (workingDirectory != null) {
-			throw new UnsupportedOperationException();
-		}
-		/**
-		 * TODO: This syntax assumes a UNIX-style shell, and even among them, this may
-		 * not be universal. This certainly works for my version of bash :)
-		 */
-		String envStr = env == null ? ""
-				: env.entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).collect(Collectors.joining(" "))
-						+ " ";
-		String cmdStr = ShellUtils.generateLine(Arrays.asList(args));
-		channel.setCommand(sttyString(mode) + envStr + cmdStr);
-		try {
-			channel.connect();
-		} catch (JSchException e) {
-			throw new IOException("SSH error", e);
-		}
-		return new SshPtySession(channel);
-	}
-
-	private String getTtyNameAndStartNullSession(Collection<TermMode> mode) throws IOException {
-		// NB. UNIX sleep is only required to support integer durations
-		channel.setCommand(
-				sttyString(mode) + "sh -c 'tty && ctrlc() { echo; } && trap ctrlc INT && while true; do sleep "
-						+ Integer.MAX_VALUE + "; done'");
-		try {
-			channel.connect();
-		} catch (JSchException e) {
-			throw new IOException("SSH error", e);
-		}
-		byte[] buf = new byte[1024]; // Should be plenty
-		for (int i = 0; i < 1024; i++) {
-			int chr = inputStream.read();
-			if (chr == '\n' || chr == -1) {
-				return new String(buf, 0, i + 1, "UTF-8").trim();
-			}
-			buf[i] = (byte) chr;
-		}
-		throw new IOException("Expected pty name. Got " + new String(buf, 0, 1024, "UTF-8"));
+		return new GhidraInterpreterPtySession(interpreter);
 	}
 
 	@Override
 	public String nullSession(Collection<TermMode> mode) throws IOException {
-		if (name == null) {
-			this.name = getTtyNameAndStartNullSession(mode);
-			if ("".equals(name)) {
-				throw new IOException("Could not determine child remote tty name");
-			}
-		}
-		Msg.debug(this, "Remote SSH pty: " + name);
-		return name;
-	}
-
-	@Override
-	public InputStream getInputStream() {
-		throw new UnsupportedOperationException("The child is not local");
-	}
-
-	@Override
-	public OutputStream getOutputStream() {
-		throw new UnsupportedOperationException("The child is not local");
+		return "Ghidra interpreter null session";
 	}
 
 	@Override
 	public void setWindowSize(short cols, short rows) {
-		channel.setPtySize(Short.toUnsignedInt(cols), Short.toUnsignedInt(rows), 0, 0);
+		// TODO do we need to implement this?
+		return;
 	}
 }

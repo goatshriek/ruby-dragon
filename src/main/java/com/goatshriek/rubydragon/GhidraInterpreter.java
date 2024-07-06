@@ -255,13 +255,37 @@ public abstract class GhidraInterpreter implements Disposable {
 
 	/**
 	 * Sets the input stream for this interpreter.
+	 * 
+	 * @deprecated use setInputStream instead.
 	 *
 	 * @param input The new input stream to use for the interpreter.
 	 */
-	public abstract void setInput(InputStream input);
+	public void setInput(InputStream input) {
+		setInputStream(input);
+	}
 
 	/**
-	 * Sets the output stream for this interpreter.
+	 * Sets the input stream for this interpreter.
+	 *
+	 * @param input The new input stream to use for the interpreter.
+	 */
+	public void setInputStream(InputStream input) {
+		// TODO default implementation for testing, remove later
+		return;
+	}
+
+	/**
+	 * Sets the input stream for this interpreter.
+	 *
+	 * @param input The new input stream to use for the interpreter.
+	 */
+	public void setOutputStream(OutputStream input) {
+		// TODO default implementation for testing, remove later
+		return;
+	}
+
+	/**
+	 * Sets the output writer for this interpreter.
 	 *
 	 * @param output The new output stream to use for the interpreter.
 	 */

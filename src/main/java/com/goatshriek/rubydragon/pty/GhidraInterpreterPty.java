@@ -18,8 +18,9 @@
 
 package com.goatshriek.rubydragon.pty;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 
 import com.goatshriek.rubydragon.GhidraInterpreter;
 
@@ -31,29 +32,47 @@ public class GhidraInterpreterPty implements Pty {
 	private final GhidraInterpreter interpreter;
 	private final GhidraInterpreterPtyParent parent;
 	private final GhidraInterpreterPtyChild child;
+	private PipedOutputStream parentOut;
+	private PipedOutputStream childOut;
+	private PipedInputStream parentIn;
+	private PipedInputStream childIn;
 
 	public GhidraInterpreterPty(GhidraInterpreter interpreter) {
 		this.interpreter = interpreter;
+		
+		parentOut = new PipedOutputStream();
+		childOut = new PipedOutputStream();
+		try {
+			childIn = new PipedInputStream(parentOut);
+			parentIn = new PipedInputStream(childOut);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		interpreter.setInputStream(childIn);
+		interpreter.setOutputStream(childOut);
 
-		out = interpreter.getOutputStream();
-		in = interpreter.getInputStream();
-
-		parent = new GhidraInterpreterPtyParent(interpreter, out, in);
-		child = new GhidraInterpreterPtyChild(interpreter, out, in);
+		parent = new GhidraInterpreterPtyParent(interpreter, parentOut, parentIn);
+		child = new GhidraInterpreterPtyChild(interpreter, childOut, childIn);
 	}
 
 	@Override
-	public PtyParent getParent() {
-		return parent;
+	public void close() {
+		return;
 	}
 
 	@Override
 	public PtyChild getChild() {
 		return child;
 	}
+	
+	public GhidraInterpreter getInterpreter() {
+		return interpreter;
+	}
 
 	@Override
-	public void close() {
-		return;
+	public PtyParent getParent() {
+		return parent;
 	}
 }
