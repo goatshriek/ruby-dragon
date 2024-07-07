@@ -46,6 +46,8 @@ import ghidra.util.Disposable;
  */
 public abstract class GhidraInterpreter implements Disposable {
 
+	private FlatProgramAPI api = null;
+
 	/**
 	 * Imports all of the classes listed in the auto import list by calling
 	 * importClass for each one.
@@ -120,6 +122,17 @@ public abstract class GhidraInterpreter implements Disposable {
 	 */
 	public String getCurrentAPIName() {
 		return "currentAPI";
+	}
+
+	/**
+	 * The default name for the current function variable.
+	 *
+	 * @return The default name for the current function variable.
+	 *
+	 * @since 4.0.0
+	 */
+	public String getCurrentFunctionName() {
+		return "currentFunction";
 	}
 
 	/**
@@ -293,6 +306,7 @@ public abstract class GhidraInterpreter implements Disposable {
 	 */
 	public void updateAddress(Address address) {
 		setVariable(getCurrentAddressName(), address);
+		setVariable(getCurrentFunctionName(), api.getFunctionContaining(address));
 	}
 
 	/**
@@ -328,7 +342,8 @@ public abstract class GhidraInterpreter implements Disposable {
 	public void updateProgram(Program program) {
 		if (program != null) {
 			setVariable(getCurrentProgramName(), program);
-			setVariable(getCurrentAPIName(), new FlatProgramAPI(program));
+			api = new FlatProgramAPI(program);
+			setVariable(getCurrentAPIName(), api);
 		}
 	}
 

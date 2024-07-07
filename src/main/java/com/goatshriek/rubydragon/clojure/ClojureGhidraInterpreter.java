@@ -143,6 +143,18 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 	}
 
 	/**
+	 * The name for the current function variable.
+	 *
+	 * @return The name for the current function variable.
+	 *
+	 * @since 4.0.0
+	 */
+	@Override
+	public String getCurrentFunctionName() {
+		return "current-function";
+	}
+
+	/**
 	 * The name for the current highlight variable.
 	 *
 	 * @return The name for the current highlight variable.
