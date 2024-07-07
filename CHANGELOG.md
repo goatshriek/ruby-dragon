@@ -5,10 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [4.0.0] - 2024-07-06
+## [4.0.0] - 2024-07-07
 ### Added
- - Current function interpreter variables with the function containing the
-   current address.
+ - Current function, data, and instruction interpreter variables.
 
 ### Changed
  - Upgrade to JRuby 9.4.7.0 (Ruby 3.1.4)

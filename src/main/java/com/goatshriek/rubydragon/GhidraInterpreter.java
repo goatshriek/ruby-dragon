@@ -125,6 +125,17 @@ public abstract class GhidraInterpreter implements Disposable {
 	}
 
 	/**
+	 * The default name for the current data variable.
+	 *
+	 * @return The default name for the current data variable.
+	 *
+	 * @since 4.0.0
+	 */
+	public String getCurrentDataName() {
+		return "currentData";
+	}
+
+	/**
 	 * The default name for the current function variable.
 	 *
 	 * @return The default name for the current function variable.
@@ -144,6 +155,17 @@ public abstract class GhidraInterpreter implements Disposable {
 	 */
 	public String getCurrentHighlightName() {
 		return "currentHighlight";
+	}
+
+	/**
+	 * The default name for the current instruction variable.
+	 *
+	 * @return The default name for the current instruction variable.
+	 *
+	 * @since 4.0.0
+	 */
+	public String getCurrentInstructionName() {
+		return "currentInstruction";
 	}
 
 	/**
@@ -306,7 +328,11 @@ public abstract class GhidraInterpreter implements Disposable {
 	 */
 	public void updateAddress(Address address) {
 		setVariable(getCurrentAddressName(), address);
-		setVariable(getCurrentFunctionName(), api.getFunctionContaining(address));
+		if (api != null) {
+			setVariable(getCurrentDataName(), api.getDataContaining(address));
+			setVariable(getCurrentFunctionName(), api.getFunctionContaining(address));
+			setVariable(getCurrentInstructionName(), api.getInstructionContaining(address));
+		}
 	}
 
 	/**

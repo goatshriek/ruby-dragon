@@ -143,6 +143,18 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 	}
 
 	/**
+	 * The name for the current data variable.
+	 *
+	 * @return The name for the current data variable.
+	 *
+	 * @since 4.0.0
+	 */
+	@Override
+	public String getCurrentDataName() {
+		return "current-data";
+	}
+
+	/**
 	 * The name for the current function variable.
 	 *
 	 * @return The name for the current function variable.
@@ -164,6 +176,18 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public String getCurrentHighlightName() {
 		return "current-highlight";
+	}
+
+	/**
+	 * The name for the current instruction variable.
+	 *
+	 * @return The name for the current instruction variable.
+	 *
+	 * @since 4.0.0
+	 */
+	@Override
+	public String getCurrentInstructionName() {
+		return "current-instruction";
 	}
 
 	/**

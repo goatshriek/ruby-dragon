@@ -168,6 +168,18 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	}
 
 	/**
+	 * The name for the current data variable.
+	 *
+	 * @return The name for the current data variable.
+	 *
+	 * @since 4.0.0
+	 */
+	@Override
+	public String getCurrentDataName() {
+		return "$current_data";
+	}
+
+	/**
 	 * The name for the current function variable.
 	 *
 	 * @return The name for the current function variable.
@@ -189,6 +201,18 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	@Override
 	public String getCurrentHighlightName() {
 		return "$current_highlight";
+	}
+
+	/**
+	 * The name for the current data variable.
+	 *
+	 * @return The name for the current data variable.
+	 *
+	 * @since 4.0.0
+	 */
+	@Override
+	public String getCurrentInstructionName() {
+		return "$current_data";
 	}
 
 	/**
