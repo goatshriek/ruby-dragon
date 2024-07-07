@@ -46,7 +46,7 @@ import ghidra.util.Disposable;
  */
 public abstract class GhidraInterpreter implements Disposable {
 
-	private FlatProgramAPI api = null;
+	protected FlatProgramAPI api = null;
 
 	/**
 	 * Imports all of the classes listed in the auto import list by calling

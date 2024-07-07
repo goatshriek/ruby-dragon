@@ -10,8 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Current function, data, and instruction interpreter variables.
 
 ### Changed
- - Upgrade to JRuby 9.4.7.0 (Ruby 3.1.4)
- - Upgrade to Groovy 4.0.21
+ - Upgrade to JRuby 9.4.8.0 (Ruby 3.1.4)
+ - Upgrade to Clojure 1.11.3
+ - Upgrade to Groovy 4.0.22
  - Upgrade to Kotlin 2.0.0
  
 ### Removed
