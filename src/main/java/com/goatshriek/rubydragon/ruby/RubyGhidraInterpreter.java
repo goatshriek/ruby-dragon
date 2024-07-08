@@ -212,7 +212,7 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 */
 	@Override
 	public String getCurrentInstructionName() {
-		return "$current_data";
+		return "$current_instruction";
 	}
 
 	/**

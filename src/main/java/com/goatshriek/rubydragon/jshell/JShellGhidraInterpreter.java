@@ -39,6 +39,9 @@ import ghidra.app.plugin.core.console.CodeCompletion;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
+import ghidra.program.model.listing.Data;
+import ghidra.program.model.listing.Function;
+import ghidra.program.model.listing.Instruction;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
@@ -132,36 +135,6 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 */
 	public JShellGhidraInterpreter(InterpreterConsole console, DragonPlugin parentPlugin) {
 		this(console.getStdin(), console.getStdOut(), console.getStdErr(), parentPlugin);
-	}
-
-	/**
-	 * Creates a new JShell interpreter, and declares the internal variables.
-	 *
-	 * @since 3.1.0
-	 */
-	@Override
-	public void initInteractiveInterpreter() {
-		PrintStream outPrintStream = new PrintStream(outStream);
-		PrintStream errPrintStream = new PrintStream(errStream);
-
-		JShell.Builder builder = JShell.builder();
-		builder.out(outPrintStream);
-		builder.err(errPrintStream);
-		builder.executionEngine(new LocalExecutionControlProvider(), new HashMap<String, String>());
-		jshell = builder.build();
-
-		// declare the built-in variables
-		jshell.eval(String.format("%s currentAddress = null;", Address.class.getName()));
-		jshell.eval(String.format("%s currentAPI = null;", FlatProgramAPI.class.getName()));
-		jshell.eval(String.format("%s currentHighlight = null;", ProgramSelection.class.getName()));
-		jshell.eval(String.format("%s currentLocation = null;", ProgramLocation.class.getName()));
-		jshell.eval(String.format("%s currentProgram = null;", Program.class.getName()));
-		jshell.eval(String.format("%s currentSelection = null;", ProgramSelection.class.getName()));
-
-		// set any variables that were provided before creation
-		setVariables.forEach((name, var) -> {
-			setVariableInJShell(name, var.type, var.value);
-		});
 	}
 
 	/**
@@ -268,6 +241,39 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	}
 
 	/**
+	 * Creates a new JShell interpreter, and declares the internal variables.
+	 *
+	 * @since 3.1.0
+	 */
+	@Override
+	public void initInteractiveInterpreter() {
+		PrintStream outPrintStream = new PrintStream(outStream);
+		PrintStream errPrintStream = new PrintStream(errStream);
+
+		JShell.Builder builder = JShell.builder();
+		builder.out(outPrintStream);
+		builder.err(errPrintStream);
+		builder.executionEngine(new LocalExecutionControlProvider(), new HashMap<String, String>());
+		jshell = builder.build();
+
+		// declare the built-in variables
+		jshell.eval(String.format("%s currentAddress = null;", Address.class.getName()));
+		jshell.eval(String.format("%s currentAPI = null;", FlatProgramAPI.class.getName()));
+		jshell.eval(String.format("%s currentData = null;", Data.class.getName()));
+		jshell.eval(String.format("%s currentFunction = null;", Function.class.getName()));
+		jshell.eval(String.format("%s currentHighlight = null;", ProgramSelection.class.getName()));
+		jshell.eval(String.format("%s currentInstruction = null;", Instruction.class.getName()));
+		jshell.eval(String.format("%s currentLocation = null;", ProgramLocation.class.getName()));
+		jshell.eval(String.format("%s currentProgram = null;", Program.class.getName()));
+		jshell.eval(String.format("%s currentSelection = null;", ProgramSelection.class.getName()));
+
+		// set any variables that were provided before creation
+		setVariables.forEach((name, var) -> {
+			setVariableInJShell(name, var.type, var.value);
+		});
+	}
+
+	/**
 	 * Interrupts this interpreter.
 	 */
 	public void interrupt() {
@@ -324,9 +330,14 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	 *
 	 * @param name  The name of the variable.
 	 * @param type  The type of the variable.
-	 * @param value The new value of the variable.
+	 * @param value The new value of the variable. If this is null, then this call
+	 *              does nothing.
 	 */
 	private void setVariable(String name, Class<?> type, Object value) {
+		if (value == null) {
+			return;
+		}
+
 		setVariables.put(name, new Variable(type, value));
 
 		if (jshell != null) {
@@ -369,6 +380,12 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	public void updateAddress(Address address) {
 		if (address != null) {
 			setVariable(getCurrentAddressName(), Address.class, address);
+
+			if (api != null) {
+				setVariable(getCurrentDataName(), Data.class, api.getDataContaining(address));
+				setVariable(getCurrentFunctionName(), Function.class, api.getFunctionContaining(address));
+				setVariable(getCurrentInstructionName(), Instruction.class, api.getInstructionContaining(address));
+			}
 		}
 	}
 
@@ -408,7 +425,8 @@ public class JShellGhidraInterpreter extends GhidraInterpreter {
 	public void updateProgram(Program program) {
 		if (program != null) {
 			setVariable(getCurrentProgramName(), Program.class, program);
-			setVariable(getCurrentAPIName(), FlatProgramAPI.class, new FlatProgramAPI(program));
+			api = new FlatProgramAPI(program);
+			setVariable(getCurrentAPIName(), FlatProgramAPI.class, api);
 		}
 	}
 
