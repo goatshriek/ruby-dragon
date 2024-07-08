@@ -35,32 +35,37 @@ development.
 
 ## Ruby Usage
 Once the RubyDragon plugin is enabled, you will be able to open an interactive
-Ruby session from the CodeBrowser tool by going to `Window->Ruby`. This is a 
-standard IRB session provided by JRuby.
+Ruby session from the CodeBrowser tool by going to `Window->Ruby`, or by
+clicking on the Ruby icon in the toolbar. This is a IRB session provided by
+JRuby.
 
 The same environmental variables provided in Java and Python scripts are also
-available in this session, as the following global variables:
+available in this session along with a few extras, as the following global
+variables:
 
 ```ruby
 $current_address
+$current_api
+$current_data
+$current_function
 $current_highlight
+$current_instruction
 $current_location
 $current_program
 $current_selection
 ```
 
-Another variable named `$current_api` is also provided, which is an instance of
-`FlatProgramAPI` created with `$current_program`. This has many (but not all) of
-the convenience functions that would be available within a `GhidraScript`
-instance.
+The `$current_api` variable is an instance of `FlatProgramAPI` created with
+`$current_program`. This has many (but not all) of the convenience functions
+that would be available within a `GhidraScript` instance.
 
-Many classes provided by Ghidra are automatically imported into the interactive
-terminal, so you don't need to use `java_import` statements to use them. If you
-want to customize this you can modifiy the `auto-import.xml` data file in the
-installation. If you don't want this to happen at all (it does impact Ruby
-startup time) then you can disable the relevant option in the
-`Ruby Dragon Interpreters` category. This is done for all other languages as
-well, using the same data file.
+Many classes provided by Ghidra can be automatically imported into the
+interactive terminal so you don't need to use `java_import` statements to use
+them. If you want to customize this you can modifiy the `auto-import.xml` data
+file in the installation. To enable this feature (it does impact startup time)
+then you can enable the relevant option in the `Ruby Dragon Interpreters`
+category. This is done for all other languages as well, using the same data
+file.
 
 You can also write scripts in Ruby, much the same way as you would with Java or
 Python. Ruby will be available as a new script type, and you can see several
@@ -74,12 +79,6 @@ provided for scripts to use in the same manner.
 
 You can also find help directly in the Ghidra help menu (press `F1`) on the 
 `Ghidra Functionality->Scripting->Ruby Interpreter` page.
-
-Current versions of Ghidra suffer from a class loading problem that may cause
-issues with Ruby depending on your version of Java. If you run into this, copy
-the `launch.properties` file in the `data` folder (both in this repo and in
-the extension package) into your Ghidra installation's `support` directory.
-This will add the necessary arguments to the JVM to resolve the issue.
 
 
 ### Installing Gems
@@ -129,14 +128,15 @@ scripts and the interpreter window in Kotlin are the same as Java:
 
 ```
 currentAddress
+currentAPI
+currentData
+currentFunction
 currentHighlight
+currentInstruction
 currentLocation
 currentProgram
 currentSelection
 ```
-
-`currentAPI` is also provided similar to the Ruby interpreter, again holding an
-instance of `FlatProgramAPI` created with `currentProgram`.
 
 Kotlin scripts use a `kts` extension as they are interpreted as scripts rather
 than being compiled to java first.
@@ -149,14 +149,15 @@ has the same built-in variables that the others provide:
 
 ```
 currentAddress
+currentAPI
+currentData
+currentFunction
 currentHighlight
+currentInstruction
 currentLocation
 currentProgram
 currentSelection
 ```
-
-`currentAPI` is also provided as with the Kotlin interpreter, again holding an
-instance of `FlatProgramAPI` created with `currentProgram`.
 
 
 ## Clojure Usage
@@ -168,7 +169,11 @@ information available to them, within the `ghidra` namespace. They are:
 
 ```clojure
 ghidra/current-address
+ghidra/current-api
+ghidra/current-data
+ghidra/current-function
 ghidra/current-highlight
+ghidra/current-instruction
 ghidra/current-location
 ghidra/current-program
 ghidra/current-selection
@@ -195,14 +200,15 @@ available in Java scripts:
 
 ```
 currentAddress
+currentAPI
+currentData
+currentFunction
 currentHighlight
+currentInstruction
 currentLocation
 currentProgram
 currentSelection
 ```
-
-`currentAPI` is also provided as with the Kotlin interpreter, again holding an
-instance of `FlatProgramAPI` created with `currentProgram`.
 
 This interpreter is especially handy when writing Java scripts, as it allows you
 to iteratively test snippets of code from the script without needing to do any
