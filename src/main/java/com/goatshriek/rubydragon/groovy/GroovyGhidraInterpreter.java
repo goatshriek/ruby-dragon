@@ -187,7 +187,7 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 			outWriter.append(String.format("auto-imported finished (%.3f seconds)\n", importTime));
 			outWriter.flush();
 		} else {
-			outWriter.append("auto-import disabled.\n");
+			outWriter.append("auto-import disabled.\r\n");
 			outWriter.flush();
 		}
 

@@ -19,9 +19,14 @@
 package com.goatshriek.rubydragon.groovy;
 
 import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.nio.charset.StandardCharsets;
 
 import com.goatshriek.rubydragon.DragonPlugin;
 import com.goatshriek.rubydragon.GhidraInterpreter;
+import com.goatshriek.rubydragon.jshell.JShellGhidraInterpreter;
 
 import docking.ActionContext;
 import docking.DockingUtils;
@@ -32,6 +37,8 @@ import ghidra.app.CorePluginPackage;
 import ghidra.app.plugin.core.interpreter.InterpreterConnection;
 import ghidra.app.plugin.core.interpreter.InterpreterConsole;
 import ghidra.app.plugin.core.interpreter.InterpreterPanelService;
+import ghidra.app.services.Terminal;
+import ghidra.app.services.TerminalService;
 import ghidra.framework.plugintool.PluginInfo;
 import ghidra.framework.plugintool.PluginTool;
 import ghidra.framework.plugintool.util.PluginStatus;
@@ -56,6 +63,17 @@ public class GroovyDragonPlugin extends DragonPlugin implements InterpreterConne
 
 	private InterpreterConsole console;
 	private GroovyGhidraInterpreter interpreter;
+	
+	private Terminal terminal;
+
+	private PipedInputStream errIn;
+	private PipedOutputStream errOut;
+
+	private PipedInputStream stdOutIn;
+	private PipedOutputStream stdOutOut;
+
+	private PipedInputStream stdInIn;
+	private PipedOutputStream stdInOut;
 
 	/**
 	 * Plugin constructor.
@@ -64,6 +82,21 @@ public class GroovyDragonPlugin extends DragonPlugin implements InterpreterConne
 	 */
 	public GroovyDragonPlugin(PluginTool tool) {
 		super(tool, "Groovy");
+		
+		terminal = null;
+
+		errIn = new PipedInputStream();
+		stdOutIn = new PipedInputStream();
+		stdInIn = new PipedInputStream();
+
+		try {
+			errOut = new PipedOutputStream(errIn);
+			stdOutOut = new PipedOutputStream(stdOutIn);
+			stdInOut = new PipedOutputStream(stdInIn);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -72,7 +105,7 @@ public class GroovyDragonPlugin extends DragonPlugin implements InterpreterConne
 	@Override
 	protected void dispose() {
 		interpreter.dispose();
-		console.dispose();
+//		console.dispose();
 		super.dispose();
 	}
 
@@ -94,12 +127,16 @@ public class GroovyDragonPlugin extends DragonPlugin implements InterpreterConne
 	public void init() {
 		super.init();
 
-		console = getTool().getService(InterpreterPanelService.class).createInterpreterPanel(this, false);
-		interpreter = new GroovyGhidraInterpreter(console, this);
-		console.setPrompt("> ");
-		console.addFirstActivationCallback(() -> {
-			interpreter.startInteractiveSession();
-		});
+//		console = getTool().getService(InterpreterPanelService.class).createInterpreterPanel(this, false);
+//		interpreter = new GroovyGhidraInterpreter(console, this);
+//		console.setPrompt("> ");
+//		console.addFirstActivationCallback(() -> {
+//			interpreter.startInteractiveSession();
+//		});
+		TerminalService terminalService = getTool().getService(TerminalService.class);
+		terminal = terminalService.createWithStreams(StandardCharsets.UTF_8, stdOutIn,stdInOut);
+		interpreter = new GroovyGhidraInterpreter(stdInIn, stdOutOut, stdOutOut, this);
+		interpreter.startInteractiveSession();
 
 		DockingAction resetAction = new DockingAction("Reset Interpreter", getName()) {
 			@Override
@@ -109,7 +146,7 @@ public class GroovyDragonPlugin extends DragonPlugin implements InterpreterConne
 				interpreter.updateLocation(getProgramLocation());
 				interpreter.updateProgram(getCurrentProgram());
 				interpreter.updateSelection(getProgramSelection());
-				console.clear();
+//				console.clear();
 			}
 		};
 		resetAction.setDescription("Reset Interpreter");
@@ -117,7 +154,7 @@ public class GroovyDragonPlugin extends DragonPlugin implements InterpreterConne
 		resetAction.setEnabled(true);
 		resetAction.setKeyBindingData(new KeyBindingData(KeyEvent.VK_D, DockingUtils.CONTROL_KEY_MODIFIER_MASK));
 		resetAction.setHelpLocation(new HelpLocation(getTitle(), "Reset_Interpreter"));
-		console.addAction(resetAction);
+//		console.addAction(resetAction);
 	}
 
 	/**
@@ -125,6 +162,7 @@ public class GroovyDragonPlugin extends DragonPlugin implements InterpreterConne
 	 */
 	@Override
 	public void showConsole() {
-		console.show();
+//		console.show();
+		terminal.toFront();
 	}
 }
