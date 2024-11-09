@@ -33,9 +33,9 @@ jobs:
     env:
       GHIDRA_INSTALL_DIR: /home/runner/ghidra/${{ matrix.ghidra-folder }}
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Cache Ghidra
-        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
         id: cache-ghidra
         with:
           path: ~/ghidra
@@ -46,10 +46,10 @@ jobs:
           wget -q ${{ matrix.ghidra-url }}
           echo "${{ matrix.ghidra-sha256 }} ${{ matrix.ghidra-filename }}" | sha256sum -c
           unzip ${{ matrix.ghidra-filename }} -d ~/ghidra
-      - uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9 # v4.2.1
+      - uses: actions/setup-java@8df1039502a15bceb9433410b1a100fbe190c53b # v4.5.0
         with:
           distribution: 'adopt'
-          java-version: '17'
+          java-version: '21'
       - name: Set Up SDK Environment
         run: |
           curl -s "https://get.sdkman.io?rcupdate=false" | bash
