@@ -209,12 +209,10 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 	 * Gets a {@link List} of {@link CodeCompletion code completions} for the given
 	 * command relative to the given caret position.
 	 *
-	 * @param cmd      The command to get code completions for
-	 * @param caretPos The position of the caret in the input string 'cmd'. It
-	 *                 should satisfy the constraint
-	 *                 {@literal "0 <= caretPos <= cmd.length()"}
-	 * @return A {@link List} of {@link CodeCompletion code completions} for the
-	 *         given command
+	 * @param cmd      The command to get code completions for.
+	 * @param caretPos The position of the caret in cmd. It must satisfy the
+	 *                 constraint {@code 0 <= caretPos <= cmd.length()}.
+	 * @return A {@link List} of code completions for the given command.
 	 */
 	@Override
 	public List<CodeCompletion> getCompletions(String cmd, int caretPos) {

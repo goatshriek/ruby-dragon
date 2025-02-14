@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /*
- * Copyright 2021-2022 Joel E. Anderson
+ * Copyright 2021-2025 Joel E. Anderson
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,21 @@
 
 package com.goatshriek.rubydragon;
 
+/**
+ * Used when a runtime dependency needed for some RubyDragon functionality is
+ * missing.
+ */
 public class MissingDragonDependency extends DragonException {
 	/**
 	 * Auto-generated serial version UID.
 	 */
 	private static final long serialVersionUID = -4736891692182929160L;
 
+	/**
+	 * Creates a new missing dependency message with the given message.
+	 *
+	 * @param message A message describing the missing dependency.
+	 */
 	public MissingDragonDependency(String message) {
 		super(message);
 	}
