@@ -6,5 +6,5 @@ plugins:
 
 header_pages:
   - roadmap.md
-  - docs/latest/index.html
+  - docs/v4-2-0/index.html
 

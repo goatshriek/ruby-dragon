@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.goatshriek.rubydragon"},{"l":"com.goatshriek.rubydragon.clojure"},{"l":"com.goatshriek.rubydragon.groovy"},{"l":"com.goatshriek.rubydragon.jshell"},{"l":"com.goatshriek.rubydragon.kotlin"},{"l":"com.goatshriek.rubydragon.ruby"}];updateSearchResults();

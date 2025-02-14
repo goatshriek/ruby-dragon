@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"rubydragon.clojure"},{"l":"rubydragon.groovy"},{"l":"rubydragon.jshell"},{"l":"rubydragon.kotlin"},{"l":"rubydragon.ruby"}];updateSearchResults();
