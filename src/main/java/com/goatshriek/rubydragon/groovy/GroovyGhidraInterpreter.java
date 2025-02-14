@@ -94,6 +94,7 @@ public class GroovyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 * @param in  The input stream to use for the interpeter.
 	 * @param out The output stream to use for the interpreter.
 	 * @param err The error stream to use for the interpreter.
+	 * @param plugin The plugin that manages this interpreter.
 	 */
 	public GroovyGhidraInterpreter(InputStream in, OutputStream out, OutputStream err, DragonPlugin plugin) {
 		inStream = in;

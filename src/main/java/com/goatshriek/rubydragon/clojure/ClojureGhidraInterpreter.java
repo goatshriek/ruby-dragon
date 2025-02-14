@@ -83,7 +83,7 @@ public class ClojureGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 * the new interpreter.
 	 *
 	 * @param console      The console to bind to the interpreter streams.
-	 * @param parentPlugin The DragonPlugin instance owning this interpreter.
+	 * @param plugin The DragonPlugin instance owning this interpreter.
 	 */
 	public ClojureGhidraInterpreter(InterpreterConsole console, DragonPlugin plugin) {
 		this();

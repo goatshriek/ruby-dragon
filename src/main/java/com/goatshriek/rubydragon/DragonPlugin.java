@@ -67,7 +67,7 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 	 * @since 2.2.0
 	 */
 	public static final String OPTION_CATEGORY_NAME = "Ruby Dragon Interpreters";
-	
+
 	/**
 	 * The name of the plugin category used by DragonPlugins.
 	 *
@@ -197,10 +197,26 @@ public abstract class DragonPlugin extends ProgramPlugin implements InterpreterC
 	 * @param cmd The command to try to complete.
 	 *
 	 * @return A list of possible code completions.
+	 *
+	 * @deprecated Move to using {@link #getCompletions(String, int)}.
 	 */
-	@Override
+	@Deprecated
 	public List<CodeCompletion> getCompletions(String cmd) {
 		return getInterpreter().getCompletions(cmd);
+	}
+
+	/**
+	 * Gets a {@link List} of {@link CodeCompletion code completions} for the given
+	 * command relative to the given caret position.
+	 *
+	 * @param cmd      The command to get code completions for.
+	 * @param caretPos The position of the caret in cmd. It must satisfy the
+	 *                 constraint {@code 0 <= caretPos <= cmd.length()}.
+	 * @return A {@link List} of code completions for the given command.
+	 */
+	@Override
+	public List<CodeCompletion> getCompletions(String cmd, int caretPos) {
+		return getInterpreter().getCompletions(cmd.substring(0, caretPos));
 	}
 
 	/**

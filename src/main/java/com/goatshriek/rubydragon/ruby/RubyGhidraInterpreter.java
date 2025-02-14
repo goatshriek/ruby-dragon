@@ -80,6 +80,7 @@ public class RubyGhidraInterpreter extends ScriptableGhidraInterpreter {
 	 * the new interpreter.
 	 *
 	 * @param console The console to bind to the interpreter streams.
+	 * @param plugin The plugin that manages this interpreter.
 	 */
 	public RubyGhidraInterpreter(InterpreterConsole console, DragonPlugin plugin) {
 		this();
