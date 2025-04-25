@@ -5,7 +5,7 @@ RbConfig::CONFIG['host_os'] = 'windows'
 
 require 'irb'
 
-# now that irb is required, we can switch the host os back
+# now that irb has loaded, we can switch the host os back
 RbConfig::CONFIG['host_os'] = host_os
 
 require 'irb/completion'
