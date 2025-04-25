@@ -1,4 +1,13 @@
+# before we require irb, we need to make sure that io-console uses the stub
+# console, since the STDIN stream we are using isn't a normal terminal
+host_os = RbConfig::CONFIG['host_os']
+RbConfig::CONFIG['host_os'] = 'windows'
+
 require 'irb'
+
+# now that irb is required, we can switch the host os back
+RbConfig::CONFIG['host_os'] = host_os
+
 require 'irb/completion'
 
 # allow java-like package names, and import irb and completions

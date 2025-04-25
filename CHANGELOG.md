@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Upgrade to Groovy 4.0.26
  - Upgrade to Kotlin 2.1.20
 
+### Fixed
+ - Ruby console errors on non-Windows systems related to the terminal not using
+   the typical STDIN file descriptor.
+ - Kotlin engine startup now includes a warm-up evaluation so that the first
+   user expression does not have to wait for this.
+
 
 ## [4.2.0] - 2025-02-14
 ### Changed

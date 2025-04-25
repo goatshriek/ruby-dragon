@@ -208,6 +208,17 @@ public class KotlinGhidraInterpreter extends ScriptableGhidraInterpreter {
 		setVariables.forEach((name, value) -> {
 			engine.put(name, value);
 		});
+
+		// evaluate a dummy expression to warm up the engine
+		// without this, the first expression evaluated by the user will take
+		// much longer to come back
+		try {
+			engine.eval("\"warm up\"");
+		} catch (ScriptException e) {
+
+			errWriter.append("could not warm up Kotlin interpreter \n");
+			errWriter.flush();
+		}
 	}
 
 	/**
