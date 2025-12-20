@@ -18,7 +18,7 @@ Catch_All@004011b0
 FUN_004011d0
 FUN_00401230
 FUN_004012a0
-FUN_004012ea
+__security_check_cookie
 FUN_004013bd
 entry
 FUN_00401549
