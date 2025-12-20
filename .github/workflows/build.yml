@@ -12,30 +12,20 @@ jobs:
     runs-on: "ubuntu-latest"
     strategy:
       matrix:
-        ghidra: ["11.3", "11.3.1", "11.3.2"]
+        ghidra: ["12.0"]
         include:
-          - ghidra: "11.3"
-            ghidra-url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_11.3_build/ghidra_11.3_PUBLIC_20250205.zip"
-            ghidra-sha256: "73b42cec587f370bfef49809ae55d2c7a3db689e8f164a1e7d7b8de295b6359f"
-            ghidra-filename: "ghidra_11.3_PUBLIC_20250205.zip"
-            ghidra-folder: "ghidra_11.3_PUBLIC"
-          - ghidra: "11.3.1"
-            ghidra-url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_11.3.1_build/ghidra_11.3.1_PUBLIC_20250219.zip"
-            ghidra-sha256: "bcda0a9de8993444766cc255964c65c042b291ddaf6c50d654e316e442b441fa"
-            ghidra-filename: "ghidra_11.3.1_PUBLIC_20250219.zip"
-            ghidra-folder: "ghidra_11.3.1_PUBLIC"
-          - ghidra: "11.3.2"
-            ghidra-url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_11.3.2_build/ghidra_11.3.2_PUBLIC_20250415.zip"
-            ghidra-sha256: "99d45035bdcc3d6627e7b1232b7b379905a9fad76c772c920602e2b5d8b2dac2"
-            ghidra-filename: "ghidra_11.3.2_PUBLIC_20250415.zip"
-            ghidra-folder: "ghidra_11.3.2_PUBLIC"
+          - ghidra: "12.0"
+            ghidra-url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.0_build/ghidra_12.0_PUBLIC_20251205.zip"
+            ghidra-sha256: "af43e8cfb2fa4490cf6020c3a2bde25c159d83f45236a0542688a024e8fc1941"
+            ghidra-filename: "ghidra_12.0_PUBLIC_20251205.zip"
+            ghidra-folder: "ghidra_12.0_PUBLIC"
 
     env:
       GHIDRA_INSTALL_DIR: /home/runner/ghidra/${{ matrix.ghidra-folder }}
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Cache Ghidra
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         id: cache-ghidra
         with:
           path: ~/ghidra
@@ -46,7 +36,7 @@ jobs:
           wget -q ${{ matrix.ghidra-url }}
           echo "${{ matrix.ghidra-sha256 }} ${{ matrix.ghidra-filename }}" | sha256sum -c
           unzip ${{ matrix.ghidra-filename }} -d ~/ghidra
-      - uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # v4.7.0
+      - uses: actions/setup-java@f2beeb24e141e01a676f977032f5a29d81c9e27e # v5.1.0
         with:
           distribution: "temurin"
           java-version: "21"
